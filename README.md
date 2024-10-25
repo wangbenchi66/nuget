@@ -1,6 +1,6 @@
 # nuget包合集
-1. Serilog配置
-1.1 Serilog配置文件
+## 1. Serilog配置
+### 1.1 Serilog配置文件
 ``` json
   "SerilogOptions": {
     "MinimumLevel": "Information",
@@ -27,14 +27,14 @@
     }
   }
 ```
-1.2 Serilog配置
+### 1.2 Serilog配置
 ``` csharp
 builder.Host.AddSerilogHost(configuration);
 
 app.UseSerilogSetup();
 ```
-2. NLog配置(两种配置模式，一种nlog.config配置文件，一种json配置) 感觉还是serilog更好用
-2.1 NLog配置文件
+## 2. NLog配置(两种配置模式，一种nlog.config配置文件，一种json配置) 感觉还是serilog更好用
+### 2.1 NLog配置文件(xml方式)
 ``` xml
 <?xml version="1.0" encoding="utf-8" ?>
 <nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd"
@@ -65,11 +65,11 @@ app.UseSerilogSetup();
 	</rules>
 </nlog>
 ```
-2.2 NLog配置
+### 2.2 NLog配置
 ``` csharp
 builder.Host.AddNLogHost();
 ```
-2.3 NLog配置
+### 2.3 NLog配置文件(json方式)
 ``` json
 "NLog": {
     "autoReload": true,
@@ -118,7 +118,7 @@ builder.Host.AddNLogHost();
     ]
   }
 ```
-2.4 NLog配置
+### 2.4 NLog配置
 ``` csharp
 builder.AddNLogSteup(configuration);
 ```
