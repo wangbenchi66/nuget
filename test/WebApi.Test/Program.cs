@@ -1,10 +1,12 @@
-using Serilog;
-using Serilog.Core;
+using NLog.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 //Serilog
-builder.Host.AddSerilogHost(configuration);
+//builder.Host.AddSerilogHost(configuration);
+
+//NLong
+builder.AddNLogSteup(configuration);
 // Add services to the container.
 
 var app = builder.Build();
@@ -15,9 +17,7 @@ var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
-Log.Information("日志测试：{time}", DateTime.Now);
-Log.Warning("日志测试：{time}", DateTime.Now);
-Log.Error("日志测试：{time}", DateTime.Now);
+
 app.MapGet("/weatherforecast", () =>
 {
     var forecast = Enumerable.Range(1, 5).Select(index =>
@@ -28,7 +28,7 @@ app.MapGet("/weatherforecast", () =>
             summaries[Random.Shared.Next(summaries.Length)]
         ))
         .ToArray();
-    Log.Information("请求{@f}", forecast);
+    app.Logger.LogInformation("请求:{@f}", forecast);
     return forecast;
 });
 

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Nlog.Core\NLog.Core.csproj" />
     <ProjectReference Include="..\..\src\Serilog.Core\Serilog.Core.csproj" />
   </ItemGroup>
 
