@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SqlSugar;
 using UnitTest.Repository;
-using WBC66.SqlSugar.Core;
 
 namespace WebApi.Test.Controllers
 {
@@ -23,7 +21,8 @@ namespace WebApi.Test.Controllers
             //所有操作都有异步方法，增加Async即可
             //查询单个
             var obj = _userRepository.GetSingle(p => p.Id == 1);
-            //查询列表
+            return obj;
+            /*//查询列表
             var list = _userRepository.GetList(p => p.Id > 0);
             //分页查询 (条件,排序,页码,每页条数)
             var page = _userRepository.QueryPage(p => p.Id > 0, "", 1, 10);
@@ -80,7 +79,7 @@ namespace WebApi.Test.Controllers
                 _userRepository.Insert(new User() { Id = 1 });
                 _userRepository.Insert(new User() { Id = 2 });
                 return true;
-            });
+            });*/
 
             return "ok";
         }

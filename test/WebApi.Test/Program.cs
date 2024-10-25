@@ -1,5 +1,5 @@
+using Serilog.Core;
 using UnitTest.Repository;
-using WBC66.Serilog.Core;
 using WBC66.SqlSugar.Core;
 
 var builder = WebApplication.CreateBuilder(args);

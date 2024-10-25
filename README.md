@@ -159,8 +159,8 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
     /// <summary>
     /// 用户表
     ///</summary>
-    [SugarTable("J_User")]
-    [Tenant("journal")]
+    [SugarTable("J_User")]//表别名
+    [Tenant("journal")]//数据库标识 需要与配置文件中的ConfigId对应
     public class User
     {
         /// <summary>
