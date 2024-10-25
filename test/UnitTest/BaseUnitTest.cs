@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using NLog.Core;
 using Serilog.Core;
 
 namespace UnitTest
@@ -13,10 +12,10 @@ namespace UnitTest
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             var configuration = builder.Configuration;
             //Serilog
-            //builder.Host.AddSerilogHost(configuration);
+            builder.Host.AddSerilogHost(configuration);
 
             //NLog
-            builder.AddNLogSteup();
+            //builder.AddNLogSteup();
 
             var app = builder.Build();
             app.UseSerilogSetup();
