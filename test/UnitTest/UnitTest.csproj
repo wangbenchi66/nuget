@@ -17,9 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Common.Core\Common.Core.csproj" />
-    <ProjectReference Include="..\..\Nlog.Core\NLog.Core.csproj" />
-    <ProjectReference Include="..\..\src\Serilog.Core\Serilog.Core.csproj" />
+    <ProjectReference Include="..\..\src\Common.Core\Common.Core.csproj" />
+    <ProjectReference Include="..\..\src\Nlog.Core\WBC66.NLog.Core.csproj" />
+    <ProjectReference Include="..\..\src\Serilog.Core\WBC66.Serilog.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

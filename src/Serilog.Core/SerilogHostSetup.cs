@@ -7,11 +7,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Serilog;
+using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Elasticsearch;
 using Serilog.Sinks.Elasticsearch;
 
-namespace Serilog.Core
+namespace WBC66.Serilog.Core
 {
     /// <summary>
     /// Serilog封装
@@ -208,6 +210,11 @@ namespace Serilog.Core
     /// </summary>
     public class HealthCheckFilter : ILogEventFilter
     {
+        /// <summary>
+        /// 是否记录日志
+        /// </summary>
+        /// <param name="logEvent"></param>
+        /// <returns></returns>
         public bool IsEnabled(LogEvent logEvent)
         {
             if (logEvent.Properties.ContainsKey("RequestPath") && logEvent.Properties["RequestPath"].ToString().Contains("health"))

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Serilog.Core;
+using WBC66.Serilog.Core;
 
 namespace UnitTest
 {

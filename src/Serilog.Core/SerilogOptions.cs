@@ -6,7 +6,9 @@
  * 创建时间：2023/11/13 21:37:19
  *----------------------------------------------------------------*/
 
-namespace Serilog.Core
+using Serilog;
+
+namespace WBC66.Serilog.Core
 {
     /// <summary>
     /// Serilog 配置选项。

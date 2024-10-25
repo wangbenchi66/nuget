@@ -1,12 +1,12 @@
-using Serilog.Core;
+using NLog.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 //Serilog
-builder.Host.AddSerilogHost(configuration);
+//builder.Host.AddSerilogHost(configuration);
 
 //NLong
-//builder.AddNLogSteup(configuration);
+builder.AddNLogSteup(configuration);
 // Add services to the container.
 
 var app = builder.Build();
