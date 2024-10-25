@@ -15,6 +15,7 @@ namespace UnitTest
             builder.Host.AddSerilogHost(configuration);
 
             var app = builder.Build();
+            app.UseSerilogSetup();
             ServiceProvider = app.Services;
         }
 

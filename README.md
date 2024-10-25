@@ -30,4 +30,6 @@
 1.2 Serilog配置
 ``` csharp
 builder.Host.AddSerilogHost(configuration);
+
+app.UseSerilogSetup();
 ```
