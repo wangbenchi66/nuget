@@ -1,6 +1,6 @@
-@WebApi.Test_HostAddress = http://localhost:5240
+@WebApi.Test_HostAddress = http://localhost:5240/api
 
-GET {{WebApi.Test_HostAddress}}/weatherforecast/
+GET {{WebApi.Test_HostAddress}}/SqlSugar
 Accept: application/json
 
 ###

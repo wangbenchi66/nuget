@@ -1,40 +1,26 @@
-using NLog.Core;
+using UnitTest.Repository;
+using WBC66.Serilog.Core;
+using WBC66.SqlSugar.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 //Serilog
-//builder.Host.AddSerilogHost(configuration);
+builder.Host.AddSerilogHost(configuration);
 
 //NLong
-builder.AddNLogSteup(configuration);
+//builder.AddNLogSteup(configuration);
 // Add services to the container.
+//×¢Èë
+builder.Services.AddSingleton<IUserRepository, UserRepository>();
+//SqlSugar
+builder.Services.AddSqlSugarSetup(configuration);
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+//app.UseAuthorization();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    app.Logger.LogInformation("ÇëÇó:{@f}", forecast);
-    return forecast;
-});
+app.MapControllers();
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

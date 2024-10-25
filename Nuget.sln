@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Core", "src\Common.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WBC66.NLog.Core", "src\Nlog.Core\WBC66.NLog.Core.csproj", "{6F2B1820-4D42-467B-AB91-A659CFA9B111}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WBC66.SqlSugar.Core", "src\WBC66.SqlSugar.Core\WBC66.SqlSugar.Core.csproj", "{410367B8-47AA-4D59-836F-6FE8F7B5F7B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{6F2B1820-4D42-467B-AB91-A659CFA9B111}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F2B1820-4D42-467B-AB91-A659CFA9B111}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F2B1820-4D42-467B-AB91-A659CFA9B111}.Release|Any CPU.Build.0 = Release|Any CPU
+		{410367B8-47AA-4D59-836F-6FE8F7B5F7B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{410367B8-47AA-4D59-836F-6FE8F7B5F7B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{410367B8-47AA-4D59-836F-6FE8F7B5F7B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{410367B8-47AA-4D59-836F-6FE8F7B5F7B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +64,7 @@ Global
 		{4AC012EA-A2D4-47EB-9039-C1D02AE4DA41} = {3EFAA6E9-18FD-4E3D-B25D-85BB01DB244A}
 		{8C818882-AEEE-4D2E-B52E-0F1E1BB1DDFB} = {53403864-BC6C-4265-A1C5-1A3831C7A5A5}
 		{6F2B1820-4D42-467B-AB91-A659CFA9B111} = {53403864-BC6C-4265-A1C5-1A3831C7A5A5}
+		{410367B8-47AA-4D59-836F-6FE8F7B5F7B9} = {53403864-BC6C-4265-A1C5-1A3831C7A5A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4DF0C773-7D7A-4EFB-A5EB-6A227524A6FB}

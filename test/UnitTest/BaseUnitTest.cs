@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using UnitTest.Repository;
 using WBC66.Serilog.Core;
+using WBC66.SqlSugar.Core;
 
 namespace UnitTest
 {
@@ -16,6 +19,10 @@ namespace UnitTest
 
             //NLog
             //builder.AddNLogSteup();
+            //注入
+            builder.Services.AddSingleton<IUserRepository, UserRepository>();
+            //SqlSugar
+            builder.Services.AddSqlSugarSetup(configuration);
 
             var app = builder.Build();
             app.UseSerilogSetup();
