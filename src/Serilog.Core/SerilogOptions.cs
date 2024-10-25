@@ -57,7 +57,7 @@ namespace Serilog.Core
         /// <summary>
         /// 日志文件的滚动间隔。
         /// </summary>
-        public string RollingInterval { get; set; }
+        public RollingInterval RollingInterval { get; set; }
     }
 
     /// <summary>

@@ -90,7 +90,7 @@ namespace Serilog.Core
                 .WriteTo.File(
                         path: path,
                         //outputTemplate: options.Template,
-                        rollingInterval: RollingInterval.Day,
+                        rollingInterval: options.RollingInterval,
                         shared: true,
                         fileSizeLimitBytes: 10 * 1024 * 1024,
                         rollOnFileSizeLimit: true,
