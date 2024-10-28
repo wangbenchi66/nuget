@@ -4,6 +4,9 @@ using SqlSugar.Extensions;
 
 namespace WBC66.SqlSugar.Core;
 
+/// <summary>
+/// SqlSugarAop
+/// </summary>
 public static class SqlSugarAop
 {
     /// <summary>

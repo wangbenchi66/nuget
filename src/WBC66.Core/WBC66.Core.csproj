@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>WBC66.Core</Title>
+		<Authors>wangbenchi66</Authors>
+		<Description>WBC66.Core集合包</Description>
+		<RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
+		<PackageReleaseNotes>WBC66.Core集合包</PackageReleaseNotes>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<Version>2024.10.28</Version>
+		<PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
+		<PackageId>$(AssemblyName)</PackageId>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\..\README.md" Link="README.md">
+	    <PackagePath>\</PackagePath>
+	    <Pack>True</Pack>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Common.Core\Common.Core.csproj" />
+	  <ProjectReference Include="..\Nlog.Core\WBC66.NLog.Core.csproj" />
+	  <ProjectReference Include="..\Serilog.Core\WBC66.Serilog.Core.csproj" />
+	  <ProjectReference Include="..\WBC66.SqlSugar.Core\WBC66.SqlSugar.Core.csproj" />
+	</ItemGroup>
+
+</Project>

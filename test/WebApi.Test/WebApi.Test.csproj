@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="WBC66.Serilog.Core" Version="2024.10.25" />
+    <PackageReference Include="WBC66.Serilog.Core" Version="2024.10.28" />
     <PackageReference Include="WBC66.SqlSugar.Core" Version="2024.10.28" />
   </ItemGroup>
 
