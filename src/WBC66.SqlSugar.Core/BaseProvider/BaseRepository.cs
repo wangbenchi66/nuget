@@ -332,21 +332,21 @@ namespace WBC66.SqlSugar.Core
         }
 
         /// <summary>
-        /// 删除数据
+        /// 删除数据(批量)
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <returns></returns>
-        public bool Delete(IEnumerable<T> entity)
+        public bool Delete(List<T> entity)
         {
             return DbBaseClient.Deleteable<T>(entity).ExecuteCommandHasChange();
         }
 
         /// <summary>
-        /// 删除数据
+        /// 删除数据(批量)
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <returns></returns>
-        public async Task<bool> DeleteAsync(IEnumerable<T> entity)
+        public async Task<bool> DeleteAsync(List<T> entity)
         {
             return await DbBaseClient.Deleteable<T>(entity).ExecuteCommandHasChangeAsync();
         }
@@ -554,6 +554,7 @@ namespace WBC66.SqlSugar.Core
         {
             return await DbBaseClient.Ado.SqlQueryAsync<T>(sql, parameters);
         }
+
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
@@ -565,6 +566,7 @@ namespace WBC66.SqlSugar.Core
         {
             return DbBaseClient.Ado.SqlQuery<T>(sql, parameters);
         }
+
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
@@ -576,23 +578,24 @@ namespace WBC66.SqlSugar.Core
         {
             return await DbBaseClient.Ado.SqlQueryAsync<T>(sql, parameters);
         }
+
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T1"></typeparam>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public IPageList<T> SqlPageQuery<T>(string sql, object? parameters, int pageIndex, int pageSize)
+        public IPageList<T1> SqlPageQuery<T1>(string sql, object? parameters, int pageIndex, int pageSize)
         {
             //计算分页
             var skip = (pageIndex - 1) * pageSize;
             var take = pageSize;
-            var list = DbBaseClient.Ado.SqlQuery<T>(sql, parameters);
+            var list = DbBaseClient.Ado.SqlQuery<T1>(sql, parameters);
             var total = list.Count;
-            return new PageList<T>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
+            return new PageList<T1>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
         }
 
         /// <summary>

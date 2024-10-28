@@ -14,19 +14,11 @@ public static class SqlSugarAop
     /// <param name="p"></param>
     public static void OnLogExecuting(ISqlSugarClient sqlSugarScopeProvider, string sql, SugarParameter[] p)
     {
-#if NET8_0_OR_GREATER
-        string msg = """
+        string msg = @"
             ConnId:[{@ConnId}]
             完整sql:
             {@sql}
-            """;
-#else
-        string msg = @"
-            ConnId:[{ConnId}]
-            完整sql:
-            {sql}
             ";
-#endif
         Log.Information(msg, sqlSugarScopeProvider.CurrentConnectionConfig.ConfigId, GetWholeSql(sql, p));
     }
 
@@ -56,17 +48,10 @@ public static class SqlSugarAop
         //执行时间超过1秒
         if (sqlSugarScopeProvider.Ado.SqlExecutionTime.TotalSeconds > 1)
         {
-#if NET8_0_OR_GREATER
-            Log.Warning("""
-            sql执行耗时：{time}
-            sql:{sql}
-            """, sqlSugarScopeProvider.Ado.SqlExecutionTime, GetWholeSql(sql, pars));
-#else
             Log.Warning(@"
             sql执行耗时：{time}
             sql:{sql}
             ", sqlSugarScopeProvider.Ado.SqlExecutionTime, GetWholeSql(sql, pars));
-#endif
         }
     }
 
@@ -76,17 +61,10 @@ public static class SqlSugarAop
     /// <param name="exp"></param>
     public static void OnError(SqlSugarException exp)
     {
-#if NET8_0_OR_GREATER
-        string msg = """
-        sql执行错误：{@expMsg}
-        sql:{@sql}
-        """;
-#else
         string msg = @"
         sql执行错误：{expMsg}
         sql:{sql}
         ";
-#endif
         Log.Error(msg, exp.Message, UtilMethods.GetNativeSql(exp.Sql, (SugarParameter[])exp.Parametres));
     }
 }

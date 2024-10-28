@@ -201,18 +201,18 @@ namespace WBC66.SqlSugar.Core
         Task<bool> DeleteAsync(T entity);
 
         /// <summary>
-        /// 删除数据
+        /// 删除数据(批量)
         /// </summary>
         /// <param name="entity">实体类集合</param>
         /// <returns></returns>
-        bool Delete(IEnumerable<T> entity);
+        bool Delete(List<T> entity);
 
         /// <summary>
-        /// 删除数据
+        /// 删除数据(批量)
         /// </summary>
         /// <param name="entity">实体类集合</param>
         /// <returns></returns>
-        Task<bool> DeleteAsync(IEnumerable<T> entity);
+        Task<bool> DeleteAsync(List<T> entity);
 
         /// <summary>
         /// 删除数据
@@ -381,7 +381,7 @@ namespace WBC66.SqlSugar.Core
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T1"></typeparam>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <param name="pageIndex"></param>

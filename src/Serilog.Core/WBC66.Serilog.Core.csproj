@@ -11,9 +11,10 @@
     <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
     <PackageReleaseNotes>基于serilog进行封装使用</PackageReleaseNotes>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>2024.10.25</Version>
+    <Version>2024.10.28</Version>
     <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
-    <PackageId>WBC66.Serilog.Core</PackageId>
+	<PackageId>$(AssemblyName)</PackageId>
+	<PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />

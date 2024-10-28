@@ -7,7 +7,7 @@ namespace UnitTest.Repository
     /// <summary>
     /// 用户表
     ///</summary>
-    [SugarTable("J_User")]//表别名
+    [SugarTable("test_user")]//表别名
     [Tenant("journal")]//数据库标识 需要与配置文件中的ConfigId对应
     public class User
     {
@@ -15,8 +15,11 @@ namespace UnitTest.Repository
         ///用户id
         ///</summary>
         [Key]
-        [SugarColumn(ColumnName = "ID", IsPrimaryKey = true, IsIdentity = true)]
+        [SugarColumn(ColumnName = "ID", IsPrimaryKey = true)]
         public int Id { get; set; }
+
+        [SugarColumn(ColumnName = "Name")]
+        public string Name { get; set; }
     }
 
     /// <summary>
