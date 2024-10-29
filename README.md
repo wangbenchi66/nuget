@@ -339,7 +339,7 @@ builder.Services.AddScoped<IUserEFRepository, UserEFRepository>();
 //注入
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 ```
-## 4.3 实体类、仓储
+### 4.3 实体类、仓储
 ``` csharp
     /// <summary>
     /// 用户表
