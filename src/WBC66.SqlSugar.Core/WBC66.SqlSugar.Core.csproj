@@ -30,11 +30,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Common.Core\Common.Core.csproj" />
-	  <ProjectReference Include="..\Serilog.Core\WBC66.Serilog.Core.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
-		<PackageReference Include="sqlSugarCore" Version="5.1.4.153" />
+	  <ProjectReference Include="..\WBC66.Serilog.Core\WBC66.Serilog.Core.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8'">
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />

@@ -8,7 +8,7 @@ using WBC66.SqlSugar.Core.BiewModels;
 namespace WBC66.SqlSugar.Core
 {
     /// <summary>
-    /// 通用仓储
+    /// SqlSugar通用仓储
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class BaseRepository<T> where T : class, new()

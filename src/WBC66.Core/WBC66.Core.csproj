@@ -27,8 +27,8 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Common.Core\Common.Core.csproj" />
-	  <ProjectReference Include="..\Nlog.Core\WBC66.NLog.Core.csproj" />
-	  <ProjectReference Include="..\Serilog.Core\WBC66.Serilog.Core.csproj" />
+	  <ProjectReference Include="..\WBC66.Nlog.Core\WBC66.NLog.Core.csproj" />
+	  <ProjectReference Include="..\WBC66.Serilog.Core\WBC66.Serilog.Core.csproj" />
 	  <ProjectReference Include="..\WBC66.SqlSugar.Core\WBC66.SqlSugar.Core.csproj" />
 	</ItemGroup>
 

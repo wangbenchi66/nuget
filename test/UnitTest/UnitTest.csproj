@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\WBC66.Core\WBC66.Core.csproj" />
+    <ProjectReference Include="..\..\src\WBC66.EF.Core\WBC66.EF.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
