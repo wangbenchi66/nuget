@@ -275,7 +275,7 @@ var BeginTranRes = _userRepository.DbContextBeginTransaction(() =>
     return true;
 });
 ```
-## 4. EF配置
+## 4. EF配置(推荐使用上边的SqlSugar兼容性更强一些功能更完善)
 线上nuget引入 版本号随时更新
 ``` xml
 <PackageReference Include="WBC66.EF.Core" Version="2024.10.29" />
@@ -330,7 +330,7 @@ var BeginTranRes = _userRepository.DbContextBeginTransaction(() =>
         public DbSet<UserEF> Users { get; set; }
     }
 ```
-### 4.2 EF配置
+### 4.3 EF配置
 ``` csharp
 //获取配置文件
 var efOptions = configuration.GetSection("DBS").Get<List<EFOptions>>()[0];
@@ -339,7 +339,7 @@ builder.Services.AddScoped<IUserEFRepository, UserEFRepository>();
 //注入
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 ```
-### 4.3 实体类、仓储
+### 4.4 实体类、仓储
 ``` csharp
     /// <summary>
     /// 用户表
@@ -376,7 +376,7 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
     {
     }
 ```
-### 4.4 使用示例 (个别方法有问题)
+### 4.5 使用示例 (个别方法有问题)
 ``` csharp
 //所有操作都有异步方法，增加Async即可
 //查询单个
