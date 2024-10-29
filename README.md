@@ -286,12 +286,7 @@ var BeginTranRes = _userRepository.DbContextBeginTransaction(() =>
     /*
       对应下边的 DBType
       MySql = 0,
-      SqlServer = 1,
-      Sqlite = 2,
-      Oracle = 3,
-      PostgreSQL = 4,
-      Dm = 5,//达梦
-      Kdbndp = 6,//人大金仓
+      SqlServer = 1
     */
     {
       "DBType": 0,
