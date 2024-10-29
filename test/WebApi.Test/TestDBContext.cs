@@ -5,6 +5,9 @@ namespace UnitTest
 {
     public class TestDBContext : DbContext
     {
+        /// <summary>
+        /// 日志工厂
+        /// </summary>
         public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
         {
             builder
@@ -16,6 +19,7 @@ namespace UnitTest
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            //日志
             optionsBuilder.UseLoggerFactory(MyLoggerFactory);
             optionsBuilder.EnableSensitiveDataLogging();
             base.OnConfiguring(optionsBuilder);

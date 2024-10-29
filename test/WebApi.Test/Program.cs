@@ -12,6 +12,7 @@ builder.Host.AddSerilogHost(configuration);
 //builder.AddNLogSteup(configuration);
 // Add services to the container.
 
+//获取配置文件
 var efOptions = configuration.GetSection("DBS").Get<List<EFOptions>>()[0];
 builder.Services.AddEFSetup<TestDBContext>(efOptions);
 builder.Services.AddScoped<IUserEFRepository, UserEFRepository>();
