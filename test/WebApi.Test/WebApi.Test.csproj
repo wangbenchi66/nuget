@@ -11,8 +11,4 @@
     <PackageReference Include="WBC66.SqlSugar.Core" Version="2024.10.28" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\WBC66.EF.Core\WBC66.EF.Core.csproj" />
-  </ItemGroup>
-
 </Project>

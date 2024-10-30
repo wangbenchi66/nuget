@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using WBC66.Cache.Core;
 
 namespace UnitTest
 {
@@ -19,6 +20,10 @@ namespace UnitTest
             //builder.Services.AddSingleton<IUserRepository, UserRepository>();
             ////SqlSugar
             //builder.Services.AddSqlSugarSetup(configuration);
+
+            //缓存
+            builder.Services.AddMemoryCacheSetup();
+            builder.Services.AddRedisCacheSetup();
 
             var app = builder.Build();
             //app.UseSerilogSetup();

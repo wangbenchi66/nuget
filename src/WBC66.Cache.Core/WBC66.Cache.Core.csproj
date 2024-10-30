@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Castle.Core" Version="5.1.1" />
+    <PackageReference Include="CSRedisCore" Version="3.8.803" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+  </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8'">
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7'">
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6'">
+	</ItemGroup>
+
+</Project>
