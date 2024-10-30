@@ -7,7 +7,6 @@ namespace WBC66.EF.Core.BaseProvider
 {
     public interface IBaseRepository<TDBContext, T> where TDBContext : DbContext where T : class
     {
-
         #region 获取单个实体
 
         /// <summary>
@@ -67,45 +66,33 @@ namespace WBC66.EF.Core.BaseProvider
         /// 写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        int Insert(T entity);
+        int Insert(T entity, bool isSave = true);
 
         /// <summary>
         /// 写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        Task<int> InsertAsync(T entity);
-
-        /// <summary>
-        /// 写入实体数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <param name="insertColumns">添加列</param>
-        /// <returns></returns>
-        int Insert(T entity, Expression<Func<T, object>>? insertColumns = default);
-
-        /// <summary>
-        /// 写入实体数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <param name="insertColumns">添加列</param>
-        /// <returns></returns>
-        Task<int> InsertAsync(T entity, Expression<Func<T, object>>? insertColumns = default);
+        Task<int> InsertAsync(T entity, bool isSave = true);
 
         /// <summary>
         /// 批量写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        int Insert(List<T> entity);
+        int Insert(List<T> entity, bool isSave = true);
 
         /// <summary>
         /// 批量写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        Task<int> InsertAsync(List<T> entity);
+        Task<int> InsertAsync(List<T> entity, bool isSave = true);
 
         #endregion 写入实体数据
 
@@ -115,65 +102,33 @@ namespace WBC66.EF.Core.BaseProvider
         /// 批量更新实体数据
         /// </summary>
         /// <param name="entity"></param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        bool Update(List<T> entity);
+        bool Update(List<T> entity, bool isSave = true);
 
         /// <summary>
         /// 批量更新实体数据
         /// </summary>
         /// <param name="entity"></param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        Task<bool> UpdateAsync(List<T> entity);
+        Task<bool> UpdateAsync(List<T> entity, bool isSave = true);
 
         /// <summary>
         /// 更新实体数据
         /// </summary>
         /// <param name="entity"></param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        bool Update(T entity);
+        bool Update(T entity, bool isSave = true);
 
         /// <summary>
         /// 更新实体数据
         /// </summary>
         /// <param name="entity"></param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        Task<bool> UpdateAsync(T entity);
-
-        /// <summary>
-        /// 更新某个字段
-        /// </summary>
-        /// <param name="entities">实体</param>
-        /// <param name="properties">更新字段</param>
-        /// <returns></returns>
-        bool Update<TSource>(IEnumerable<TSource> entities, string[] properties) where TSource : class;
-
-        /// <summary>
-        /// 更新某个字段
-        /// </summary>
-        /// <param name="entities">实体</param>
-        /// <param name="properties">更新字段</param>
-        /// <returns></returns>
-        Task<bool> UpdateAsync<TSource>(IEnumerable<TSource> entities, string[] properties) where TSource : class;
-
-        /// <summary>
-        /// 根据条件更新
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="lstColumns"></param>
-        /// <param name="lstIgnoreColumns"></param>
-        /// <param name="strWhere"></param>
-        /// <returns></returns>
-        bool Update(T entity, List<string>? lstColumns = default, List<string>? lstIgnoreColumns = default, string strWhere = "");
-
-        /// <summary>
-        /// 根据条件更新
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="lstColumns"></param>
-        /// <param name="lstIgnoreColumns"></param>
-        /// <param name="strWhere"></param>
-        /// <returns></returns>
-        Task<bool> UpdateAsync(T entity, List<string>? lstColumns = default, List<string>? lstIgnoreColumns = default, string strWhere = "");
+        Task<bool> UpdateAsync(T entity, bool isSave = true);
 
         #endregion 更新实体数据
 
@@ -184,49 +139,14 @@ namespace WBC66.EF.Core.BaseProvider
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <returns></returns>
-        bool Delete(T entity);
+        bool Delete(T entity, bool isSave = true);
 
         /// <summary>
         /// 删除数据
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <returns></returns>
-        Task<bool> DeleteAsync(T entity);
-
-        /// <summary>
-        /// 删除数据(批量)
-        /// </summary>
-        /// <param name="entity">实体类集合</param>
-        /// <returns></returns>
-        bool Delete(List<T> entity);
-
-        /// <summary>
-        /// 删除数据(批量)
-        /// </summary>
-        /// <param name="entity">实体类集合</param>
-        /// <returns></returns>
-        Task<bool> DeleteAsync(List<T> entity);
-
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns></returns>
-        Task<bool> DeleteAsync(Expression<Func<T, bool>> predicate);
-
-        /// <summary>
-        /// 根据主键标识批量删除
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
-        bool DeleteByIds<T>(object[] ids) where T : class, new();
-
-        /// <summary>
-        /// 根据主键标识批量删除
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
-        Task<bool> DeleteByIdsAsync<T>(object[] ids) where T : class, new();
+        Task<bool> DeleteAsync(T entity, bool isSave = true);
 
         #endregion 删除数据
 
@@ -411,5 +331,16 @@ namespace WBC66.EF.Core.BaseProvider
 
         #endregion 开启事务
 
+        /// <summary>
+        /// 保存更改
+        /// </summary>
+        /// <returns></returns>
+        int SaveChanges();
+
+        /// <summary>
+        /// 保存更改
+        /// </summary>
+        /// <returns></returns>
+        Task<int> SaveChangesAsync();
     }
 }

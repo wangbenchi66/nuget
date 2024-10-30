@@ -11,7 +11,7 @@
 	  <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
 	  <PackageReleaseNotes>基于EF进行封装使用</PackageReleaseNotes>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Version>2024.10.29</Version>
+	  <Version>2024.10.30</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
 	  <PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
@@ -23,8 +23,6 @@
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.2" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
 	  <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
-    <!--<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0-rc.2.24473.5" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0-rc.2.24473.5" />-->
   </ItemGroup>
 	
 

@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using UnitTest.Repository;
-using WBC66.EF.Core;
 
 namespace UnitTest
 {
@@ -22,10 +19,6 @@ namespace UnitTest
             //builder.Services.AddSingleton<IUserRepository, UserRepository>();
             ////SqlSugar
             //builder.Services.AddSqlSugarSetup(configuration);
-
-            var efOptions = configuration.GetSection("DBS").Get<List<EFOptions>>()[0];
-            builder.Services.AddEFSetup<TestDBContext>(efOptions);
-            builder.Services.AddSingleton<IUserEFRepository, UserEFRepository>();
 
             var app = builder.Build();
             //app.UseSerilogSetup();

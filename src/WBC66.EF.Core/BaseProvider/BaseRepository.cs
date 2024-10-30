@@ -29,7 +29,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// </summary>
         /// <param name="where"></param>
         /// <returns></returns>
-        public T GetSingle(Expression<Func<T, bool>> where)
+        public virtual T GetSingle(Expression<Func<T, bool>> where)
         {
             return _context.Set<T>().AsNoTracking().FirstOrDefault(where);
         }
@@ -39,7 +39,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// </summary>
         /// <param name="where"></param>
         /// <returns></returns>
-        public async Task<T> GetSingleAsync(Expression<Func<T, bool>> where)
+        public virtual async Task<T> GetSingleAsync(Expression<Func<T, bool>> where)
         {
             return await _context.Set<T>().AsNoTracking().FirstOrDefaultAsync(where);
         }
@@ -53,7 +53,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// </summary>
         /// <param name="where"></param>
         /// <returns></returns>
-        public List<T> GetList(Expression<Func<T, bool>> where)
+        public virtual List<T> GetList(Expression<Func<T, bool>> where)
         {
             return _context.Set<T>().AsNoTracking().Where(where).ToList();
         }
@@ -63,7 +63,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// </summary>
         /// <param name="where"></param>
         /// <returns></returns>
-        public async Task<List<T>> GetListAsync(Expression<Func<T, bool>> where)
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> where)
         {
             return await _context.Set<T>().AsNoTracking().Where(where).ToListAsync();
         }
@@ -74,7 +74,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="predicate"></param>
         /// <param name="orderBy"></param>
         /// <returns></returns>
-        public async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy = "")
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy = "")
         {
             var query = _context.Set<T>().AsNoTracking().Where(predicate);
             // if (!string.IsNullOrEmpty(orderBy))
@@ -91,7 +91,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="orderByPredicate">排序字段</param>
         /// <param name="orderByType">排序顺序</param>
         /// <returns>泛型实体集合</returns>
-        public async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByPredicate, OrderByType orderByType)
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByPredicate, OrderByType orderByType)
         {
             var query = _context.Set<T>().AsNoTracking().Where(predicate);
             if (orderByType == OrderByType.Asc)
@@ -113,89 +113,56 @@ namespace WBC66.EF.Core.BaseProvider
         /// 写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public int Insert(T entity)
+        public virtual int Insert(T entity, bool isSave = true)
         {
             _context.Set<T>().Add(entity);
-            return _context.SaveChanges();
+            if (isSave)
+                return _context.SaveChanges();
+            return 0;
         }
 
         /// <summary>
         /// 写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public async Task<int> InsertAsync(T entity)
+        public virtual async Task<int> InsertAsync(T entity, bool isSave = true)
         {
             await _context.Set<T>().AddAsync(entity);
-            return await _context.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// 写入实体数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <param name="insertColumns">添加列</param>
-        /// <returns></returns>
-        public int Insert(T entity, Expression<Func<T, object>>? insertColumns = default)
-        {
-            if (insertColumns == null)
-            {
-                _context.Set<T>().Add(entity);
-            }
-            else
-            {
-                _context.Set<T>().Add(entity);
-                var memberExpression = insertColumns.Body as MemberExpression;
-                if (memberExpression == null)
-                {
-                    throw new ArgumentException("The expression should represent a simple property or field access: 't => t.MyProperty'.", nameof(insertColumns));
-                }
-                _context.Entry(entity).Property(memberExpression.Member.Name).IsModified = true;
-            }
-            return _context.SaveChanges();
-        }
-
-        /// <summary>
-        /// 写入实体数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <param name="insertColumns">添加列</param>
-        /// <returns></returns>
-        public async Task<int> InsertAsync(T entity, Expression<Func<T, object>>? insertColumns = default)
-        {
-            if (insertColumns == null)
-            {
-                await _context.Set<T>().AddAsync(entity);
-            }
-            else
-            {
-                await _context.Set<T>().AddAsync(entity);
-                _context.Entry(entity).Property(insertColumns).IsModified = true;
-            }
-            return await _context.SaveChangesAsync();
+            if (isSave)
+                return await _context.SaveChangesAsync();
+            return 0;
         }
 
         /// <summary>
         /// 批量写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public int Insert(List<T> entity)
+        public virtual int Insert(List<T> entity, bool isSave = true)
         {
             _context.Set<T>().AddRange(entity);
-            return _context.SaveChanges();
+            if (isSave)
+                return _context.SaveChanges();
+            return 0;
         }
 
         /// <summary>
         /// 批量写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public async Task<int> InsertAsync(List<T> entity)
+        public virtual async Task<int> InsertAsync(List<T> entity, bool isSave = true)
         {
             await _context.Set<T>().AddRangeAsync(entity);
-            return await _context.SaveChangesAsync();
+            if (isSave)
+                return await _context.SaveChangesAsync();
+            return 0;
         }
 
         #endregion 写入实体数据
@@ -206,160 +173,56 @@ namespace WBC66.EF.Core.BaseProvider
         /// 批量更新实体数据
         /// </summary>
         /// <param name="entity"></param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public bool Update(List<T> entity)
+        public virtual bool Update(List<T> entity, bool isSave = true)
         {
             _context.Set<T>().UpdateRange(entity);
-            return _context.SaveChanges() > 0;
+            if (isSave)
+                return _context.SaveChanges() > 0;
+            return false;
         }
 
         /// <summary>
         /// 批量更新实体数据
         /// </summary>
         /// <param name="entity"></param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public async Task<bool> UpdateAsync(List<T> entity)
+        public virtual async Task<bool> UpdateAsync(List<T> entity, bool isSave = true)
         {
             _context.Set<T>().UpdateRange(entity);
-            return await _context.SaveChangesAsync() > 0;
+            if (isSave)
+                return await _context.SaveChangesAsync() > 0;
+            return false;
         }
 
         /// <summary>
         /// 更新实体数据
         /// </summary>
         /// <param name="entity"></param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public bool Update(T entity)
+        public virtual bool Update(T entity, bool isSave = true)
         {
             _context.Set<T>().Update(entity);
-            return _context.SaveChanges() > 0;
+            if (isSave)
+                return _context.SaveChanges() > 0;
+            return false;
         }
 
         /// <summary>
         /// 更新实体数据
         /// </summary>
         /// <param name="entity"></param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public async Task<bool> UpdateAsync(T entity)
+        public virtual async Task<bool> UpdateAsync(T entity, bool isSave = true)
         {
             _context.Set<T>().Update(entity);
-            return await _context.SaveChangesAsync() > 0;
-        }
-
-        /// <summary>
-        /// 更新某个字段
-        /// </summary>
-        /// <param name="entities">实体</param>
-        /// <param name="properties">更新字段</param>
-        /// <returns></returns>
-        public bool Update<TSource>(IEnumerable<TSource> entities, string[] properties) where TSource : class
-        {
-            if (properties == null || properties.Length == 0)
-                return false;
-            foreach (var entity in entities)
-            {
-                _context.Set<TSource>().Attach(entity);
-                var entry = _context.Entry(entity);
-                entry.State = EntityState.Unchanged;
-                foreach (var property in entry.Properties)
-                {
-                    if (properties.Contains(property.Metadata.Name))
-                    {
-                        property.IsModified = true;
-                    }
-                }
-            }
-            return _context.SaveChanges() > 0;
-        }
-
-        /// <summary>
-        /// 更新某个字段
-        /// </summary>
-        /// <param name="entities">实体</param>
-        /// <param name="properties">更新字段</param>
-        /// <returns></returns>
-        public async Task<bool> UpdateAsync<TSource>(IEnumerable<TSource> entities, string[] properties) where TSource : class
-        {
-            if (properties == null || properties.Length == 0)
-                return false;
-            foreach (var entity in entities)
-            {
-                _context.Set<TSource>().Attach(entity);
-                var entry = _context.Entry(entity);
-                entry.State = EntityState.Unchanged;
-                foreach (var property in entry.Properties)
-                {
-                    if (properties.Contains(property.Metadata.Name))
-                    {
-                        property.IsModified = true;
-                    }
-                }
-            }
-            return await _context.SaveChangesAsync() > 0;
-        }
-
-        /// <summary>
-        /// 根据条件更新
-        /// </summary>
-        /// <param name="entity">实体</param>
-        /// <param name="lstColumns">更新字段</param>
-        /// <param name="lstIgnoreColumns">忽略字段</param>
-        /// <param name="strWhere">条件</param>
-        /// <returns></returns>
-        public bool Update(T entity, List<string>? lstColumns = default, List<string>? lstIgnoreColumns = default, string strWhere = "")
-        {
-            var entry = _context.Entry(entity);
-            if (entry.State == EntityState.Detached)
-            {
-                _context.Set<T>().Attach(entity);
-            }
-            if (lstIgnoreColumns != null && lstIgnoreColumns.Count > 0)
-            {
-                foreach (var item in lstIgnoreColumns)
-                {
-                    entry.Property(item).IsModified = false;
-                }
-            }
-            if (lstColumns != null && lstColumns.Count > 0)
-            {
-                foreach (var item in lstColumns)
-                {
-                    entry.Property(item).IsModified = true;
-                }
-            }
-            return _context.SaveChanges() > 0;
-        }
-
-        /// <summary>
-        /// 根据条件更新
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="lstColumns"></param>
-        /// <param name="lstIgnoreColumns"></param>
-        /// <param name="strWhere"></param>
-        /// <returns></returns>
-        public async Task<bool> UpdateAsync(T entity, List<string>? lstColumns = default, List<string>? lstIgnoreColumns = default, string strWhere = "")
-        {
-            var entry = _context.Entry(entity);
-            if (entry.State == EntityState.Detached)
-            {
-                _context.Set<T>().Attach(entity);
-            }
-            if (lstIgnoreColumns != null && lstIgnoreColumns.Count > 0)
-            {
-                foreach (var item in lstIgnoreColumns)
-                {
-                    entry.Property(item).IsModified = false;
-                }
-            }
-            if (lstColumns != null && lstColumns.Count > 0)
-            {
-                foreach (var item in lstColumns)
-                {
-                    entry.Property(item).IsModified = true;
-                }
-            }
-            return await _context.SaveChangesAsync() > 0;
+            if (isSave)
+                return await _context.SaveChangesAsync() > 0;
+            return false;
         }
 
         #endregion 更新实体数据
@@ -370,92 +233,28 @@ namespace WBC66.EF.Core.BaseProvider
         /// 删除数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public bool Delete(T entity)
+        public virtual bool Delete(T entity, bool isSave = true)
         {
             _context.Set<T>().Remove(entity);
-            return _context.SaveChanges() > 0;
+            if (isSave)
+                return _context.SaveChanges() > 0;
+            return false;
         }
 
         /// <summary>
         /// 删除数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public async Task<bool> DeleteAsync(T entity)
+        public virtual async Task<bool> DeleteAsync(T entity, bool isSave = true)
         {
             _context.Set<T>().Remove(entity);
-            return await _context.SaveChangesAsync() > 0;
-        }
-
-        /// <summary>
-        /// 删除数据(批量)
-        /// </summary>
-        /// <param name="entity">实体类集合</param>
-        /// <returns></returns>
-        public bool Delete(List<T> entity)
-        {
-            _context.Set<T>().RemoveRange(entity);
-            return _context.SaveChanges() > 0;
-        }
-
-        /// <summary>
-        /// 删除数据(批量)
-        /// </summary>
-        /// <param name="entity">实体类集合</param>
-        /// <returns></returns>
-        public async Task<bool> DeleteAsync(List<T> entity)
-        {
-            _context.Set<T>().RemoveRange(entity);
-            return await _context.SaveChangesAsync() > 0;
-        }
-
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns></returns>
-        public async Task<bool> DeleteAsync(Expression<Func<T, bool>> predicate)
-        {
-            var entity = _context.Set<T>().Where(predicate).ToList();
-            _context.Set<T>().RemoveRange(entity);
-            return await _context.SaveChangesAsync() > 0;
-        }
-
-        /// <summary>
-        /// 根据主键标识批量删除
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
-        public bool DeleteByIds<T>(object[] ids) where T : class, new()
-        {
-            var list = new List<T>();
-            foreach (var id in ids)
-            {
-                var entity = new T();
-                entity.GetType().GetProperty("Id")?.SetValue(entity, id);
-                list.Add(entity);
-            }
-            _context.Set<T>().RemoveRange(list);
-            return _context.SaveChanges() > 0;
-        }
-
-        /// <summary>
-        /// 根据主键标识批量删除
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
-        public async Task<bool> DeleteByIdsAsync<T>(object[] ids) where T : class, new()
-        {
-            var list = new List<T>();
-            foreach (var id in ids)
-            {
-                var entity = new T();
-                entity.GetType().GetProperty("Id")?.SetValue(entity, id);
-                list.Add(entity);
-            }
-            _context.Set<T>().RemoveRange(list);
-            return await _context.SaveChangesAsync() > 0;
+            if (isSave)
+                return await _context.SaveChangesAsync() > 0;
+            return false;
         }
 
         #endregion 删除数据
@@ -467,7 +266,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
         /// <returns></returns>
-        public bool Exists(Expression<Func<T, bool>> predicate)
+        public virtual bool Exists(Expression<Func<T, bool>> predicate)
         {
             return _context.Set<T>().Any(predicate);
         }
@@ -477,7 +276,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
         /// <returns></returns>
-        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
+        public virtual async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
         {
             return await _context.Set<T>().AnyAsync(predicate);
         }
@@ -491,7 +290,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
         /// <returns></returns>
-        public int GetCount(Expression<Func<T, bool>> predicate)
+        public virtual int GetCount(Expression<Func<T, bool>> predicate)
         {
             return _context.Set<T>().Count(predicate);
         }
@@ -501,7 +300,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
         /// <returns></returns>
-        public async Task<int> GetCountAsync(Expression<Func<T, bool>> predicate)
+        public virtual async Task<int> GetCountAsync(Expression<Func<T, bool>> predicate)
         {
             return await _context.Set<T>().CountAsync(predicate);
         }
@@ -510,7 +309,11 @@ namespace WBC66.EF.Core.BaseProvider
 
         #region 查询分页数据
 
-        //计算页码
+        /// <summary>
+        /// 计算页码
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <returns></returns>
         private int GetPageIndex(int pageIndex)
         {
             return pageIndex < 1 ? 1 : pageIndex;
@@ -524,7 +327,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分布大小</param>
         /// <returns></returns>
-        public IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1, int pageSize = 20)
+        public virtual IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1, int pageSize = 20)
         {
             var query = _context.Set<T>().AsNoTracking().Where(predicate);
             // if (!string.IsNullOrEmpty(orderBy))
@@ -544,7 +347,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分布大小</param>
         /// <returns></returns>
-        public async Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1, int pageSize = 20)
+        public virtual async Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1, int pageSize = 20)
         {
             var query = _context.Set<T>().AsNoTracking().Where(predicate);
             // if (!string.IsNullOrEmpty(orderBy))
@@ -565,7 +368,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="pageSize">分布大小</param>
         /// <param name="orderByExpression"></param>
         /// <returns></returns>
-        public IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1, int pageSize = 20)
+        public virtual IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1, int pageSize = 20)
         {
             var query = _context.Set<T>().AsNoTracking().Where(predicate);
             if (orderByType == OrderByType.Asc)
@@ -590,7 +393,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="pageSize">分布大小</param>
         /// <param name="orderByExpression"></param>
         /// <returns></returns>
-        public async Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1, int pageSize = 20)
+        public virtual async Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1, int pageSize = 20)
         {
             var query = _context.Set<T>().AsNoTracking().Where(predicate);
             if (orderByType == OrderByType.Asc)
@@ -616,7 +419,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="orderBy"></param>
         /// <param name="returnRowCount"></param>
         /// <returns></returns>
-        public IQueryable<T> IQueryablePage(IQueryable<T> queryable, int pageIndex, int pagesize, out int rowcount, Dictionary<string, QueryOrderBy> orderBy, bool returnRowCount = true)
+        public virtual IQueryable<T> IQueryablePage(IQueryable<T> queryable, int pageIndex, int pagesize, out int rowcount, Dictionary<string, QueryOrderBy> orderBy, bool returnRowCount = true)
         {
             rowcount = 0;
             if (returnRowCount)
@@ -640,7 +443,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public List<T> SqlQuery(string sql, object? parameters = null)
+        public virtual List<T> SqlQuery(string sql, object? parameters = null)
         {
             if (parameters == null)
                 return _context.Set<T>().FromSqlRaw(sql).ToList();
@@ -653,7 +456,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public async Task<List<T>> SqlQueryAsync(string sql, object? parameters = null)
+        public virtual async Task<List<T>> SqlQueryAsync(string sql, object? parameters = null)
         {
             if (parameters == null)
                 return await _context.Set<T>().FromSqlRaw(sql).ToListAsync();
@@ -667,7 +470,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        public List<TEntity> SqlQuery<TEntity>(string sql, DbParameter[]? parameters = null)
+        public virtual List<TEntity> SqlQuery<TEntity>(string sql, DbParameter[]? parameters = null)
         {
             if (parameters == null)
                 return _context.Database.SqlQueryRaw<TEntity>(sql).ToList();
@@ -681,7 +484,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        public async Task<List<TEntity>> SqlQueryAsync<TEntity>(string sql, DbParameter[]? parameters)
+        public virtual async Task<List<TEntity>> SqlQueryAsync<TEntity>(string sql, DbParameter[]? parameters)
         {
             if (parameters == null)
                 return await _context.Database.SqlQueryRaw<TEntity>(sql).ToListAsync();
@@ -691,13 +494,12 @@ namespace WBC66.EF.Core.BaseProvider
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public IPageList<TEntity> SqlPageQuery<TEntity>(string sql, object? parameters, int pageIndex, int pageSize) where TEntity : class, new()
+        public virtual IPageList<TEntity> SqlPageQuery<TEntity>(string sql, object? parameters, int pageIndex, int pageSize) where TEntity : class, new()
         {
             IQueryable<TEntity>? query = null;
             if (parameters == null)
@@ -718,7 +520,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public async Task<IPageList<TEntity>> SqlPageQueryAsync<TEntity>(string sql, object? parameters, int pageIndex, int pageSize) where TEntity : class, new()
+        public virtual async Task<IPageList<TEntity>> SqlPageQueryAsync<TEntity>(string sql, object? parameters, int pageIndex, int pageSize) where TEntity : class, new()
         {
             IQueryable<TEntity>? query = null;
             if (parameters == null)
@@ -736,7 +538,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
         /// <returns>返回影响行数</returns>
-        public int ExecuteSql(string sql, object? parameters)
+        public virtual int ExecuteSql(string sql, object? parameters)
         {
             if (parameters == null)
                 return _context.Database.ExecuteSqlRaw(sql);
@@ -749,7 +551,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
         /// <returns>返回影响行数</returns>
-        public async Task<int> ExecuteSqlAsync(string sql, object? parameters)
+        public virtual async Task<int> ExecuteSqlAsync(string sql, object? parameters)
         {
             if (parameters == null)
                 return await _context.Database.ExecuteSqlRawAsync(sql);
@@ -765,7 +567,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// </summary>
         /// <param name="func"></param>
         /// <returns></returns>
-        public bool DbContextBeginTransaction(Func<bool> func)
+        public virtual bool DbContextBeginTransaction(Func<bool> func)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -783,11 +585,24 @@ namespace WBC66.EF.Core.BaseProvider
                 catch (Exception ex)
                 {
                     transaction.Rollback();
+                    Console.WriteLine($"执行事务发生错误：{ex}");
                     return false;
                 }
             }
         }
 
         #endregion 开启事务
+
+        /// <summary>
+        /// 保存更改
+        /// </summary>
+        /// <returns></returns>
+        public virtual int SaveChanges() => _context.SaveChanges();
+
+        /// <summary>
+        /// 保存更改
+        /// </summary>
+        /// <returns></returns>
+        public virtual async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
     }
 }

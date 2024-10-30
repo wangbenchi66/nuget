@@ -30,6 +30,10 @@ namespace UnitTest.Repository
         public UserEFRepository(TestDBContext context) : base(context)
         {
         }
+        public override int Insert(List<UserEF> entity, bool isSave = true)
+        {
+            return base.Insert(entity, isSave);
+        }
     }
 
     /// <summary>

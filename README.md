@@ -362,6 +362,11 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
         public UserEFRepository(TestDBContext context) : base(context)
         {
         }
+        //需要重写方法直接在这里重写
+        public override int Insert(List<UserEF> entity, bool isSave = true)
+        {
+            return base.Insert(entity, isSave);
+        }
     }
 
     /// <summary>
@@ -371,9 +376,10 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
     {
     }
 ```
-### 4.5 使用示例 (个别方法有问题)
+### 4.5 使用示例
 ``` csharp
 //所有操作都有异步方法，增加Async即可
+//添加、修改、删除可以设置是否立即保存，然后调用SaveChanges()方法说动保存
 //查询单个
 var obj = _userRepository.GetSingle(p => p.Id == 1);
 //查询列表
@@ -396,24 +402,14 @@ var isAny = _userRepository.Exists(p => p.Id == 1);
 var count = _userRepository.GetCount(p => p.Id > 0);
 //添加
 var userId = _userRepository.Insert(new UserEF() { Id = 1 });
-//添加指定列 (有问题)
-var userId2 = _userRepository.Insert(new UserEF() { Id = 1 }, p => new { pId });
 //批量添加
 var userIds = _userRepository.Insert(new List<UserEF>() { new UserEF() { Id= 1 }, new UserEF() { Id = 2 } });
 //修改
 var isUpdate = _userRepository.Update(obj);
-//修改指定列 (有问题)
-var isUpdate2 = _userRepository.Update(obj, new List<string>() { "Name" });
-//根据条件更新 (实体,要修改的列,条件) 有问题
-var isUpdate3 = _userRepository.Update(obj, new List<string>() { "name" },new List<string>() { "Id = 1" });
 //批量修改
 var isUpdate4 = _userRepository.Update(new List<UserEF>() { new UserEF() {Id = 1 }, new UserEF() { Id = 2, Name = "test1" } });
 //删除
 var isDelete = _userRepository.Delete(obj);
-//批量删除  有问题
-var isDelete2 = _userRepository.Delete(new List<UserEF>() { new UserEF() {Id = 2 }, new UserEF() { Id = 3 } });
-//根据主键删除 有问题
-var isDelete3 = _userRepository.DeleteByIds<UserEF>([3, 2]);
 //执行自定义sql
 //查询
 var list2 = _userRepository.SqlQuery("select * from test_user", null);
