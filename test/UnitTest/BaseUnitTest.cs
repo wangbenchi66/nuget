@@ -40,8 +40,8 @@ namespace UnitTest
             //微信
             /*var weiXinOptions = new WeiXinOptions()
             {
-                AppId = "wx6063e48df12b0bfd",
-                AppSecret = "713e738f288ce204be98abb6aa9cfee8"
+                AppId = "",
+                AppSecret = ""
             };
             builder.Services.AddWeiXinService(weiXinOptions);*/
 
