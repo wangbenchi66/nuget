@@ -19,7 +19,11 @@ namespace UnitTest
         [TestMethod]
         public void TestMethod1()
         {
-            var value = _redisService.Add("key", 123, -1, 1);
+            var value = _redisService.Add("key", 123, -1);
+            var value2 = _redisService.Get<int>("key", () =>
+            {
+                return 0;
+            }, -1);
             Assert.IsTrue(value);
         }
     }

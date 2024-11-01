@@ -161,7 +161,17 @@ builder.AddNLogSteup(configuration);
 ### 3.2 SqlSugar配置
 ``` csharp
 //使用SqlSugar
-builder.Services.AddSqlSugarSetup(configuration);
+//参数含义
+//1.配置文件
+//2.是否启用AOP日志
+//3.ConfigurationSugar自定义配置
+builder.Services.AddSqlSugarSetup(configuration.GetSection("DBS").Get<List<IocConfig>>(), true, config =>
+{
+    config.Aop.OnLogExecuting = (sql, pars) =>
+    {
+        Console.WriteLine("这是自定义事件{0}", sql);
+    };
+});
 
 //注入3.3中的仓储(如果使用其他方式注入，可以忽略这里)
 builder.Services.AddSingleton<IUserRepository, UserRepository>();

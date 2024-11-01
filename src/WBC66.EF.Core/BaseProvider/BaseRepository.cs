@@ -224,6 +224,21 @@ namespace WBC66.EF.Core.BaseProvider
                 return await _context.SaveChangesAsync() > 0;
             return false;
         }
+        /// <summary>
+        /// 更新实体指定列
+        /// </summary>
+        /// <param name="entity">实体</param>
+        /// <param name="property">更新值，用法：f=>new {f.Name,f.Age}</param>
+        /// <param name="isSave"></param>
+        /// <returns></returns>
+        public virtual bool Update(T entity, Expression<Func<T, object>> property, bool isSave = true)
+        {
+            _context.Set<T>().Attach(entity);
+            _context.Entry(entity).Property(property).IsModified = true;
+            if (isSave)
+                return _context.SaveChanges() > 0;
+            return false;
+        }
 
         #endregion 更新实体数据
 

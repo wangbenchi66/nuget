@@ -43,7 +43,7 @@ namespace WBC66.Cache.Core
         /// <param name="expiration"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        public bool Add(string key, object value, int expiration = -1, int db = 0)
+        public bool Add(string key, object value, int expiration = -1)
         {
             return RedisHelper.Set(key, value, expiration);
         }
@@ -55,7 +55,7 @@ namespace WBC66.Cache.Core
         /// <param name="value"></param>
         /// <param name="expiration">分钟数</param>
         /// <param name="db"></param>
-        public async Task<bool> AddAsync(string key, object value, int expiration = -1, int db = 0)
+        public async Task<bool> AddAsync(string key, object value, int expiration = -1)
         {
             return await RedisHelper.SetAsync(key, value, expiration);
         }
@@ -67,7 +67,7 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        public T Get<T>(string key, int db = -1)
+        public T Get<T>(string key)
         {
             return RedisHelper.Get<T>(key);
         }
@@ -79,7 +79,7 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        public async Task<T> GetAsync<T>(string key, int db = -1)
+        public async Task<T> GetAsync<T>(string key)
         {
             return await RedisHelper.GetAsync<T>(key);
         }
@@ -93,7 +93,7 @@ namespace WBC66.Cache.Core
         /// <param name="expiration"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        public async Task<T> GetAsync<T>(string key, Func<T> func, int expiration = -1, int db = 0)
+        public async Task<T> GetAsync<T>(string key, Func<T> func, int expiration = -1)
         {
             var resule = await RedisHelper.GetAsync<T>(key);
             if (resule == null || resule.ToString().Trim() == "[]")
@@ -113,7 +113,7 @@ namespace WBC66.Cache.Core
         /// <param name="expiration"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        public T Get<T>(string key, Func<T> func, int expiration = -1, int db = 0)
+        public T Get<T>(string key, Func<T> func, int expiration = -1)
         {
             var resule = RedisHelper.Get<T>(key);
             if (resule == null || resule.ToString().Trim() == "[]")
@@ -130,7 +130,7 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        public async Task<bool> ExistsAsync(string key, int db = -1)
+        public async Task<bool> ExistsAsync(string key)
         {
             return await RedisHelper.ExistsAsync(key);
         }
@@ -141,7 +141,7 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        public async Task<bool> Remove(string key, int db = -1)
+        public async Task<bool> Remove(string key)
         {
             return await RedisHelper.DelAsync(key) > 0;
         }

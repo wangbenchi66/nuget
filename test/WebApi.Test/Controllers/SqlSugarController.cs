@@ -19,10 +19,10 @@ namespace WebApi.Test.Controllers
         [HttpGet]
         public object Get()
         {
-            return "";
             //所有操作都有异步方法，增加Async即可
             //查询单个
             var obj = _userRepository.GetSingle(p => p.Id == 1);
+            return "";
             //查询列表
             var list = _userRepository.GetList(p => p.Id > 0);
             //分页查询 (条件,排序,页码,每页条数)
@@ -60,7 +60,7 @@ namespace WebApi.Test.Controllers
             //批量删除  有问题
             var isDelete2 = _userRepository.Delete(new List<User>() { new User() { Id = 1 }, new User() { Id = 2 } });
             //根据主键删除
-            var isDelete3 = _userRepository.DeleteByIds([1, 2]);
+            //var isDelete3 = _userRepository.DeleteByIds(new int[] { 1, 2 });
 
             //执行自定义sql
             //查询

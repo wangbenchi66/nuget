@@ -1,10 +1,11 @@
+using SqlSugar.IOC;
 using UnitTest.Repository;
-using WBC66.Serilog.Core;
+using WBC66.SqlSugar.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 //Serilog
-builder.Host.AddSerilogHost(configuration);
+//builder.Host.AddSerilogHost(configuration);
 
 //NLong
 //builder.AddNLogSteup(configuration);
@@ -17,7 +18,13 @@ builder.Host.AddSerilogHost(configuration);
 //注入
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 //SqlSugar
-//builder.Services.AddSqlSugarSetup(configuration);
+builder.Services.AddSqlSugarSetup(configuration.GetSection("DBS").Get<List<IocConfig>>(), true, config =>
+{
+    config.Aop.OnLogExecuting = (sql, pars) =>
+    {
+        Console.WriteLine("这是自定义事件{0}", sql);
+    };
+});
 builder.Services.AddControllers();
 
 var app = builder.Build();

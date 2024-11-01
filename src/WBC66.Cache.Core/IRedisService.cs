@@ -28,7 +28,7 @@ namespace WBC66.Cache.Core
         /// <param name="expiration"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        bool Add(string key, object value, int expiration = -1, int db = 0);
+        bool Add(string key, object value, int expiration = -1);
 
         /// <summary>
         /// 添加
@@ -38,7 +38,7 @@ namespace WBC66.Cache.Core
         /// <param name="expiration"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        Task<bool> AddAsync(string key, object value, int expiration = -1, int db = 0);
+        Task<bool> AddAsync(string key, object value, int expiration = -1);
 
         /// <summary>
         /// 获取(委托)
@@ -49,7 +49,7 @@ namespace WBC66.Cache.Core
         /// <param name="expiration"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        Task<T> GetAsync<T>(string key, Func<T> func, int expiration = -1, int db = 0);
+        Task<T> GetAsync<T>(string key, Func<T> func, int expiration = -1);
 
         /// <summary>
         /// 获取(委托)
@@ -60,7 +60,7 @@ namespace WBC66.Cache.Core
         /// <param name="expiration"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        T Get<T>(string key, Func<T> func, int expiration = -1, int db = 0);
+        T Get<T>(string key, Func<T> func, int expiration = -1);
 
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        Task<bool> ExistsAsync(string key, int db = -1);
+        Task<bool> ExistsAsync(string key);
 
         /// <summary>
         /// 获取
@@ -78,7 +78,7 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        T Get<T>(string key, int db = -1);
+        T Get<T>(string key);
 
         /// <summary>
         /// 获取
@@ -87,7 +87,7 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        Task<T> GetAsync<T>(string key, int db = -1);
+        Task<T> GetAsync<T>(string key);
 
         /// <summary>
         /// 删除
@@ -95,6 +95,6 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="db"></param>
         /// <returns></returns>
-        Task<bool> Remove(string key, int db = -1);
+        Task<bool> Remove(string key);
     }
 }

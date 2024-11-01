@@ -5,7 +5,7 @@ using SqlSugar.IOC;
 using UnitTest.Repository;
 using WBC66.SqlSugar.Core;
 
-namespace UnitTest
+namespace UnitNet6Test
 {
     public class BaseUnitTest
     {

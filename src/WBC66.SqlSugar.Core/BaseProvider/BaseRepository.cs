@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using Serilog;
+using Common.Core;
 using SqlSugar;
 using SqlSugar.IOC;
 using WBC66.SqlSugar.Core.BiewModels;
@@ -41,20 +41,23 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         protected BaseRepository()
         {
-            //sql执行前
-            DbBaseClient.Aop.OnLogExecuting = (sql, pars) =>
-            {
-                //打印sql
-                SqlSugarAop.OnLogExecuting(DbBaseClient, sql, pars);
-            };
-            //sql执行完成
-            DbBaseClient.Aop.OnLogExecuted = (sql, pars) =>
-            {
-                //打印sql
-                SqlSugarAop.OnLogExecuted(DbBaseClient, sql, pars);
-            };
-            //sql执行错误
-            DbBaseClient.Aop.OnError = SqlSugarAop.OnError;
+            // if (SqlSugarContext.Options.Logger)
+            // {
+            //     //sql执行前
+            //     DbBaseClient.Aop.OnLogExecuting = (sql, pars) =>
+            //     {
+            //         //打印sql
+            //         SqlSugarAop.OnLogExecuting(DbBaseClient, sql, pars);
+            //     };
+            //     //sql执行完成
+            //     DbBaseClient.Aop.OnLogExecuted = (sql, pars) =>
+            //     {
+            //         //打印sql
+            //         SqlSugarAop.OnLogExecuted(DbBaseClient, sql, pars);
+            //     };
+            //     //sql执行错误
+            //     DbBaseClient.Aop.OnError = SqlSugarAop.OnError;
+            // }
         }
 
         #endregion 构造函数
@@ -66,7 +69,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="where"></param>
         /// <returns></returns>
-        public T GetSingle(Expression<Func<T, bool>> where)
+        public virtual T GetSingle(Expression<Func<T, bool>> where)
         {
             return DbBaseClient.Queryable<T>().First(where);
         }
@@ -76,7 +79,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="where"></param>
         /// <returns></returns>
-        public async Task<T> GetSingleAsync(Expression<Func<T, bool>> where)
+        public virtual async Task<T> GetSingleAsync(Expression<Func<T, bool>> where)
         {
             return await DbBaseClient.Queryable<T>().FirstAsync(where);
         }
@@ -90,7 +93,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="where"></param>
         /// <returns></returns>
-        public List<T> GetList(Expression<Func<T, bool>> where)
+        public virtual List<T> GetList(Expression<Func<T, bool>> where)
         {
             return DbBaseClient.Queryable<T>().Where(where).ToList();
         }
@@ -100,7 +103,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="where"></param>
         /// <returns></returns>
-        public async Task<List<T>> GetListAsync(Expression<Func<T, bool>> where)
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> where)
         {
             return await DbBaseClient.Queryable<T>().Where(where).ToListAsync();
         }
@@ -111,7 +114,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="predicate">条件表达式树</param>
         /// <param name="orderBy">排序字段，如name asc,age desc</param>
         /// <returns>泛型实体集合</returns>
-        public async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy = "")
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy = "")
         {
             return await DbBaseClient.Queryable<T>().OrderByIF(!string.IsNullOrEmpty(orderBy), orderBy)
                     .WhereIF(predicate != null, predicate).ToListAsync();
@@ -124,7 +127,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="orderByPredicate">排序字段</param>
         /// <param name="orderByType">排序顺序</param>
         /// <returns>泛型实体集合</returns>
-        public async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByPredicate, OrderByType orderByType)
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByPredicate, OrderByType orderByType)
         {
             return await DbBaseClient.Queryable<T>().OrderByIF(orderByPredicate != null, orderByPredicate, orderByType)
                     .WhereIF(predicate != null, predicate).ToListAsync();
@@ -139,7 +142,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity">实体数据</param>
         /// <returns></returns>
-        public int Insert(T entity)
+        public virtual int Insert(T entity)
         {
             return DbBaseClient.Insertable(entity).ExecuteReturnIdentity();
         }
@@ -149,7 +152,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity">实体数据</param>
         /// <returns></returns>
-        public async Task<int> InsertAsync(T entity)
+        public virtual async Task<int> InsertAsync(T entity)
         {
             return await DbBaseClient.Insertable(entity).ExecuteReturnIdentityAsync();
         }
@@ -160,7 +163,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="entity">实体数据</param>
         /// <param name="insertColumns">插入的列</param>
         /// <returns></returns>
-        public int Insert(T entity, Expression<Func<T, object>>? insertColumns = null)
+        public virtual int Insert(T entity, Expression<Func<T, object>>? insertColumns = null)
         {
             var insert = DbBaseClient.Insertable(entity);
             if (insertColumns == null)
@@ -174,7 +177,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="entity">实体数据</param>
         /// <param name="insertColumns">插入的列</param>
         /// <returns></returns>
-        public async Task<int> InsertAsync(T entity, Expression<Func<T, object>>? insertColumns = null)
+        public virtual async Task<int> InsertAsync(T entity, Expression<Func<T, object>>? insertColumns = null)
         {
             var insert = DbBaseClient.Insertable(entity);
             if (insertColumns == null)
@@ -187,7 +190,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <returns></returns>
-        public int Insert(List<T> entity)
+        public virtual int Insert(List<T> entity)
         {
             return DbBaseClient.Insertable(entity.ToArray()).ExecuteReturnIdentity();
         }
@@ -197,7 +200,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <returns></returns>
-        public async Task<int> InsertAsync(List<T> entity)
+        public virtual async Task<int> InsertAsync(List<T> entity)
         {
             return await DbBaseClient.Insertable(entity.ToArray()).ExecuteCommandAsync();
         }
@@ -211,7 +214,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public bool Update(List<T> entity)
+        public virtual bool Update(List<T> entity)
         {
             return DbBaseClient.Updateable(entity).ExecuteCommandHasChange();
         }
@@ -221,7 +224,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public async Task<bool> UpdateAsync(List<T> entity)
+        public virtual async Task<bool> UpdateAsync(List<T> entity)
         {
             return await DbBaseClient.Updateable(entity).ExecuteCommandHasChangeAsync();
         }
@@ -231,7 +234,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public bool Update(T entity)
+        public virtual bool Update(T entity)
         {
             return DbBaseClient.Updateable(entity).ExecuteCommandHasChange();
         }
@@ -241,7 +244,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public async Task<bool> UpdateAsync(T entity)
+        public virtual async Task<bool> UpdateAsync(T entity)
         {
             return await DbBaseClient.Updateable(entity).ExecuteCommandHasChangeAsync();
         }
@@ -252,7 +255,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="columns">lamdba表达式,如it =&gt; new Student() { Name = "a", CreateTime = DateTime.Now }</param>
         /// <param name="where">lamdba判断</param>
         /// <returns></returns>
-        public bool Update(Expression<Func<T, T>> columns, Expression<Func<T, bool>> where)
+        public virtual bool Update(Expression<Func<T, T>> columns, Expression<Func<T, bool>> where)
         {
             var i = DbBaseClient.Updateable<T>().SetColumns(columns).Where(where).ExecuteCommand();
             return i > 0;
@@ -264,7 +267,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="columns">lamdba表达式,如it =&gt; new Student() { Name = "a", CreateTime = DateTime.Now }</param>
         /// <param name="where">lamdba判断</param>
         /// <returns></returns>
-        public async Task<bool> UpdateAsync(Expression<Func<T, T>> columns, Expression<Func<T, bool>> where)
+        public virtual async Task<bool> UpdateAsync(Expression<Func<T, T>> columns, Expression<Func<T, bool>> where)
         {
             return await DbBaseClient.Updateable<T>().SetColumns(columns).Where(where).ExecuteCommandHasChangeAsync();
         }
@@ -277,7 +280,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="lstIgnoreColumns"></param>
         /// <param name="strWhere"></param>
         /// <returns></returns>
-        public async Task<bool> UpdateAsync(T entity, List<string>? lstColumns = null,
+        public virtual async Task<bool> UpdateAsync(T entity, List<string>? lstColumns = null,
             List<string>? lstIgnoreColumns = null, string strWhere = "")
         {
             var up = DbBaseClient.Updateable(entity);
@@ -296,7 +299,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="lstIgnoreColumns"></param>
         /// <param name="strWhere"></param>
         /// <returns></returns>
-        public bool Update(T entity, List<string>? lstColumns = null, List<string>? lstIgnoreColumns = null,
+        public virtual bool Update(T entity, List<string>? lstColumns = null, List<string>? lstIgnoreColumns = null,
             string strWhere = "")
         {
             var up = DbBaseClient.Updateable(entity);
@@ -316,7 +319,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <returns></returns>
-        public bool Delete(T entity)
+        public virtual bool Delete(T entity)
         {
             return DbBaseClient.Deleteable(entity).ExecuteCommandHasChange();
         }
@@ -326,7 +329,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <returns></returns>
-        public async Task<bool> DeleteAsync(T entity)
+        public virtual async Task<bool> DeleteAsync(T entity)
         {
             return await DbBaseClient.Deleteable(entity).ExecuteCommandHasChangeAsync();
         }
@@ -336,7 +339,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <returns></returns>
-        public bool Delete(List<T> entity)
+        public virtual bool Delete(List<T> entity)
         {
             return DbBaseClient.Deleteable<T>(entity).ExecuteCommandHasChange();
         }
@@ -346,7 +349,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <returns></returns>
-        public async Task<bool> DeleteAsync(List<T> entity)
+        public virtual async Task<bool> DeleteAsync(List<T> entity)
         {
             return await DbBaseClient.Deleteable<T>(entity).ExecuteCommandHasChangeAsync();
         }
@@ -356,7 +359,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="where"></param>
         /// <returns></returns>
-        public async Task<bool> DeleteAsync(Expression<Func<T, bool>> where)
+        public virtual async Task<bool> DeleteAsync(Expression<Func<T, bool>> where)
         {
             return await DbBaseClient.Deleteable<T>().Where(where).ExecuteCommandHasChangeAsync();
         }
@@ -366,7 +369,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="ids"></param>
         /// <returns></returns>
-        public bool DeleteByIds(object[] ids)
+        public virtual bool DeleteByIds(object[] ids)
         {
             return DbBaseClient.Deleteable<T>().In(ids).ExecuteCommandHasChange();
         }
@@ -376,7 +379,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="ids"></param>
         /// <returns></returns>
-        public async Task<bool> DeleteByIdsAsync(object[] ids)
+        public virtual async Task<bool> DeleteByIdsAsync(object[] ids)
         {
             return await DbBaseClient.Deleteable<T>().In(ids).ExecuteCommandHasChangeAsync();
         }
@@ -390,7 +393,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
         /// <returns></returns>
-        public bool Exists(Expression<Func<T, bool>> predicate)
+        public virtual bool Exists(Expression<Func<T, bool>> predicate)
         {
             return DbBaseClient.Queryable<T>().Where(predicate).Any();
         }
@@ -400,7 +403,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
         /// <returns></returns>
-        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
+        public virtual async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
         {
             return await DbBaseClient.Queryable<T>().Where(predicate).AnyAsync();
         }
@@ -414,7 +417,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
         /// <returns></returns>
-        public int GetCount(Expression<Func<T, bool>> predicate)
+        public virtual int GetCount(Expression<Func<T, bool>> predicate)
         {
             return DbBaseClient.Queryable<T>().Count(predicate);
         }
@@ -424,7 +427,7 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
         /// <returns></returns>
-        public async Task<int> GetCountAsync(Expression<Func<T, bool>> predicate)
+        public virtual async Task<int> GetCountAsync(Expression<Func<T, bool>> predicate)
         {
             return await DbBaseClient.Queryable<T>().CountAsync(predicate);
         }
@@ -441,7 +444,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分布大小</param>
         /// <returns></returns>
-        public IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1,
+        public virtual IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1,
             int pageSize = 20)
         {
             var totalCount = 0;
@@ -459,7 +462,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分布大小</param>
         /// <returns></returns>
-        public async Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, string orderBy = "",
+        public virtual async Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, string orderBy = "",
             int pageIndex = 1, int pageSize = 20)
         {
             RefAsync<int> totalCount = 0;
@@ -478,7 +481,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="pageSize">分布大小</param>
         /// <param name="orderByExpression"></param>
         /// <returns></returns>
-        public IPageList<T> QueryPage(Expression<Func<T, bool>> predicate,
+        public virtual IPageList<T> QueryPage(Expression<Func<T, bool>> predicate,
             Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1,
             int pageSize = 20)
         {
@@ -498,7 +501,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="pageSize">分布大小</param>
         /// <param name="orderByExpression"></param>
         /// <returns></returns>
-        public async Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate,
+        public virtual async Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate,
             Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1,
             int pageSize = 20)
         {
@@ -539,7 +542,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public List<T> SqlQuery(string sql, object? parameters)
+        public virtual List<T> SqlQuery(string sql, object? parameters)
         {
             return DbBaseClient.Ado.SqlQuery<T>(sql, parameters);
         }
@@ -550,7 +553,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public async Task<List<T>> SqlQueryAsync(string sql, object? parameters)
+        public virtual async Task<List<T>> SqlQueryAsync(string sql, object? parameters)
         {
             return await DbBaseClient.Ado.SqlQueryAsync<T>(sql, parameters);
         }
@@ -562,7 +565,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        public List<T> SqlQuery<T>(string sql, object? parameters)
+        public virtual List<T> SqlQuery<T>(string sql, object? parameters)
         {
             return DbBaseClient.Ado.SqlQuery<T>(sql, parameters);
         }
@@ -574,7 +577,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        public async Task<List<T>> SqlQueryAsync<T>(string sql, object? parameters)
+        public virtual async Task<List<T>> SqlQueryAsync<T>(string sql, object? parameters)
         {
             return await DbBaseClient.Ado.SqlQueryAsync<T>(sql, parameters);
         }
@@ -588,7 +591,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public IPageList<T1> SqlPageQuery<T1>(string sql, object? parameters, int pageIndex, int pageSize)
+        public virtual IPageList<T1> SqlPageQuery<T1>(string sql, object? parameters, int pageIndex, int pageSize)
         {
             //计算分页
             var skip = (pageIndex - 1) * pageSize;
@@ -607,7 +610,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public async Task<IPageList<T>> SqlPageQueryAsync<T>(string sql, object? parameters, int pageIndex, int pageSize)
+        public virtual async Task<IPageList<T>> SqlPageQueryAsync<T>(string sql, object? parameters, int pageIndex, int pageSize)
         {
             //计算分页
             var skip = (pageIndex - 1) * pageSize;
@@ -623,7 +626,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
         /// <returns>返回影响行数</returns>
-        public int ExecuteSql(string sql, object? parameters)
+        public virtual int ExecuteSql(string sql, object? parameters)
         {
             return DbBaseClient.Ado.ExecuteCommand(sql, parameters);
         }
@@ -634,7 +637,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
         /// <returns>返回影响行数</returns>
-        public async Task<int> ExecuteSqlAsync(string sql, object? parameters)
+        public virtual async Task<int> ExecuteSqlAsync(string sql, object? parameters)
         {
             return await DbBaseClient.Ado.ExecuteCommandAsync(sql, parameters);
         }
@@ -667,7 +670,7 @@ namespace WBC66.SqlSugar.Core
             {
                 DbBaseClient.Ado.RollbackTran();
                 result = false;
-                Log.Error(ex.Message, ex);
+                LoggerWrapper.LogError(ex.Message);
             }
             return result;
         }
