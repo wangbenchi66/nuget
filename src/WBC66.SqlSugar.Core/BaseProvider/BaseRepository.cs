@@ -21,7 +21,7 @@ namespace WBC66.SqlSugar.Core
         {
             get
             {
-                var configId = typeof(T).GetCustomAttribute<TenantAttribute>()?.configId;
+                var configId = typeof(T).GetCustomAttribute<TenantAttribute>()?.configId ?? SqlSugarContext.Options.Configs[0].ConfigId;
                 return DbScoped.SugarScope.GetConnection(configId);
             }
         }
@@ -627,7 +627,22 @@ namespace WBC66.SqlSugar.Core
         /// <returns>返回影响行数</returns>
         public virtual int ExecuteSql(string sql, object? parameters)
         {
-            return DbBaseClient.Ado.ExecuteCommand(sql, parameters);
+            if (parameters is IEnumerable<object> parameterList)
+            {
+                int totalAffectedRows = 0;
+                using (DbBaseClient.Ado.OpenAlways())
+                {
+                    foreach (var parameter in GetSugarParameters(parameterList) as List<SugarParameter[]>)
+                    {
+                        totalAffectedRows += DbBaseClient.Ado.ExecuteCommand(sql, parameter);
+                    }
+                    return totalAffectedRows;
+                }
+            }
+            else
+            {
+                return DbBaseClient.Ado.ExecuteCommand(sql, parameters);
+            }
         }
 
         /// <summary>
@@ -638,7 +653,69 @@ namespace WBC66.SqlSugar.Core
         /// <returns>返回影响行数</returns>
         public virtual async Task<int> ExecuteSqlAsync(string sql, object? parameters)
         {
-            return await DbBaseClient.Ado.ExecuteCommandAsync(sql, parameters);
+            if (parameters is IEnumerable<object> parameterList)
+            {
+                int totalAffectedRows = 0;
+                using (DbBaseClient.Ado.OpenAlways())
+                {
+                    foreach (var parameter in GetSugarParameters(parameterList) as List<SugarParameter[]>)
+                    {
+                        totalAffectedRows += await DbBaseClient.Ado.ExecuteCommandAsync(sql, parameter);
+                    }
+                    return totalAffectedRows;
+                }
+            }
+            else
+            {
+                return await DbBaseClient.Ado.ExecuteCommandAsync(sql, parameters);
+            }
+        }
+
+        /// <summary>
+        /// 将parameter中的参数转换成List[SugarParameter]类型
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        private static object GetSugarParameters(object parameter)
+        {
+            if (parameter == null)
+            {
+                return null;
+            }
+            if (parameter is IEnumerable<object> parameterList)
+            {
+                List<SugarParameter[]> sugarParameters = new List<SugarParameter[]>();
+                foreach (var item in parameterList)
+                {
+                    var properties = item.GetType().GetProperties();
+                    List<SugarParameter> sugarParameter = new List<SugarParameter>();
+                    foreach (var property in properties)
+                    {
+                        var value = property.GetValue(item);
+                        if (value != null)
+                        {
+                            sugarParameter.Add(new SugarParameter(property.Name, value));
+                        }
+                    }
+                    sugarParameters.Add(sugarParameter.ToArray());
+                }
+                return sugarParameters;
+            }
+            if (parameter is T)
+            {
+                var properties = parameter.GetType().GetProperties();
+                List<SugarParameter> sugarParameters = new List<SugarParameter>();
+                foreach (var property in properties)
+                {
+                    var value = property.GetValue(parameter);
+                    if (value != null)
+                    {
+                        sugarParameters.Add(new SugarParameter(property.Name, value));
+                    }
+                }
+                return sugarParameters;
+            }
+            return parameter;
         }
 
         #endregion 执行sql语句

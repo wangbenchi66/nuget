@@ -7,7 +7,7 @@ namespace WBC66.SqlSugar.Core
     /// <summary>
     /// 通用仓储接口
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">泛型实体类型</typeparam>
     public interface IBaseRepository<T> where T : class, new()
     {
         /// <summary>
@@ -20,15 +20,15 @@ namespace WBC66.SqlSugar.Core
         /// <summary>
         /// 获取单个实体
         /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
+        /// <param name="where">条件表达式树</param>
+        /// <returns>单个实体对象</returns>
         T GetSingle(Expression<Func<T, bool>> where);
 
         /// <summary>
-        /// 获取单个实体
+        /// 异步获取单个实体
         /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
+        /// <param name="where">条件表达式树</param>
+        /// <returns>单个实体对象</returns>
         Task<T> GetSingleAsync(Expression<Func<T, bool>> where);
 
         #endregion 获取单个实体
@@ -38,15 +38,15 @@ namespace WBC66.SqlSugar.Core
         /// <summary>
         /// 获取列表
         /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
+        /// <param name="where">条件表达式树</param>
+        /// <returns>实体对象列表</returns>
         List<T> GetList(Expression<Func<T, bool>> where);
 
         /// <summary>
-        /// 获取列表
+        /// 异步获取列表
         /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
+        /// <param name="where">条件表达式树</param>
+        /// <returns>实体对象列表</returns>
         Task<List<T>> GetListAsync(Expression<Func<T, bool>> where);
 
         /// <summary>
@@ -74,14 +74,14 @@ namespace WBC66.SqlSugar.Core
         /// 写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
-        /// <returns></returns>
+        /// <returns>影响行数</returns>
         int Insert(T entity);
 
         /// <summary>
-        /// 写入实体数据
+        /// 异步写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
-        /// <returns></returns>
+        /// <returns>影响行数</returns>
         Task<int> InsertAsync(T entity);
 
         /// <summary>
@@ -89,29 +89,29 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <param name="insertColumns">添加列</param>
-        /// <returns></returns>
+        /// <returns>影响行数</returns>
         int Insert(T entity, Expression<Func<T, object>>? insertColumns = default);
 
         /// <summary>
-        /// 写入实体数据
+        /// 异步写入实体数据
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <param name="insertColumns">添加列</param>
-        /// <returns></returns>
+        /// <returns>影响行数</returns>
         Task<int> InsertAsync(T entity, Expression<Func<T, object>>? insertColumns = default);
 
         /// <summary>
         /// 批量写入实体数据
         /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns></returns>
+        /// <param name="entity">实体类集合</param>
+        /// <returns>影响行数</returns>
         int Insert(List<T> entity);
 
         /// <summary>
-        /// 批量写入实体数据
+        /// 异步批量写入实体数据
         /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns></returns>
+        /// <param name="entity">实体类集合</param>
+        /// <returns>影响行数</returns>
         Task<int> InsertAsync(List<T> entity);
 
         #endregion 写入实体数据
@@ -121,65 +121,65 @@ namespace WBC66.SqlSugar.Core
         /// <summary>
         /// 批量更新实体数据
         /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
+        /// <param name="entity">实体类集合</param>
+        /// <returns>是否更新成功</returns>
         bool Update(List<T> entity);
 
         /// <summary>
-        /// 批量更新实体数据
+        /// 异步批量更新实体数据
         /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
+        /// <param name="entity">实体类集合</param>
+        /// <returns>是否更新成功</returns>
         Task<bool> UpdateAsync(List<T> entity);
 
         /// <summary>
         /// 更新实体数据
         /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
+        /// <param name="entity">实体类</param>
+        /// <returns>是否更新成功</returns>
         bool Update(T entity);
 
         /// <summary>
-        /// 更新实体数据
+        /// 异步更新实体数据
         /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
+        /// <param name="entity">实体类</param>
+        /// <returns>是否更新成功</returns>
         Task<bool> UpdateAsync(T entity);
 
         /// <summary>
         /// 更新某个字段
         /// </summary>
-        /// <param name="columns">lamdba表达式,如it =&gt; new Student() { Name = "a", CreateTime = DateTime.Now }</param>
-        /// <param name="where">lamdba判断</param>
-        /// <returns></returns>
+        /// <param name="columns">lambda表达式,如it => new Student() { Name = "a", CreateTime = DateTime.Now }</param>
+        /// <param name="where">lambda判断</param>
+        /// <returns>是否更新成功</returns>
         bool Update(Expression<Func<T, T>> columns, Expression<Func<T, bool>> where);
 
         /// <summary>
-        /// 更新某个字段
+        /// 异步更新某个字段
         /// </summary>
-        /// <param name="columns">lamdba表达式,如it =&gt; new Student() { Name = "a", CreateTime = DateTime.Now }</param>
-        /// <param name="where">lamdba判断</param>
-        /// <returns></returns>
+        /// <param name="columns">lambda表达式,如it => new Student() { Name = "a", CreateTime = DateTime.Now }</param>
+        /// <param name="where">lambda判断</param>
+        /// <returns>是否更新成功</returns>
         Task<bool> UpdateAsync(Expression<Func<T, T>> columns, Expression<Func<T, bool>> where);
 
         /// <summary>
         /// 根据条件更新
         /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="lstColumns"></param>
-        /// <param name="lstIgnoreColumns"></param>
-        /// <param name="strWhere"></param>
-        /// <returns></returns>
+        /// <param name="entity">实体类</param>
+        /// <param name="lstColumns">更新列</param>
+        /// <param name="lstIgnoreColumns">忽略列</param>
+        /// <param name="strWhere">条件</param>
+        /// <returns>是否更新成功</returns>
         bool Update(T entity, List<string>? lstColumns = default, List<string>? lstIgnoreColumns = default, string strWhere = "");
 
         /// <summary>
-        /// 根据条件更新
+        /// 异步根据条件更新
         /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="lstColumns"></param>
-        /// <param name="lstIgnoreColumns"></param>
-        /// <param name="strWhere"></param>
-        /// <returns></returns>
+        /// <param name="entity">实体类</param>
+        /// <param name="lstColumns">更新列</param>
+        /// <param name="lstIgnoreColumns">忽略列</param>
+        /// <param name="strWhere">条件</param>
+        /// <returns>是否更新成功</returns>
         Task<bool> UpdateAsync(T entity, List<string>? lstColumns = default, List<string>? lstIgnoreColumns = default, string strWhere = "");
 
         #endregion 更新实体数据
@@ -190,49 +190,49 @@ namespace WBC66.SqlSugar.Core
         /// 删除数据
         /// </summary>
         /// <param name="entity">实体类</param>
-        /// <returns></returns>
+        /// <returns>是否删除成功</returns>
         bool Delete(T entity);
 
         /// <summary>
-        /// 删除数据
+        /// 异步删除数据
         /// </summary>
         /// <param name="entity">实体类</param>
-        /// <returns></returns>
+        /// <returns>是否删除成功</returns>
         Task<bool> DeleteAsync(T entity);
 
         /// <summary>
-        /// 删除数据(批量)
+        /// 批量删除数据
         /// </summary>
         /// <param name="entity">实体类集合</param>
-        /// <returns></returns>
+        /// <returns>是否删除成功</returns>
         bool Delete(List<T> entity);
 
         /// <summary>
-        /// 删除数据(批量)
+        /// 异步批量删除数据
         /// </summary>
         /// <param name="entity">实体类集合</param>
-        /// <returns></returns>
+        /// <returns>是否删除成功</returns>
         Task<bool> DeleteAsync(List<T> entity);
 
         /// <summary>
-        /// 删除数据
+        /// 根据条件删除数据
         /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns></returns>
+        /// <param name="predicate">条件表达式树</param>
+        /// <returns>是否删除成功</returns>
         Task<bool> DeleteAsync(Expression<Func<T, bool>> predicate);
 
         /// <summary>
         /// 根据主键标识批量删除
         /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
+        /// <param name="ids">主键标识数组</param>
+        /// <returns>是否删除成功</returns>
         bool DeleteByIds(object[] ids);
 
         /// <summary>
-        /// 根据主键标识批量删除
+        /// 异步根据主键标识批量删除
         /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
+        /// <param name="ids">主键标识数组</param>
+        /// <returns>是否删除成功</returns>
         Task<bool> DeleteByIdsAsync(object[] ids);
 
         #endregion 删除数据
@@ -243,14 +243,14 @@ namespace WBC66.SqlSugar.Core
         /// 判断数据是否存在
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
-        /// <returns></returns>
+        /// <returns>是否存在</returns>
         bool Exists(Expression<Func<T, bool>> predicate);
 
         /// <summary>
-        /// 判断数据是否存在
+        /// 异步判断数据是否存在
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
-        /// <returns></returns>
+        /// <returns>是否存在</returns>
         Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
 
         #endregion 判断数据是否存在
@@ -261,14 +261,14 @@ namespace WBC66.SqlSugar.Core
         /// 获取数据总数
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
-        /// <returns></returns>
+        /// <returns>数据总数</returns>
         int GetCount(Expression<Func<T, bool>> predicate);
 
         /// <summary>
-        /// 获取数据总数
+        /// 异步获取数据总数
         /// </summary>
         /// <param name="predicate">条件表达式树</param>
-        /// <returns></returns>
+        /// <returns>数据总数</returns>
         Task<int> GetCountAsync(Expression<Func<T, bool>> predicate);
 
         #endregion 获取数据总数
@@ -278,55 +278,55 @@ namespace WBC66.SqlSugar.Core
         /// <summary>
         /// 根据条件查询分页数据
         /// </summary>
-        /// <param name="predicate"></param>
-        /// <param name="orderBy"></param>
+        /// <param name="predicate">条件表达式树</param>
+        /// <param name="orderBy">排序字段</param>
         /// <param name="pageIndex">当前页面索引</param>
-        /// <param name="pageSize">分布大小</param>
-        /// <returns></returns>
+        /// <param name="pageSize">分页大小</param>
+        /// <returns>分页数据</returns>
         IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1, int pageSize = 20);
 
         /// <summary>
-        /// 根据条件查询分页数据
+        /// 异步根据条件查询分页数据
         /// </summary>
-        /// <param name="predicate"></param>
-        /// <param name="orderBy"></param>
+        /// <param name="predicate">条件表达式树</param>
+        /// <param name="orderBy">排序字段</param>
         /// <param name="pageIndex">当前页面索引</param>
-        /// <param name="pageSize">分布大小</param>
-        /// <returns></returns>
+        /// <param name="pageSize">分页大小</param>
+        /// <returns>分页数据</returns>
         Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1, int pageSize = 20);
 
         /// <summary>
         /// 根据条件查询分页数据
         /// </summary>
-        /// <param name="predicate">判断集合</param>
+        /// <param name="predicate">条件表达式树</param>
+        /// <param name="orderByExpression">排序字段</param>
         /// <param name="orderByType">排序方式</param>
         /// <param name="pageIndex">当前页面索引</param>
-        /// <param name="pageSize">分布大小</param>
-        /// <param name="orderByExpression"></param>
-        /// <returns></returns>
+        /// <param name="pageSize">分页大小</param>
+        /// <returns>分页数据</returns>
         IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1, int pageSize = 20);
 
         /// <summary>
-        /// 根据条件查询分页数据
+        /// 异步根据条件查询分页数据
         /// </summary>
-        /// <param name="predicate">判断集合</param>
+        /// <param name="predicate">条件表达式树</param>
+        /// <param name="orderByExpression">排序字段</param>
         /// <param name="orderByType">排序方式</param>
         /// <param name="pageIndex">当前页面索引</param>
-        /// <param name="pageSize">分布大小</param>
-        /// <param name="orderByExpression"></param>
-        /// <returns></returns>
+        /// <param name="pageSize">分页大小</param>
+        /// <returns>分页数据</returns>
         Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1, int pageSize = 20);
 
         /// <summary>
         /// 分页查询
         /// </summary>
-        /// <param name="queryable"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pagesize"></param>
-        /// <param name="rowcount"></param>
-        /// <param name="orderBy"></param>
-        /// <param name="returnRowCount"></param>
-        /// <returns></returns>
+        /// <param name="queryable">查询对象</param>
+        /// <param name="pageIndex">当前页面索引</param>
+        /// <param name="pagesize">分页大小</param>
+        /// <param name="rowcount">总行数</param>
+        /// <param name="orderBy">排序字段</param>
+        /// <param name="returnRowCount">是否返回总行数</param>
+        /// <returns>分页查询对象</returns>
         ISugarQueryable<T> IQueryablePage(ISugarQueryable<T> queryable, int pageIndex, int pagesize, out int rowcount, Dictionary<string, QueryOrderBy> orderBy, bool returnRowCount = true);
 
         #endregion 查询分页数据
@@ -336,57 +336,57 @@ namespace WBC66.SqlSugar.Core
         /// <summary>
         /// 执行sql语句并返回List[T]
         /// </summary>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
+        /// <param name="sql">sql语句</param>
+        /// <param name="parameters">参数</param>
+        /// <returns>实体对象列表</returns>
         List<T> SqlQuery(string sql, object? parameters = default);
 
         /// <summary>
-        /// 执行sql语句并返回List
+        /// 异步执行sql语句并返回List[T]
         /// </summary>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
+        /// <param name="sql">sql语句</param>
+        /// <param name="parameters">参数</param>
+        /// <returns>实体对象列表</returns>
         Task<List<T>> SqlQueryAsync(string sql, object? parameters = default);
 
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
         /// <typeparam name="T">映射到这个实体</typeparam>
-        /// <param name="sql">sql</param>
+        /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
-        /// <returns></returns>
+        /// <returns>实体对象列表</returns>
         List<T> SqlQuery<T>(string sql, object? parameters);
 
         /// <summary>
-        /// 执行sql语句并返回到指定实体中
+        /// 异步执行sql语句并返回到指定实体中
         /// </summary>
         /// <typeparam name="T">映射到这个实体</typeparam>
-        /// <param name="sql">sql</param>
+        /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
-        /// <returns></returns>
+        /// <returns>实体对象列表</returns>
         Task<List<T>> SqlQueryAsync<T>(string sql, object? parameters);
 
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <param name="sql">sql语句</param>
+        /// <param name="parameters">参数</param>
+        /// <param name="pageIndex">当前页面索引</param>
+        /// <param name="pageSize">分页大小</param>
+        /// <returns>分页数据</returns>
         IPageList<T> SqlPageQuery<T>(string sql, object? parameters, int pageIndex, int pageSize);
 
         /// <summary>
-        /// 执行分页sql语句并返回到指定实体中
+        /// 异步执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T1"></typeparam>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <returns></returns>
+        /// <typeparam name="T1">映射到这个实体</typeparam>
+        /// <param name="sql">sql语句</param>
+        /// <param name="parameters">参数</param>
+        /// <param name="pageIndex">当前页面索引</param>
+        /// <param name="pageSize">分页大小</param>
+        /// <returns>分页数据</returns>
         Task<IPageList<T>> SqlPageQueryAsync<T>(string sql, object? parameters, int pageIndex, int pageSize);
 
         /// <summary>
@@ -398,7 +398,7 @@ namespace WBC66.SqlSugar.Core
         int ExecuteSql(string sql, object? parameters);
 
         /// <summary>
-        /// 执行sql语句返回影响行数
+        /// 异步执行sql语句返回影响行数
         /// </summary>
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
@@ -412,8 +412,8 @@ namespace WBC66.SqlSugar.Core
         /// <summary>
         /// 开启事务
         /// </summary>
-        /// <param name="func"></param>
-        /// <returns></returns>
+        /// <param name="func">事务操作</param>
+        /// <returns>事务是否成功</returns>
         bool DbContextBeginTransaction(Func<bool> func);
 
         #endregion 开启事务

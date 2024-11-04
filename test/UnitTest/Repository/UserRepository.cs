@@ -23,6 +23,19 @@ namespace UnitTest.Repository
         ///</summary>
         [SugarColumn(ColumnName = "Name")]
         public string Name { get; set; }
+
+        /// <summary>
+        ///用户名称
+        ///</summary>
+        [SugarColumn(ColumnName = "Coding")]
+        public string Coding { get; set; }
+
+        /// <summary>
+        ///用户名称
+        ///</summary>
+        [SugarColumn(ColumnName = "HeadImgUrl")]
+        public string HeadImgUrl { get; set; }
+
     }
 
     /// <summary>

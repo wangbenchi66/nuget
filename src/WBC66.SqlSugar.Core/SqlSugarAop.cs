@@ -1,5 +1,4 @@
 using SqlSugar;
-using SqlSugar.Extensions;
 
 namespace WBC66.SqlSugar.Core;
 
@@ -19,7 +18,6 @@ public static class SqlSugarAop
     {
         string msg = @"
             ConnId:[{0}]
-            完整sql:
             {1}
             ";
         System.Console.WriteLine(msg, sqlSugarScopeProvider.CurrentConnectionConfig.ConfigId, GetWholeSql(sql, p));
@@ -33,9 +31,10 @@ public static class SqlSugarAop
     /// <returns></returns>
     private static string GetWholeSql(string sql, SugarParameter[] paramArr)
     {
+        //UtilMethods.GetNativeSql(sql, paramArr);
         foreach (var param in paramArr)
         {
-            sql = sql.Replace(param.ParameterName, $@"'{param.Value.ObjToString()}'");
+            sql = sql.Replace($"@{param.ParameterName}", $"{param.Value}");
         }
         return sql;
     }
@@ -68,6 +67,6 @@ public static class SqlSugarAop
         sql执行错误：{0}
         sql:{1}
         ";
-        System.Console.WriteLine(msg, exp.Message, UtilMethods.GetNativeSql(exp.Sql, (SugarParameter[])exp.Parametres));
+        System.Console.WriteLine(msg, exp.Message, GetWholeSql(exp.Sql, (SugarParameter[])exp.Parametres));
     }
 }

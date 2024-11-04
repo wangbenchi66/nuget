@@ -19,5 +19,19 @@ namespace UnitTest
             var list = await _userRepository.GetListAsync(p => p.Id > 0);
             Assert.IsNotNull(list);
         }
+
+        [TestMethod]
+        public async Task Update()
+        {
+            string sql = "UPDATE j_user SET HeadImgUrl=@HeadImgUrl WHERE ID=@Id;";
+            List<User> list = await _userRepository.GetListAsync(p => p.Id == 1);
+            list.ForEach(x =>
+            {
+                x.HeadImgUrl = "7";
+            }
+            );
+            var res = await _userRepository.ExecuteSqlAsync(sql, list);
+            Assert.IsTrue(res > 0);
+        }
     }
 }
