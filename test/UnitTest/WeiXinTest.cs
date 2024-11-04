@@ -1,9 +1,12 @@
+using Microsoft.Extensions.DependencyInjection;
+using WBC66.WeiXin.Core;
+
 namespace UnitTest
 {
     [TestClass]
     public class WeiXinTest : BaseUnitTest
     {
-        /*private readonly IWeiXinExtensions _weiXinExtensions = ServiceProvider.GetRequiredService<IWeiXinExtensions>();
+        private readonly IWeiXinExtensions _weiXinExtensions = ServiceProvider.GetRequiredService<IWeiXinExtensions>();
 
         /// <summary>
         /// 测试获取AccessToken方法
@@ -83,6 +86,6 @@ namespace UnitTest
         {
             var result = _weiXinExtensions.GetTextMessage("<xml><ToUserName><![CDATA[toUser]]></ToUserName><FromUserName><![CDATA[fromUser]]></FromUserName><CreateTime>1348831860</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[this is a test]]></Content><MsgId>1234567890123456</MsgId></xml>");
             Assert.IsNotNull(result);
-        }*/
+        }
     }
 }

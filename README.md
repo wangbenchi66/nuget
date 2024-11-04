@@ -438,3 +438,22 @@ var BeginTranRes = _userRepository.DbContextBeginTransaction(() =>
     return true;
 });
 ```
+## Autofac配置
+### 1. Autofac配置
+线上nuget引入 版本号随时更新
+``` xml
+<PackageReference Include="WBC66.Autofac.Core" Version="2024.11.4" />
+```
+### 2.使用Autofac工厂
+``` csharp
+//使用Autofac(会直接扫描当前项目的所有程序集进行注入)
+builder.Host.AddAutofacHostSetup(builder.Services);
+```
+### 3.使用示例
+``` csharp
+//接口注入直接继承IDependency接口即可(一般情况第二步已经注入了就不需要再注入了)
+public interface ITestService : IDependency
+{
+    string Get();
+}
+``` 

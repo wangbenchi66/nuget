@@ -13,8 +13,9 @@ namespace WBC66.SqlSugar.Core
         /// 添加SqlSugar服务
         /// </summary>
         /// <param name="services"></param>
-        /// <param name="enableAopLogging">配置文件</param>
-        /// <param name="configAction">配置文件</param>
+        /// <param name="configs">配置文件</param>
+        /// <param name="enableAopLogging">开启日志输出</param>
+        /// <param name="aopConfigAction">AOP配置</param>
         /// <exception cref="ArgumentNullException"></exception>
         public static void AddSqlSugarSetup(this IServiceCollection services, List<IocConfig> configs, bool enableAopLogging = false, Action<ISqlSugarClient> aopConfigAction = null)
         {
