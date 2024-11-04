@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using Common.Core;
 using SqlSugar;
 using SqlSugar.IOC;
 using WBC66.SqlSugar.Core.BiewModels;
@@ -670,7 +669,7 @@ namespace WBC66.SqlSugar.Core
             {
                 DbBaseClient.Ado.RollbackTran();
                 result = false;
-                LoggerWrapper.LogError(ex.Message);
+                Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
             }
             return result;
         }
