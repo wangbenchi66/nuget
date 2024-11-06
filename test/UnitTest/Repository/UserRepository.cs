@@ -4,11 +4,16 @@ using WBC66.SqlSugar.Core;
 
 namespace UnitTest.Repository
 {
+    enum DbData
+    {
+        journal,
+        Journal2
+    }
     /// <summary>
     /// 用户表
     ///</summary>
     [SugarTable("J_User")]
-    [Tenant("journal")]
+    [Tenant(nameof(DbData.journal))]
     public class User
     {
         /// <summary>
