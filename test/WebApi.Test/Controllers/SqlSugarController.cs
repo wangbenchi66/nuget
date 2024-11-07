@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 using UnitTest.Repository;
+using WBC66.Cache.Core;
 
 namespace WebApi.Test.Controllers
 {
@@ -8,7 +9,6 @@ namespace WebApi.Test.Controllers
     [ApiController]
     public class SqlSugarController : ControllerBase
     {
-
         private readonly IUserRepository _userRepository;
 
         public SqlSugarController(IUserRepository userRepository)

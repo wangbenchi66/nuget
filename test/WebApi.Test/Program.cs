@@ -1,7 +1,11 @@
-﻿using IGeekFan.AspNetCore.Knife4jUI;
+﻿using Autofac;
+using Autofac.Extras.DynamicProxy;
+using Castle.DynamicProxy;
+using IGeekFan.AspNetCore.Knife4jUI;
 using Microsoft.AspNetCore.Mvc;
 using SqlSugar.IOC;
-using UnitTest.Repository;
+using WBC66.Autofac.Core;
+using WBC66.Cache.Core;
 using WBC66.SqlSugar.Core;
 using WebApi.Test.Filter;
 
@@ -20,7 +24,17 @@ builder.Services.AddSwaggerGen();
 //builder.Services.AddEFSetup<TestDBContext>(efOptions);
 //builder.Services.AddScoped<IUserEFRepository, UserEFRepository>();
 //注入
-builder.Services.AddSingleton<IUserRepository, UserRepository>();
+//builder.Services.AddSingleton<IUserRepository, UserRepository>();
+
+//开启内存缓存
+builder.Services.AddMemoryCacheSetup();
+builder.Host.AddAutofacHostSetup(builder.Services, options =>
+{
+    //开启内存缓存拦截器(带有IProxyService接口的类将会被拦截),带有CacheResultAttribute特性的方法将会被缓存
+    options.AddMemoryCacheResultAop();
+});
+
+
 //SqlSugar
 builder.Services.AddSqlSugarSetup(configuration.GetSection("DBS").Get<List<IocConfig>>(), true, config =>
 {
@@ -33,6 +47,8 @@ builder.Services.AddControllers(options =>
 {
     //添加自定义的模型验证过滤器
     options.Filters.Add<ValidateModelAttribute>();
+    //添加自定义的缓存过滤器
+    options.Filters.Add<CacheResultFilter>();
 });
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {

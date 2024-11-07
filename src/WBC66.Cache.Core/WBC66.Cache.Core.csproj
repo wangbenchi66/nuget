@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="5.1.1" />
     <PackageReference Include="CSRedisCore" Version="3.8.803" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
   </ItemGroup>
@@ -17,6 +18,9 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7'">
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6'">
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\WBC66.Autofac.Core\WBC66.Autofac.Core.csproj" />
 	</ItemGroup>
 
 </Project>

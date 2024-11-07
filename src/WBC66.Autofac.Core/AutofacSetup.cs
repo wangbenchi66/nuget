@@ -18,13 +18,16 @@ namespace WBC66.Autofac.Core
         /// </summary>
         /// <param name="host">主机构建器</param>
         /// <param name="services">服务集合</param>
-        public static void AddAutofacHostSetup(this IHostBuilder host, IServiceCollection services)
+        /// <param name="customizeModule">自定义的模块</param>
+        public static void AddAutofacHostSetup(this IHostBuilder host, IServiceCollection services, Action<ContainerBuilder> customizeModule = null)
         {
             if (host == null) { throw new ArgumentNullException(nameof(host)); }
             host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
             host.ConfigureContainer<ContainerBuilder>((context, builder) =>
             {
                 builder.AddAutofacModule();
+                //自定义模块必须在批量注入之后
+                customizeModule?.Invoke(builder);
             });
             services.AddAutofac();
         }
