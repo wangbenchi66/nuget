@@ -28,6 +28,7 @@ builder.Services.AddSwaggerGen();
 
 //开启内存缓存
 builder.Services.AddMemoryCacheSetup();
+//使用autofac(内部会自动进行程序集扫描注入,不需要手动注入)
 builder.Host.AddAutofacHostSetup(builder.Services, options =>
 {
     //开启内存缓存拦截器(带有IProxyService接口的类将会被拦截),带有CacheResultAttribute特性的方法将会被缓存

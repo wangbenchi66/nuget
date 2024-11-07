@@ -15,6 +15,7 @@ namespace WebApi.Test.Controllers
         }
 
         [HttpGet]
+        [CacheResult(5)]
         public object Get()
         {
             _cacheResultService.GetStudentAsync("这是参数");

@@ -21,7 +21,6 @@ namespace WBC66.Cache.Core
         /// <param name="invocation"></param>
         public void Intercept(IInvocation invocation)
         {
-            Console.WriteLine("启动aop");
             //判断有没有CacheResult特性
             if (invocation.MethodInvocationTarget.GetCustomAttributes(true).Any(a => a.GetType() == typeof(CacheResultAttribute)))
             {
@@ -29,7 +28,6 @@ namespace WBC66.Cache.Core
                 var cacheKey = $"{invocation.Method.DeclaringType.FullName}.{invocation.Method.Name}_{ParamHash.GetParametHash(invocation.Arguments)}";
                 if (!_memoryCache.TryGetValue(cacheKey, out object cacheValue))
                 {
-                    Console.WriteLine("缓存不存在");
                     //缓存不存在，执行方法
                     invocation.Proceed();
                     //获取方法执行结果
@@ -46,11 +44,9 @@ namespace WBC66.Cache.Core
                 }
                 else
                 {
-                    Console.WriteLine("缓存存在");
                     //缓存存在，直接返回
                     invocation.ReturnValue = cacheValue;
                 }
-                //invocation.Proceed();
             }
         }
     }

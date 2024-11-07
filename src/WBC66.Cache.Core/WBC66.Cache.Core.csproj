@@ -1,9 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+	  <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <Title>WBC66.Cache.Core</Title>
+	  <Authors>wangbenchi66</Authors>
+	  <Description>基于Cache进行封装使用</Description>
+	  <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
+	  <PackageReleaseNotes>基于Cache进行封装使用</PackageReleaseNotes>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	  <Version>2024.11.07</Version>
+	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
+	  <PackageId>$(AssemblyName)</PackageId>
+	  <PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,16 +22,13 @@
     <PackageReference Include="CSRedisCore" Version="3.8.803" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="WBC66.Autofac.Core" Version="2024.11.7" />
   </ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8'">
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7'">
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6'">
-	</ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\WBC66.Autofac.Core\WBC66.Autofac.Core.csproj" />
 	</ItemGroup>
 
 </Project>
