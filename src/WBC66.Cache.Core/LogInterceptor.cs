@@ -9,7 +9,10 @@ namespace WBC66.Cache.Core
     public class MemoryCacheInterceptor : IInterceptor
     {
         private readonly IMemoryCache _memoryCache;
-
+        /// <summary>
+        /// 构造函数 注入IMemoryCache
+        /// </summary>
+        /// <param name="memoryCache"></param>
         public MemoryCacheInterceptor(IMemoryCache memoryCache)
         {
             _memoryCache = memoryCache;
@@ -50,7 +53,9 @@ namespace WBC66.Cache.Core
             }
         }
     }
-
+    /// <summary>
+    /// 代理服务接口(会自动注入)，所有实现该接口的类都会被拦截，拦截器会判断是否有CacheResult特性
+    /// </summary>
     public interface IProxyService
     {
 

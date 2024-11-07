@@ -9,6 +9,9 @@ namespace WBC66.Cache.Core
     [AttributeUsage(AttributeTargets.Method, Inherited = true)]
     public class CacheResultAttribute : Attribute
     {
+        /// <summary>
+        /// 缓存持续时间（秒）
+        /// /// </summary>
         public int Duration { get; }
 
         public CacheResultAttribute(int duration)
@@ -39,13 +42,16 @@ namespace WBC66.Cache.Core
         /// <returns>缓存项</returns>
         public async Task<T> GetOrAddAsync<T>(string cacheKey, Func<Task<T>> factory, TimeSpan cacheDuration)
         {
+            // 尝试从缓存中获取值
             if (!_memoryCache.TryGetValue(cacheKey, out T cacheEntry))
             {
+                // 如果缓存中没有值，则调用工厂方法生成值
                 cacheEntry = await factory();
                 var cacheEntryOptions = new MemoryCacheEntryOptions
                 {
                     AbsoluteExpirationRelativeToNow = cacheDuration
                 };
+                // 将生成的值添加到缓存中
                 _memoryCache.Set(cacheKey, cacheEntry, cacheEntryOptions);
             }
             return cacheEntry;
@@ -59,9 +65,11 @@ namespace WBC66.Cache.Core
         /// <returns>任务</returns>
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            // 获取方法上的缓存特性
             var cacheAttribute = context.ActionDescriptor.EndpointMetadata.OfType<CacheResultAttribute>().FirstOrDefault();
             if (cacheAttribute == null)
             {
+                // 如果没有缓存特性，直接执行下一个操作
                 await next();
                 return;
             }
@@ -71,19 +79,21 @@ namespace WBC66.Cache.Core
             var cacheDuration = TimeSpan.FromSeconds(cacheAttribute.Duration);
             var cacheEntry = await GetOrAddAsync(cacheKey, async () =>
             {
+                // 执行操作并获取结果
                 var resultContext = await next();
                 return resultContext.Result;
             }, cacheDuration);
 
+            // 将缓存结果设置为操作结果
             context.Result = cacheEntry;
         }
 
         /// <summary>
         /// 生成缓存键
         /// </summary>
-        /// <param name="methodName"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
+        /// <param name="methodName">方法名</param>
+        /// <param name="parameters">参数</param>
+        /// <returns>缓存键</returns>
         private string GenerateCacheKey(string methodName, IDictionary<string, object> parameters)
         {
             return $"{methodName}_{ParamHash.GetParametHash(parameters)}";
@@ -95,8 +105,8 @@ namespace WBC66.Cache.Core
         /// <summary>
         /// 获取参数值的字符串表示
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">参数值</param>
+        /// <returns>字符串表示</returns>
         internal static string GetParameterValue(object value)
         {
             if (value == null)
@@ -117,8 +127,8 @@ namespace WBC66.Cache.Core
         /// <summary>
         /// 生成字符串的哈希值
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">输入字符串</param>
+        /// <returns>哈希值</returns>
         internal static string GetHash(string input)
         {
             using (var sha256 = System.Security.Cryptography.SHA256.Create())
@@ -131,13 +141,13 @@ namespace WBC66.Cache.Core
         /// <summary>
         /// 获取参数并加密
         /// </summary>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
+        /// <param name="parameters">参数</param>
+        /// <returns>加密后的字符串</returns>
         internal static string GetParametHash(params object[] parameters)
         {
-            //加密前
+            // 加密前
             var paramKey = string.Join("_", parameters.Select(GetParameterValue));
-            //加密后
+            // 加密后
             var res = GetHash(paramKey);
             return res;
         }

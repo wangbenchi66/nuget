@@ -32,7 +32,7 @@ namespace WebApi.Test.Controllers
 
     public class CacheResultService : ICacheResultService
     {
-        [CacheResult(5)]
+        [CacheResult(15)]
         public Student GetStudentAsync(string name)
         {
             return new Student { Name = name };
