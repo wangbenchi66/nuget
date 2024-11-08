@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using SqlSugar.IOC;
 using WBC66.Autofac.Core;
 using WBC66.Cache.Core;
+using WBC66.Core;
 using WBC66.SqlSugar.Core;
 using WebApi.Test.Filter;
 
@@ -71,5 +72,6 @@ app.UseKnife4UI(c =>
     c.RoutePrefix = "k4j";
 });
 app.MapControllers();
+app.UseMiddleware<LogMiddleware>();
 
 app.Run();

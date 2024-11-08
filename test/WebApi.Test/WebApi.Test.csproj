@@ -6,10 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 <ItemGroup>
-		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
+	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
     <PackageReference Include="IGeekFan.AspNetCore.Knife4jUI" Version="0.0.16" />
-    <PackageReference Include="WBC66.Cache.Core" Version="2024.11.7" />
-    <PackageReference Include="WBC66.SqlSugar.Core" Version="2024.11.4.3" />
+    <!--<PackageReference Include="WBC66.SqlSugar.Core" Version="2024.11.4.3" />-->
     </ItemGroup>
+<ItemGroup>
+  <ProjectReference Include="..\..\src\WBC66.Cache.Core\WBC66.Cache.Core.csproj" />
+  <ProjectReference Include="..\..\src\WBC66.Core\WBC66.Core.csproj" />
+</ItemGroup>
 
 </Project>

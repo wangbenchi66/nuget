@@ -39,19 +39,8 @@ namespace WBC66.Cache.Core
             //    .InterceptedBy(typeof(MemoryCacheInterceptor));
 
             //注册所有类结尾为Service的类，并启用拦截器
-            // var compilationLibrary = DependencyContext.Default.RuntimeLibraries.Where(x => !x.Serviceable && x.Type == "project").ToList();
-            // List<Assembly> assemblyList = new List<Assembly>();
-            // foreach (var _compilation in compilationLibrary)
-            // {
-            //     try
-            //     {
-            //         assemblyList.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(_compilation.Name)));
-            //     }
-            //     catch
-            //     {
-            //     }
-            // }
-            Assembly[] assemblyList = AppDomain.CurrentDomain.GetAssemblies();
+            var compilationLibrary = DependencyContext.Default.RuntimeLibraries.Where(x => !x.Serviceable && x.Type == "project").ToList();
+            var assemblyList = compilationLibrary.Select(x => AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(x.Name)));
             options.RegisterAssemblyTypes(assemblyList.ToArray())
                 .Where(t => t.Name.EndsWith("Service") && t.IsClass)
                 .AsImplementedInterfaces()
