@@ -38,32 +38,32 @@ namespace WBC66.Autofac.Core
         /// <param name="builder">容器构建器</param>
         public static void AddAutofacModule(this ContainerBuilder builder)
         {
-            #region 批量注入
-
+            //IDependency接口自动注入
             Type baseType = typeof(IDependency);
-            var compilationLibrary = DependencyContext.Default
-                .RuntimeLibraries
-                .Where(x => !x.Serviceable
-                && x.Type == "project")
-                .ToList();
-            List<Assembly> assemblyList = new List<Assembly>();
-
-            foreach (var _compilation in compilationLibrary)
-            {
-                try
-                {
-                    assemblyList.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(_compilation.Name)));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(_compilation.Name + ex.Message);
-                }
-            }
-            builder.RegisterAssemblyTypes(assemblyList.ToArray())
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies().ToArray();
+            builder.RegisterAssemblyTypes(assemblies)
+                .Where(type => baseType.IsAssignableFrom(type) && !type.IsAbstract)
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope()
+                .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
+            #region 批量注入
+            // var compilationLibrary = DependencyContext.Default.RuntimeLibraries.Where(x => !x.Serviceable && x.Type == "project").ToList();
+            // List<Assembly> assemblyList = new List<Assembly>();
+            // foreach (var _compilation in compilationLibrary)
+            // {
+            //     try
+            //     {
+            //         assemblyList.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(_compilation.Name)));
+            //     }
+            //     catch (Exception ex)
+            //     {
+            //         Console.WriteLine(_compilation.Name + ex.Message);
+            //     }
+            // }
+            builder.RegisterAssemblyTypes(assemblies)
             .AsImplementedInterfaces()
             .InstancePerDependency()
                 .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
-
             #endregion 批量注入
         }
     }

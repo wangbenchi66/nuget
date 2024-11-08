@@ -1,8 +1,11 @@
-﻿using Autofac;
+﻿using System.Reflection;
+using System.Runtime.Loader;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Autofac.Extras.DynamicProxy;
 using Castle.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyModel;
 
 namespace WBC66.Cache.Core
 {
@@ -19,18 +22,38 @@ namespace WBC66.Cache.Core
         {
             services.AddMemoryCache();
         }
+
         /// <summary>
         /// 开启内存缓存拦截器(带有IProxyService接口的类将会被拦截),带有CacheResultAttribute特性的方法将会被缓存
         /// </summary>
         /// <param name="options"></param>
         public static void AddMemoryCacheResultAop(this ContainerBuilder options)
         {
-            //添加拦截器LogInterceptor
-            options.RegisterType<MemoryCacheInterceptor>().As<IInterceptor>();
+            //注入拦截器
+            options.RegisterType<MemoryCacheInterceptor>();
             //注册所有实现 IProxyService 的类，并启用拦截器
-            options.RegisterType<MemoryCacheInterceptor>().AsSelf();
-            options.RegisterAssemblyTypes(AppDomain.CurrentDomain.GetAssemblies())
-                .Where(t => typeof(IProxyService).IsAssignableFrom(t) && t.IsClass)
+            // options.RegisterAssemblyTypes(AppDomain.CurrentDomain.GetAssemblies())
+            //    .Where(t => typeof(IProxyService).IsAssignableFrom(t) && t.IsClass)
+            //    .AsImplementedInterfaces()
+            //    .EnableInterfaceInterceptors()
+            //    .InterceptedBy(typeof(MemoryCacheInterceptor));
+
+            //注册所有类结尾为Service的类，并启用拦截器
+            // var compilationLibrary = DependencyContext.Default.RuntimeLibraries.Where(x => !x.Serviceable && x.Type == "project").ToList();
+            // List<Assembly> assemblyList = new List<Assembly>();
+            // foreach (var _compilation in compilationLibrary)
+            // {
+            //     try
+            //     {
+            //         assemblyList.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(_compilation.Name)));
+            //     }
+            //     catch
+            //     {
+            //     }
+            // }
+            Assembly[] assemblyList = AppDomain.CurrentDomain.GetAssemblies();
+            options.RegisterAssemblyTypes(assemblyList.ToArray())
+                .Where(t => t.Name.EndsWith("Service") && t.IsClass)
                 .AsImplementedInterfaces()
                 .EnableInterfaceInterceptors()
                 .InterceptedBy(typeof(MemoryCacheInterceptor));

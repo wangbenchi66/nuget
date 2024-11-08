@@ -1,12 +1,14 @@
-@WebApi.Test_HostAddress = http://localhost:5000/api
+@host = http://localhost:5240/api
 
-GET {{WebApi.Test_HostAddress}}/CacheResult
+GET {{host}}/CacheResult
 Accept: application/json
-
-# POST {{WebApi.Test_HostAddress}}/CacheResult/Post
-# Accept: application/json
-# //参数
-# {
-#   "name": ""
-# }
 ###
+GET {{host}}/CacheResult
+Accept: application/json
+###
+POST {{host}}/CacheResult/Post
+Content-Type: application/json
+
+{
+    "name": "test"
+}

@@ -25,8 +25,7 @@ namespace WebApi.Test.Controllers
         [HttpPost("Post")]
         public async Task<object> Post(Student test)
         {
-            _cacheResultService.GetStudentAsync(test.Name);
-            return "ok";
+            return _cacheResultService.GetStudentAsync(test.Name);
         }
     }
 
@@ -39,7 +38,7 @@ namespace WebApi.Test.Controllers
         }
     }
 
-    public interface ICacheResultService : IProxyService
+    public interface ICacheResultService /*: IProxyService*/
     {
         Student GetStudentAsync(string name);
     }
