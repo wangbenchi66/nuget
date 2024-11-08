@@ -1,14 +1,16 @@
 using Castle.DynamicProxy;
 using Microsoft.Extensions.Caching.Memory;
+using AspectCore.DynamicProxy;
 
 namespace WBC66.Cache.Core
 {
     /// <summary>
     /// 类AOP拦截器，用于拦截方法执行前后
     /// </summary>
-    public class MemoryCacheInterceptor : IInterceptor
+    public class MemoryCacheInterceptor : Castle.DynamicProxy.IInterceptor
     {
         private readonly IMemoryCache _memoryCache;
+
         /// <summary>
         /// 构造函数 注入IMemoryCache
         /// </summary>
@@ -53,6 +55,7 @@ namespace WBC66.Cache.Core
             }
         }
     }
+
     /// <summary>
     /// 代理服务接口(会自动注入)，所有实现该接口的类都会被拦截，拦截器会判断是否有CacheResult特性
     /// </summary>
