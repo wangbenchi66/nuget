@@ -1,12 +1,11 @@
-﻿using Autofac;
-using Autofac.Extras.DynamicProxy;
-using Castle.DynamicProxy;
-using IGeekFan.AspNetCore.Knife4jUI;
+﻿using IGeekFan.AspNetCore.Knife4jUI;
 using Microsoft.AspNetCore.Mvc;
 using SqlSugar.IOC;
 using WBC66.Autofac.Core;
 using WBC66.Cache.Core;
 using WBC66.Core;
+using WBC66.Core.Filters;
+using WBC66.Serilog.Core;
 using WBC66.SqlSugar.Core;
 using WebApi.Test.Filter;
 
@@ -14,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 builder.Services.AddSwaggerGen();
 //Serilog
-//builder.Host.AddSerilogHost(configuration);
+builder.Host.AddSerilogHost(configuration);
 
 //NLong
 //builder.AddNLogSteup(configuration);
@@ -51,6 +50,8 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<ValidateModelAttribute>();
     //添加自定义的缓存过滤器
     options.Filters.Add<CacheResultFilter>();
+    //添加幂等性过滤器
+    options.Filters.Add<HttpIdempotenceFilter>();
 });
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -72,6 +73,9 @@ app.UseKnife4UI(c =>
     c.RoutePrefix = "k4j";
 });
 app.MapControllers();
-app.UseMiddleware<LogMiddleware>();
+app.UseMiddleware<LogMiddleware>();//添加日志中间件
+app.UseMiddleware<ExceptionMiddleware>();//添加异常处理中间件
+app.UseMiddleware<CurrentLimitingMiddleware>();//添加限流中间件
+//app.UseMiddleware<IdempotenceMiddleware>();//添加幂等性中间件
 
 app.Run();

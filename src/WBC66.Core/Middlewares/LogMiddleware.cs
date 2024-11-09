@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Routing;
-using System.IO;
 using System.Diagnostics;
 
 namespace WBC66.Core
@@ -31,21 +25,34 @@ namespace WBC66.Core
             stopwatch.Start();
 
             var routeData = context.GetRouteData();
-            var controller = routeData.Values["controller"];
             var action = routeData.Values["action"];
-            var logMessage = $"请求路径: {context.Request.Path}\n操作: {action}";
+            var requestId = context.TraceIdentifier;
+            var logMessage = $"请求ID: {requestId}\n请求路径: {context.Request.Path}\n操作: {action}";
 
             // 记录请求参数
             logMessage = await LogRequestParameters(context, logMessage);
 
-            _logger.LogInformation(logMessage);
-
             // 记录响应
-            await LogResponse(context);
+            logMessage = await LogResponse(context, logMessage);
 
             stopwatch.Stop();
             var elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
-            _logger.LogInformation($"请求处理时间: {elapsedSeconds} 秒");
+            logMessage += $"\n请求处理时间: {elapsedSeconds} 秒";
+
+            // 根据状态码设置日志级别
+            var statusCode = context.Response.StatusCode;
+            if (statusCode >= 500)
+            {
+                _logger.LogError(logMessage);
+            }
+            else if (statusCode >= 400)
+            {
+                _logger.LogWarning(logMessage);
+            }
+            else
+            {
+                _logger.LogInformation(logMessage);
+            }
         }
 
         /// <summary>
@@ -75,8 +82,9 @@ namespace WBC66.Core
         /// 记录响应
         /// </summary>
         /// <param name="context">HTTP上下文</param>
-        /// <returns>异步任务</returns>
-        private async Task LogResponse(HttpContext context)
+        /// <param name="logMessage">日志消息</param>
+        /// <returns>更新后的日志消息</returns>
+        private async Task<string> LogResponse(HttpContext context, string logMessage)
         {
             var originalBodyStream = context.Response.Body;
             using (var responseBody = new MemoryStream())
@@ -92,15 +100,18 @@ namespace WBC66.Core
                 if (context.Response.ContentType != null && context.Response.ContentType.Contains("application/octet-stream"))
                 {
                     var fileSize = responseBody.Length;
-                    _logger.LogInformation($"响应文件大小: {fileSize} 字节");
+                    logMessage += $"\n响应文件大小: {fileSize} 字节";
                 }
                 else
                 {
-                    _logger.LogInformation($"响应:\n{responseText}");
+                    logMessage += $"\n响应:\n{responseText}";
+                    //状态码
+                    logMessage += $"\n状态码: {context.Response.StatusCode}";
                 }
 
                 await responseBody.CopyToAsync(originalBodyStream);
             }
+            return logMessage;
         }
     }
 }

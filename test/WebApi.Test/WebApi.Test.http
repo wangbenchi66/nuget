@@ -8,6 +8,8 @@ Accept: application/json
 ###
 POST {{host}}/CacheResult/Post
 Content-Type: application/json
+Headers: 
+    Idempotency-Key: test
 
 {
     "name": "test"

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using WBC66.Cache.Core;
+using WBC66.Core.Filters;
 
 namespace WebApi.Test.Controllers
 {
@@ -23,6 +24,7 @@ namespace WebApi.Test.Controllers
         }
 
         [HttpPost("Post")]
+        [IdempotenceTimeAttribute(0, 10, 1)]
         public async Task<object> Post(Student test)
         {
             return _cacheResultService.GetStudentAsync(test.Name);
