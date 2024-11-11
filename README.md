@@ -438,7 +438,7 @@ var BeginTranRes = _userRepository.DbContextBeginTransaction(() =>
     return true;
 });
 ```
-## Autofac配置
+## 5. Autofac配置
 ### 1. Autofac配置
 线上nuget引入 版本号随时更新
 ``` xml
@@ -457,7 +457,7 @@ public interface ITestService : IDependency
     string Get();
 }
 ``` 
-## 通过Aop使用内存缓存对接口、方法进行缓存
+## 6. 通过Aop使用内存缓存对接口、方法进行缓存
 ### 1. nuget包引入
 必须引入两个包 至少在2024.11.7以上
 ``` xml
@@ -514,6 +514,23 @@ public object Get()
     return "ok";
 }
 ```
-
-
+## 7. 过滤器,中间件
+### 1. 过滤器
+``` csharp
+//幂等性过滤器
+builder.Services.AddControllers(options =>
+{
+    //添加自定义的缓存过滤器 需要配合第六段的Aop使用
+    options.Filters.Add<CacheResultFilter>();
+    //添加自定义的幂等性过滤器
+    options.Filters.Add<IdempotentFilter>();
+});
+```
+### 2. 中间件
+``` csharp
+//添加自定义的中间件
+app.UseMiddleware<LogMiddleware>();//添加日志中间件
+app.UseMiddleware<ExceptionMiddleware>();//添加异常处理中间件
+app.UseMiddleware<CurrentLimitingMiddleware>(1, 1);//添加限流中间件 1个线程 1个并发
+```
 

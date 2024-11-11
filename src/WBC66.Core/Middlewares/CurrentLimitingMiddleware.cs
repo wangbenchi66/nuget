@@ -12,19 +12,23 @@ namespace WBC66.Core
         private readonly ILogger<CurrentLimitingMiddleware> _logger;
 
         /// <summary>
-        /// 定义一个信号量，用于限制并发访问量 允许同时访问的线程数为1，最大允许的线程数为1
+        /// 定义一个信号量，用于限制并发访问量
         /// </summary>
         /// <returns></returns>
-        private static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        private static SemaphoreSlim _semaphore;
 
         /// <summary>
         /// 构造函数，初始化中间件
         /// </summary>
         /// <param name="next">下一个中间件</param>
-        public CurrentLimitingMiddleware(RequestDelegate next, ILogger<CurrentLimitingMiddleware> logger)
+        /// <param name="logger">日志记录器</param>
+        /// <param name="maxThread">最大线程数</param>
+        /// <param name="maxConcurrentRequests">最大并发请求数</param>
+        public CurrentLimitingMiddleware(RequestDelegate next, ILogger<CurrentLimitingMiddleware> logger, int maxThread, int maxConcurrentRequests)
         {
             _next = next;
             _logger = logger;
+            _semaphore = new SemaphoreSlim(maxThread, maxConcurrentRequests);
         }
 
         /// <summary>
