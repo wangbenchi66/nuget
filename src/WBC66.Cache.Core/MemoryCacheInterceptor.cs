@@ -1,4 +1,5 @@
 using Castle.DynamicProxy;
+using Common.Core;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace WBC66.Cache.Core
@@ -69,14 +70,15 @@ namespace WBC66.Cache.Core
                 _memoryCache.Set(cacheKey, result, cacheEntryOptions);
             }
         }
+
         /// <summary>
         /// 获取缓存Key
         /// </summary>
         /// <param name="invocation"></param>
         /// <returns></returns>
-        string GetCacheKey(IInvocation invocation)
+        private string GetCacheKey(IInvocation invocation)
         {
-            return $"{invocation.Method.DeclaringType.FullName}.{invocation.Method.Name}_{ParamHash.GetParametHash(invocation.Arguments)}";
+            return $"{invocation.Method.DeclaringType.FullName}.{invocation.Method.Name}_{HttpContextHelper.GetParametHash(invocation.Arguments)}";
         }
     }
 

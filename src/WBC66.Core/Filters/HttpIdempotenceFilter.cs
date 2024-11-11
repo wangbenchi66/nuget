@@ -1,4 +1,5 @@
 using System.Reflection;
+using Common.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -27,8 +28,11 @@ namespace WBC66.Core.Filters
         }
 
         /// <summary>
-        /// 执行过滤器逻辑
+        /// 方法前执行过滤器逻辑
         /// </summary>
+        /// <param name="context"></param>
+        /// <param name="next"></param>
+        /// <returns></returns>
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (await ShouldCheckIdempotenceAsync(context.HttpContext))
@@ -47,15 +51,12 @@ namespace WBC66.Core.Filters
         /// <summary>
         /// 检查请求是否在幂等性时间内
         /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         private async Task<bool> IsRequestIdempotentAsync(HttpContext context)
         {
-            var requestId = context.Request.Headers["Idempotency-Key"].FirstOrDefault();
-            if (string.IsNullOrEmpty(requestId))
-            {
-                _logger.LogWarning("缺少 Idempotency-Key 头。");
-                return false;
-            }
-
+            //获取请求参数的哈希值
+            var requestId = HttpContextHelper.GetParametHash(context.Request.Path, context.Request.QueryString, context.Request.Body);
             if (_cache.TryGetValue(requestId, out _))
             {
                 _logger.LogWarning("检测到重复请求。");
@@ -69,6 +70,8 @@ namespace WBC66.Core.Filters
         /// <summary>
         /// 判断方法是否包含幂等性特性
         /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         private async Task<bool> ShouldCheckIdempotenceAsync(HttpContext context)
         {
             var endpoint = context.GetEndpoint();
@@ -103,8 +106,17 @@ namespace WBC66.Core.Filters
     [AttributeUsage(AttributeTargets.Method, Inherited = false)]
     public class IdempotenceTimeAttribute : Attribute
     {
+        /// <summary>
+        /// 幂等性时间
+        /// </summary>
         public TimeSpan TimeSpan { get; }
 
+        /// <summary>
+        /// 幂等性特性
+        /// </summary>
+        /// <param name="hours">小时</param>
+        /// <param name="minutes">分钟</param>
+        /// <param name="seconds">秒数</param>
         public IdempotenceTimeAttribute(int hours, int minutes, int seconds)
         {
             TimeSpan = new TimeSpan(hours, minutes, seconds);
