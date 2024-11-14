@@ -597,6 +597,8 @@ namespace WBC66.SqlSugar.Core
             var take = pageSize;
             var list = DbBaseClient.Ado.SqlQuery<T1>(sql, parameters);
             var total = list.Count;
+            if (total == 0)
+                return new PageList<T1>(null, pageIndex, pageSize, total);
             return new PageList<T1>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
         }
 
@@ -616,6 +618,8 @@ namespace WBC66.SqlSugar.Core
             var take = pageSize;
             var list = await DbBaseClient.Ado.SqlQueryAsync<T>(sql, parameters);
             var total = list.Count;
+            if (total == 0)
+                return new PageList<T>(null, pageIndex, pageSize, total);
             return new PageList<T>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
         }
 
