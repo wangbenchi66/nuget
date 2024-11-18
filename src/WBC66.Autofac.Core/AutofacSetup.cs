@@ -40,31 +40,30 @@ namespace WBC66.Autofac.Core
         {
             //IDependency接口自动注入
             Type baseType = typeof(IDependency);
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies().ToArray();
-            builder.RegisterAssemblyTypes(assemblies)
-                .Where(type => baseType.IsAssignableFrom(type) && !type.IsAbstract)
-                .AsImplementedInterfaces()
-                .InstancePerLifetimeScope()
-                .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
-            #region 批量注入
-            // var compilationLibrary = DependencyContext.Default.RuntimeLibraries.Where(x => !x.Serviceable && x.Type == "project").ToList();
-            // List<Assembly> assemblies = new List<Assembly>();
-            // foreach (var _compilation in compilationLibrary)
-            // {
-            //     try
-            //     {
-            //         assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(_compilation.Name)));
-            //     }
-            //     catch (Exception ex)
-            //     {
-            //         Console.WriteLine(_compilation.Name + ex.Message);
-            //     }
-            // }
+            //Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies().ToArray();
+
+            var compilationLibrary = DependencyContext.Default.RuntimeLibraries.Where(x => !x.Serviceable && x.Type == "project").ToList();
+            List<Assembly> assemblies = new List<Assembly>();
+            foreach (var _compilation in compilationLibrary)
+            {
+                try
+                {
+                    assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(_compilation.Name)));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(_compilation.Name + ex.Message);
+                }
+            }
+            builder.RegisterAssemblyTypes(assemblies.ToArray())
+              .Where(type => baseType.IsAssignableFrom(type) && !type.IsAbstract)
+              .AsImplementedInterfaces()
+              .InstancePerLifetimeScope()
+              .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
             builder.RegisterAssemblyTypes(assemblies.ToArray())
             .AsImplementedInterfaces()
             .InstancePerDependency()
                 .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
-            #endregion 批量注入
         }
     }
 }

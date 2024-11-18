@@ -1,3 +1,4 @@
+@WebApi.Test_HostAddress = http://localhost:5240
 @host = http://localhost:5240/api
 
 GET {{host}}/CacheResult
@@ -8,9 +9,12 @@ Accept: application/json
 ###
 POST {{host}}/CacheResult/Post
 Content-Type: application/json
-Headers: 
-    Idempotency-Key: test
+Idempotency-Key: test
 
 {
     "name": "test"
 }
+###
+GET {{WebApi.Test_HostAddress}}/tests/tests
+
+###

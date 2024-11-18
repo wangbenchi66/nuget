@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 using UnitTest.Repository;
-using WBC66.Cache.Core;
 
 namespace WebApi.Test.Controllers
 {
@@ -10,10 +9,12 @@ namespace WebApi.Test.Controllers
     public class SqlSugarController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly ILogger<SqlSugarController> _logger;
 
-        public SqlSugarController(IUserRepository userRepository)
+        public SqlSugarController(IUserRepository userRepository, ILogger<SqlSugarController> logger)
         {
             _userRepository = userRepository;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -22,7 +23,8 @@ namespace WebApi.Test.Controllers
             //所有操作都有异步方法，增加Async即可
             //查询单个
             var obj = _userRepository.GetSingle(p => p.Id == 1);
-            return "";
+            _logger.LogInformation("查询单个结果：{@obj}", obj);
+            return obj;
             //查询列表
             var list = _userRepository.GetList(p => p.Id > 0);
             //分页查询 (条件,排序,页码,每页条数)
