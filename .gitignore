@@ -51,3 +51,4 @@ pnpm-debug.log*
 */dist/
 */TestResults/
 *.nupkg
+nugetPush.bat

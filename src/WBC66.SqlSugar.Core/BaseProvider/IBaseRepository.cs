@@ -13,7 +13,12 @@ namespace WBC66.SqlSugar.Core
         /// <summary>
         /// 数据库上下文
         /// </summary>
-        ISqlSugarClient DbBaseClient { get; }
+        ISqlSugarClient SqlSugarDbContext { get; }
+
+        /// <summary>
+        /// SqlSugarAdo
+        /// </summary>
+        IAdo SqlSugarDbContextAdo { get; }
 
         #region 获取单个实体
 
