@@ -1,6 +1,7 @@
 ﻿using IGeekFan.AspNetCore.Knife4jUI;
 using Microsoft.AspNetCore.Mvc;
-using SqlSugar.IOC;
+using SqlSugar;
+using UnitTest.Repository;
 using WBC66.Autofac.Core;
 using WBC66.Cache.Core;
 using WBC66.Core;
@@ -35,15 +36,11 @@ builder.Host.AddAutofacHostSetup(builder.Services, options =>
     options.AddMemoryCacheResultAop();
 });
 
+builder.Services.AddSingleton<UserRepository>();
 
 //SqlSugar
-builder.Services.AddSqlSugarSetup(configuration.GetSection("DBS").Get<List<IocConfig>>(), true, config =>
-{
-    config.Aop.OnLogExecuting = (sql, pars) =>
-    {
-        Console.WriteLine("这是自定义事件{0}", sql);
-    };
-});
+builder.Services.AddSqlSugarSetup(configuration.GetSection("DBS").Get<List<ConnectionConfig>>());
+
 builder.Services.AddControllers(options =>
 {
     //添加自定义的模型验证过滤器

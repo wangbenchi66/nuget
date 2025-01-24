@@ -11,7 +11,9 @@ namespace WBC66.SqlSugar.Core
         /// <summary>
         /// IOC 配置列表
         /// /// </summary>
-        public List<IocConfig> Configs { get; set; }
+        public List<IocConfig> IocConfigs { get; set; }
+
+        public List<ConnectionConfig> Configs { get; set; }
 
         /// <summary>
         /// 启用日志

@@ -22,7 +22,7 @@ namespace UnitTest
             //注入
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
             ////SqlSugar
-            builder.Services.AddSqlSugarSetup(new List<IocConfig>()
+            builder.Services.AddSqlSugarIocSetup(new List<IocConfig>()
                 {
                     new IocConfig()
                     {

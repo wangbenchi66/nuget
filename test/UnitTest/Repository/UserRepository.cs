@@ -4,11 +4,12 @@ using WBC66.SqlSugar.Core;
 
 namespace UnitTest.Repository
 {
-    enum DbData
+    internal enum DbData
     {
         journal,
         Journal2
     }
+
     /// <summary>
     /// 用户表
     ///</summary>
@@ -46,7 +47,7 @@ namespace UnitTest.Repository
     /// <summary>
     /// 用户仓储
     /// </summary>
-    public class UserRepository : BaseRepository<User>, IUserRepository
+    public class UserRepository : BaseSqlSugarIocRepository<User>, IUserRepository
     {
         //在这里直接用base.  也可以直接调用仓储的方法
     }

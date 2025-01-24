@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SqlSugar;
 using UnitTest.Repository;
 
 namespace WebApi.Test.Controllers
@@ -8,10 +7,10 @@ namespace WebApi.Test.Controllers
     [ApiController]
     public class SqlSugarController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
+        private readonly UserRepository _userRepository;
         private readonly ILogger<SqlSugarController> _logger;
 
-        public SqlSugarController(IUserRepository userRepository, ILogger<SqlSugarController> logger)
+        public SqlSugarController(UserRepository userRepository, ILogger<SqlSugarController> logger)
         {
             _userRepository = userRepository;
             _logger = logger;
@@ -25,7 +24,7 @@ namespace WebApi.Test.Controllers
             var obj = _userRepository.GetSingle(p => p.Id == 1);
             _logger.LogInformation("查询单个结果：{@obj}", obj);
             return obj;
-            //查询列表
+            /*//查询列表
             var list = _userRepository.GetList(p => p.Id > 0);
             //分页查询 (条件,排序,页码,每页条数)
             var page = _userRepository.QueryPage(p => p.Id > 0, "", 1, 10);
@@ -83,7 +82,7 @@ namespace WebApi.Test.Controllers
                 return true;
             });
 
-            return "ok";
+            return "ok";*/
         }
     }
 }

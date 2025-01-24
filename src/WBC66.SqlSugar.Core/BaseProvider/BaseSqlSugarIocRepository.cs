@@ -10,7 +10,7 @@ namespace WBC66.SqlSugar.Core
     /// SqlSugar通用仓储
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BaseRepository<T> where T : class, new()
+    public abstract class BaseSqlSugarIocRepository<T> where T : class, new()
     {
         #region 数据库连接对象
 

@@ -10,7 +10,7 @@ namespace WBC66.SqlSugar.Core
     public static class SqlSugarSetup
     {
         /// <summary>
-        /// 添加SqlSugar服务
+        /// 添加SqlSugar服务(Ioc)
         /// </summary>
         /// <param name="services"></param>
         /// <param name="configs">配置文件</param>
@@ -22,7 +22,7 @@ namespace WBC66.SqlSugar.Core
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
                 throw new ArgumentNullException("请检查是否配置数据库连接字符串");
-            SqlSugarContext.Options = new SqlSugarOptions() { Configs = configs, Logger = enableAopLogging };
+            SqlSugarContext.Options = new SqlSugarOptions() { IocConfigs = configs, Logger = enableAopLogging };
             SugarIocServices.AddSqlSugar(configs);
             if (aopConfigAction != null)
             {
@@ -51,6 +51,26 @@ namespace WBC66.SqlSugar.Core
                     });
                 }
             }
+        }
+
+        /// <summary>
+        /// SqlSugar服务
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configs"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void AddSqlSugarSetup(this IServiceCollection services, List<ConnectionConfig> configs)
+        {
+            if (services == null) { throw new ArgumentNullException(nameof(services)); }
+            if (configs == null)
+                throw new ArgumentNullException("请检查是否配置数据库连接字符串");
+            //services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            var db = new SqlSugarClient(configs);
+            services.AddSingleton<ISqlSugarClient>(s =>
+            {
+                SqlSugarScope Db = new SqlSugarScope(configs);
+                return Db;
+            });
         }
     }
 }
