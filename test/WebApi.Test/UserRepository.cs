@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using SqlSugar;
 using WBC66.SqlSugar.Core;
 
@@ -28,6 +29,10 @@ namespace UnitTest.Repository
     public class UserRepository : BaseRepository<User>, IUserRepository
     {
         //在这里直接用base.  也可以直接调用仓储的方法
+        public override User GetSingle(Expression<Func<User, bool>> where)
+        {
+            return base.SqlSugarDbContext.Queryable<User>().Where(where).Where(p => p.Id == 1).First();
+        }
     }
 
     /// <summary>
