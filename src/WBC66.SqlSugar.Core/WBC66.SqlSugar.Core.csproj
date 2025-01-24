@@ -26,22 +26,22 @@
   </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
-		<PackageReference Include="sqlSugarCore" Version="5.1.4.170" />
+		<PackageReference Include="sqlSugarCore" Version="5.1.4.175" />
 	</ItemGroup>
 	<!--<ItemGroup>
 	  <ProjectReference Include="..\Common.Core\Common.Core.csproj" />
 	</ItemGroup>-->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8'">
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
-		<PackageReference Include="sqlSugarCore" Version="5.1.4.170" />
+		<PackageReference Include="sqlSugarCore" Version="5.1.4.175" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7'">
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
-		<PackageReference Include="sqlSugarCore" Version="5.1.4.170" />
+		<PackageReference Include="sqlSugarCore" Version="5.1.4.175" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6'">
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
-		<PackageReference Include="sqlSugarCore" Version="5.1.4.170" />
+		<PackageReference Include="sqlSugarCore" Version="5.1.4.175" />
 	</ItemGroup>
 
 </Project>

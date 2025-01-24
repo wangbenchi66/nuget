@@ -17,7 +17,7 @@ namespace WBC66.SqlSugar.Core
         /// <param name="enableAopLogging">开启日志输出</param>
         /// <param name="aopConfigAction">AOP配置</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public static void AddSqlSugarSetup(this IServiceCollection services, List<IocConfig> configs, bool enableAopLogging = false, Action<ISqlSugarClient> aopConfigAction = null)
+        public static void AddSqlSugarIocSetup(this IServiceCollection services, List<IocConfig> configs, bool enableAopLogging = false, Action<SqlSugarClient> aopConfigAction = null)
         {
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
