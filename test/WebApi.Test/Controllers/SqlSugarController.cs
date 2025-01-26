@@ -9,11 +9,13 @@ namespace WebApi.Test.Controllers
     {
         private readonly UserRepository _userRepository;
         private readonly ILogger<SqlSugarController> _logger;
+        private readonly CategoryRepository _categoryRepository;
 
-        public SqlSugarController(UserRepository userRepository, ILogger<SqlSugarController> logger)
+        public SqlSugarController(UserRepository userRepository, ILogger<SqlSugarController> logger, CategoryRepository categoryRepository)
         {
             _userRepository = userRepository;
             _logger = logger;
+            _categoryRepository = categoryRepository;
         }
 
         [HttpGet]
@@ -23,6 +25,9 @@ namespace WebApi.Test.Controllers
             //查询单个
             var obj = _userRepository.GetSingle(p => p.Id == 1);
             _logger.LogInformation("查询单个结果：{@obj}", obj);
+
+            var obj1 = _categoryRepository.GetSingle(p => p.ID == 1);
+            _logger.LogInformation("查询单个结果：{@obj1}", obj1);
             return obj;
             /*//查询列表
             var list = _userRepository.GetList(p => p.Id > 0);

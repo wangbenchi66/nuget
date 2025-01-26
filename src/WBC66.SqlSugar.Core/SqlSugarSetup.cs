@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SqlSugar;
 using SqlSugar.IOC;
+using WBC66.SqlSugar.Core.BaseProvider;
 
 namespace WBC66.SqlSugar.Core
 {
@@ -71,6 +72,7 @@ namespace WBC66.SqlSugar.Core
                 SqlSugarScope Db = new SqlSugarScope(configs);
                 return Db;
             });
+            services.AddScoped(typeof(BaseSqlSugarRepository<>));
         }
     }
 }

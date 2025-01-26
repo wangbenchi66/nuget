@@ -37,9 +37,24 @@ builder.Host.AddAutofacHostSetup(builder.Services, options =>
 });
 
 builder.Services.AddSingleton<UserRepository>();
+//builder.Services.AddSingleton<CategoryRepository>();
 
 //SqlSugar
-builder.Services.AddSqlSugarSetup(configuration.GetSection("DBS").Get<List<ConnectionConfig>>());
+var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
+foreach (var item in list)
+{
+    //日志输出
+#if DEBUG
+    item.AopEvents = new AopEvents()
+    {
+        OnLogExecuting = (sql, pars) =>
+        {
+            Console.WriteLine($"{DateTime.Now},ConfigId:{item.ConfigId},Sql:{UtilMethods.GetSqlString(DbType.MySql, sql, pars)}");
+        }
+    };
+}
+#endif
+builder.Services.AddSqlSugarSetup(list);
 
 builder.Services.AddControllers(options =>
 {
