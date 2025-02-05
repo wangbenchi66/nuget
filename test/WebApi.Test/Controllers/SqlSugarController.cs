@@ -164,5 +164,22 @@ namespace WebApi.Test.Controllers
 
             return "ok";
         }
+
+        //测试事务
+        [HttpGet("Tran")]
+        public object Tran()
+        {
+            //事务
+            _userRepository.DbContextBeginTransaction(() =>
+            {
+                _userRepository.Insert(new User() { Name = "99999" });
+                _categoryRepository.Insert(new Category() { Title = "99999" });
+                //查询结果
+                var obj = _userRepository.GetSingle(p => p.Name == "99999");
+                var obj1 = _categoryRepository.GetSingle(p => p.Title == "99999");
+                return false;
+            });
+            return "ok";
+        }
     }
 }

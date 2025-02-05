@@ -51,7 +51,7 @@ foreach (var item in list)
     {
         OnLogExecuting = (sql, pars) =>
         {
-            Console.WriteLine($"{DateTime.Now},ConfigId:{item.ConfigId},Sql:{UtilMethods.GetSqlString(DbType.MySql, sql, pars)}");
+            Console.WriteLine($"{DateTime.Now},ConfigId:{item.ConfigId}{Environment.NewLine}Sql:{UtilMethods.GetSqlString(DbType.MySql, sql, pars)}");
         }
     };
 }
