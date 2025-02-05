@@ -222,6 +222,50 @@ namespace WBC66.SqlSugar.Core.BaseProvider
         }
 
         /// <summary>
+        /// 批量更新实体数据指定字段
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <returns></returns>
+        public virtual int Update(List<T> entity, Expression<Func<T, object>> updateColumns)
+        {
+            return SqlSugarDbContext.Updateable(entity).UpdateColumns(updateColumns).ExecuteCommand();
+        }
+
+        /// <summary>
+        /// 批量更新实体数据指定字段
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <returns></returns>
+        public virtual async Task<int> UpdateAsync(List<T> entity, Expression<Func<T, object>> updateColumns)
+        {
+            return await SqlSugarDbContext.Updateable(entity).UpdateColumns(updateColumns).ExecuteCommandAsync();
+        }
+
+        /// <summary>
+        /// 更新实体数据指定字段
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <returns></returns>
+        public virtual int Update(T entity, Expression<Func<T, object>> updateColumns)
+        {
+            return SqlSugarDbContext.Updateable(entity).UpdateColumns(updateColumns).ExecuteCommand();
+        }
+
+        /// <summary>
+        /// 更新实体数据指定字段
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <returns></returns>
+        public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns)
+        {
+            return await SqlSugarDbContext.Updateable(entity).UpdateColumns(updateColumns).ExecuteCommandAsync();
+        }
+
+        /// <summary>
         /// 更新某个字段
         /// </summary>
         /// <param name="entity"></param>

@@ -158,6 +158,38 @@ namespace WBC66.SqlSugar.Core
         Task<int> UpdateAsync(T entity);
 
         /// <summary>
+        /// 批量更新实体数据指定字段
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <returns></returns>
+        int Update(List<T> entity, Expression<Func<T, object>> updateColumns);
+
+        /// <summary>
+        /// 批量更新实体数据指定字段
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(List<T> entity, Expression<Func<T, object>> updateColumns);
+
+        /// <summary>
+        /// 更新实体数据指定字段
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <returns></returns>
+        int Update(T entity, Expression<Func<T, object>> updateColumns);
+
+        /// <summary>
+        /// 更新实体数据指定字段
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns);
+
+        /// <summary>
         /// 更新某个字段
         /// </summary>
         /// <param name="entity"></param>

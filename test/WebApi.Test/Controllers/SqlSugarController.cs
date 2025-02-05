@@ -56,6 +56,8 @@ namespace WebApi.Test.Controllers
             //修改
             var isUpdate = _userRepository.Update(obj);
             //修改指定列
+            var isUpdate7 = _userRepository.Update(obj, x => new { x.Name });
+            //修改指定条件数据
             var isUpdate2 = _userRepository.Update(p => new User() { Name = "2" }, p => p.Name == "test");
             //根据条件更新 (实体,要修改的列,条件)
             var isUpdate3 = _userRepository.Update(obj, x => new { x.Name }, x => x.Id == 1);
@@ -67,6 +69,9 @@ namespace WebApi.Test.Controllers
                 { "name", "2" }
             };
             var isUpdate5 = _userRepository.Update(updateColumns, x => x.Id == 1);
+            //无实体更新2,先将值放在实体中,只更新要更新的值(实体内字段如果全部更新就不要带where条件,避免误传导致数值问题,有where必须由更新字段指定)
+            var user = new User() { Name = "2" };
+            var isUpdate6 = _userRepository.Update(user, x => new { x.Name }, x => x.Id == 1);
             //删除
             var isDelete = _userRepository.Delete(obj);
             //批量删除 
