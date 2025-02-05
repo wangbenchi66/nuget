@@ -214,6 +214,19 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
         public int Id { get; set; }
     }
 
+    //可以直接不使用接口模式,直接使用仓储(如果名称Service、Repository、Dao结尾的类,ISingletony也可以省略,前提是必须使用autofac包)
+    public class UserRepository : BaseSqlSugarIocRepository<User>, ISingleton
+    {
+        //在这里直接用base.  也可以直接调用仓储的方法
+    }
+
+    public class UserRepository : BaseSqlSugarRepository<User>, ISingleton
+    {
+        public UserRepository(ISqlSugarClient db) : base(db)
+        {
+        }
+    }
+
     /// <summary>
     /// 用户仓储(使用SqlsugarIoc模式)
     /// </summary>
@@ -224,7 +237,7 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
     /// <summary>
     /// 用户仓储接口层(使用SqlsugarIoc模式)
     /// </summary>
-    public interface IUserRepository : IBaseSqlSugarIocRepository<User>
+    public interface IUserRepository : IBaseRepository<User>, ISingleton
     {
     }
 
@@ -234,6 +247,13 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
         public UserRepository(ISqlSugarClient db) : base(db)
         {
         }
+    }
+    
+    /// <summary>
+    /// 用户仓储接口层(使用SqlsugarIoc模式)
+    /// </summary>
+    public interface IUserRepository : IBaseRepository<User>, ISingleton
+    {
     }
 
     

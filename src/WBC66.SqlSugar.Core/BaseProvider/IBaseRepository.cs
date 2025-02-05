@@ -10,6 +10,12 @@ namespace WBC66.SqlSugar.Core
     /// <typeparam name="T">泛型实体类型</typeparam>
     public interface IBaseRepository<T> where T : class, new()
     {
+
+        /// <summary>
+        /// //多租户事务、GetConnection、IsAnyConnection等功能
+        /// </summary>
+        ITenant Tenant { get; }
+
         /// <summary>
         /// 数据库上下文
         /// </summary>
@@ -420,6 +426,13 @@ namespace WBC66.SqlSugar.Core
         /// <param name="func">事务操作</param>
         /// <returns>事务是否成功</returns>
         bool DbContextBeginTransaction(Func<bool> func);
+
+        /// <summary>
+        /// 开启事务
+        /// </summary>
+        /// <param name="func">事务操作</param>
+        /// <returns>事务是否成功</returns>
+        Task<bool> DbContextBeginTransactionAsync(Func<bool> func);
 
         #endregion 开启事务
     }

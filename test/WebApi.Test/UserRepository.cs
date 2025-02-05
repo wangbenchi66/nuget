@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using SqlSugar;
 using WBC66.Autofac.Core;
 using WBC66.SqlSugar.Core;
 using WBC66.SqlSugar.Core.BaseProvider;
 
-namespace UnitTest.Repository
+namespace WebApi.Test
 {
     /// <summary>
     /// 用户表
@@ -48,11 +49,15 @@ namespace UnitTest.Repository
 
     #region 打卡模块
 
-    public class CategoryRepository : BaseSqlSugarRepository<Category>, ISingleton
+    public class CategoryRepository : BaseSqlSugarRepository<Category>, ICategoryRepository
     {
         public CategoryRepository(ISqlSugarClient db) : base(db)
         {
         }
+    }
+
+    public interface ICategoryRepository : IBaseRepository<Category>, ISingleton
+    {
     }
 
     /// <summary>

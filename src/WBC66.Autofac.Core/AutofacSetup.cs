@@ -67,11 +67,10 @@ namespace WBC66.Autofac.Core
 
 
             builder.RegisterAssemblyTypes(assemblies.ToArray())//程序集内所有具象类 
-            .Where(c => c.Name.ToLower().EndsWith("repository") || c.Name.ToLower().EndsWith("service") || c.Name.ToLower().EndsWith("dao"))
-            .PublicOnly()//只要public访问权限的
-            .Where(cc => cc.IsClass)//只要class型（主要为了排除值和interface类型） 
-            .InstancePerLifetimeScope()
-            .AsImplementedInterfaces();
+           .Where(c => c.Name.ToLower().EndsWith("repository") || c.Name.ToLower().EndsWith("service") || c.Name.ToLower().EndsWith("dao"))
+           .PublicOnly()//只要public访问权限的
+           .InstancePerLifetimeScope()
+           .AsImplementedInterfaces();
         }
 
 

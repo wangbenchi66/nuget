@@ -15,6 +15,11 @@ namespace WBC66.SqlSugar.Core
         #region 数据库连接对象
 
         /// <summary>
+        /// //多租户事务、GetConnection、IsAnyConnection等功能
+        /// </summary>
+        public ITenant Tenant => DbBase.AsTenant();
+
+        /// <summary>
         /// 数据库连接对象
         /// </summary>
         private ISqlSugarClient DbBase
@@ -711,21 +716,52 @@ namespace WBC66.SqlSugar.Core
             var result = new bool();
             try
             {
-                SqlSugarDbContext.Ado.BeginTran();
+                SqlSugarDbContext.AsTenant().BeginTran();
                 result = func();
                 if (result)
                 {
-                    SqlSugarDbContext.Ado.CommitTran();
+                    SqlSugarDbContext.AsTenant().CommitTran();
                 }
                 else
                 {
-                    SqlSugarDbContext.Ado.RollbackTran();
+                    SqlSugarDbContext.AsTenant().RollbackTran();
                     result = false;
                 }
             }
             catch (Exception ex)
             {
-                SqlSugarDbContext.Ado.RollbackTran();
+                SqlSugarDbContext.AsTenant().RollbackTran();
+                result = false;
+                Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 事务
+        /// </summary>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public virtual async Task<bool> DbContextBeginTransactionAsync(Func<bool> func)
+        {
+            var result = new bool();
+            try
+            {
+                await SqlSugarDbContext.AsTenant().BeginTranAsync();
+                result = func();
+                if (result)
+                {
+                    await SqlSugarDbContext.AsTenant().CommitTranAsync();
+                }
+                else
+                {
+                    await SqlSugarDbContext.AsTenant().RollbackTranAsync();
+                    result = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                await SqlSugarDbContext.AsTenant().RollbackTranAsync();
                 result = false;
                 Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
             }

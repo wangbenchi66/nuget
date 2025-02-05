@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
-using UnitTest.Repository;
 
 namespace WebApi.Test.Controllers
 {
@@ -10,9 +9,9 @@ namespace WebApi.Test.Controllers
     {
         private readonly UserRepository _userRepository;
         private readonly ILogger<SqlSugarController> _logger;
-        private readonly CategoryRepository _categoryRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public SqlSugarController(UserRepository userRepository, ILogger<SqlSugarController> logger, CategoryRepository categoryRepository)
+        public SqlSugarController(UserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository)
         {
             _userRepository = userRepository;
             _logger = logger;

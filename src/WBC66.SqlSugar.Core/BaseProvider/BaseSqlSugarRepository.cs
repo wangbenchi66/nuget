@@ -14,18 +14,21 @@ namespace WBC66.SqlSugar.Core.BaseProvider
         /// <summary>
         /// db上下文
         /// </summary>
-        public ISqlSugarClient SqlSugarDbContext;
+        public ISqlSugarClient SqlSugarDbContext { get; private set; }
 
         /// <summary>
         /// SqlSugarAdo
         /// </summary>
-        public IAdo SqlSugarDbContextAdo;
+        public IAdo SqlSugarDbContextAdo { get; private set; }
 
-        public ITenant itenant = null;//多租户事务、GetConnection、IsAnyConnection等功能
+        /// <summary>
+        /// //多租户事务、GetConnection、IsAnyConnection等功能
+        /// </summary>
+        public ITenant Tenant { get; private set; }
 
         public BaseSqlSugarRepository(ISqlSugarClient db)
         {
-            itenant = db.AsTenant();//用来处理事务
+            Tenant = db.AsTenant();//用来处理事务
             base.Context = db.AsTenant().GetConnectionWithAttr<T>();//获取子Db
             SqlSugarDbContext = Context;
             SqlSugarDbContextAdo = Context.Ado;
@@ -704,21 +707,21 @@ namespace WBC66.SqlSugar.Core.BaseProvider
             var result = new bool();
             try
             {
-                itenant.BeginTran();
+                Tenant.BeginTran();
                 result = func();
                 if (result)
                 {
-                    itenant.CommitTran();
+                    Tenant.CommitTran();
                 }
                 else
                 {
-                    itenant.RollbackTran();
+                    Tenant.RollbackTran();
                     result = false;
                 }
             }
             catch (Exception ex)
             {
-                itenant.RollbackTran();
+                Tenant.RollbackTran();
                 result = false;
                 Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
             }
@@ -735,21 +738,21 @@ namespace WBC66.SqlSugar.Core.BaseProvider
             var result = new bool();
             try
             {
-                await itenant.BeginTranAsync();
+                await Tenant.BeginTranAsync();
                 result = func();
                 if (result)
                 {
-                    await itenant.CommitTranAsync();
+                    await Tenant.CommitTranAsync();
                 }
                 else
                 {
-                    await itenant.RollbackTranAsync();
+                    await Tenant.RollbackTranAsync();
                     result = false;
                 }
             }
             catch (Exception ex)
             {
-                await itenant.RollbackTranAsync();
+                await Tenant.RollbackTranAsync();
                 result = false;
                 Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
             }
