@@ -11,7 +11,7 @@
 	  <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
 	  <PackageReleaseNotes>基于Autofac进行封装使用</PackageReleaseNotes>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Version>2024.11.08</Version>
+	  <Version>2025.02.05.1</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
 	  <PackageOutputPath>../../$(OutputPath)</PackageOutputPath>

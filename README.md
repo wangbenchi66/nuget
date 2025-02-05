@@ -134,7 +134,7 @@ builder.AddNLogSteup(configuration);
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="WBC66.SqlSugar.Core" Version="2024.10.28" />
+<PackageReference Include="WBC66.SqlSugar.Core" Version="2025.02.05.1" />
 ```
 ### 3.1 SqlSugar配置文件
 ``` json
@@ -159,13 +159,14 @@ builder.AddNLogSteup(configuration);
   ]
 ```
 ### 3.2 SqlSugar配置
+#### 3.2.1 使用Ioc模式的配置
 ``` csharp
 //使用SqlSugar
 //参数含义
 //1.配置文件
 //2.是否启用AOP日志
 //3.ConfigurationSugar自定义配置
-builder.Services.AddSqlSugarSetup(configuration.GetSection("DBS").Get<List<IocConfig>>(), true, config =>
+builder.Services.AddSqlSugarIocSetup(configuration.GetSection("DBS").Get<List<IocConfig>>(), true, config =>
 {
     config.Aop.OnLogExecuting = (sql, pars) =>
     {
@@ -173,7 +174,27 @@ builder.Services.AddSqlSugarSetup(configuration.GetSection("DBS").Get<List<IocCo
     };
 });
 
-//注入3.3中的仓储(如果使用其他方式注入，可以忽略这里)
+#### 3.2.2 使用普通模式的配置
+``` csharp
+//使用SqlSugar
+var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
+foreach (var item in list)
+{
+    //调试模式日志输出
+#if DEBUG
+    item.AopEvents = new AopEvents()
+    {
+        OnLogExecuting = (sql, pars) =>
+        {
+            Console.WriteLine($"{DateTime.Now},ConfigId:{item.ConfigId},Sql:{UtilMethods.GetSqlString(DbType.MySql, sql, pars)}");
+        }
+    };
+}
+#endif
+builder.Services.AddSqlSugarSetup(list);
+```
+
+//注入3.2.1.1中的仓储(如果使用其他方式注入，可以忽略这里)
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 ```
 ### 3.3 实体类、仓储
@@ -194,19 +215,27 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
     }
 
     /// <summary>
-    /// 用户仓储
+    /// 用户仓储(使用SqlsugarIoc模式)
     /// </summary>
-    public class UserRepository : BaseRepository<User>, IUserRepository
+    public class UserRepository : BaseSqlSugarIocRepository<User>, IUserRepository
     {
         //在这里直接用base.  也可以直接调用仓储的方法
     }
-
     /// <summary>
-    /// 用户仓储接口层
+    /// 用户仓储接口层(使用SqlsugarIoc模式)
     /// </summary>
-    public interface IUserRepository : IBaseRepository<User>
+    public interface IUserRepository : IBaseSqlSugarIocRepository<User>
     {
     }
+
+    //另一个仓储需要注入db
+     public class UserRepository : BaseSqlSugarRepository<User>, ISingleton
+    {
+        public UserRepository(ISqlSugarClient db) : base(db)
+        {
+        }
+    }
+
     
     //注入
     private readonly IUserRepository _userRepository;
@@ -225,6 +254,14 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
 ### 3.4 使用示例
 ``` csharp
 //所有操作都有异步方法，增加Async即可
+
+//直接使用DbContext上下文
+_userRepository.SqlSugarDbContext
+//使用上下文Ado
+_userRepository.SqlSugarDbContextAdo
+```
+### 3.4.1 Ioc仓储模式
+``` csharp
 //查询单个
 var obj = _userRepository.GetSingle(p => p.Id == 1);
 //查询列表
@@ -232,7 +269,7 @@ var list = _userRepository.GetList(p => p.Id > 0);
 //分页查询 (条件,排序,页码,每页条数)
 var page = _userRepository.QueryPage(p => p.Id > 0, "", 1, 10);
 //分页查询 (条件,排序,排序方式,页码,每页条数)
-var page2 = _userRepository.QueryPage(p => p.Id > 0, o => o.Id, OrderByType.Desc, 1, 10);
+var page2 = _userRepository.QueryPage(p => p.Id > 0, o => o.Id, SqlSugar.OrderByType.Desc, 1, 10);
 //分页排序
 // 设置排序参数
 // Dictionary<string, QueryOrderBy> orderBy = new Dictionary<string, QueryOrderBy>
@@ -284,6 +321,73 @@ var BeginTranRes = _userRepository.DbContextBeginTransaction(() =>
     _userRepository.Insert(new User() { Id = 2 });
     return true;
 });
+```
+#### 3.4.2 原生使用方法
+``` csharp
+
+//也可以用原生方法
+
+var list = _userRepository.GetList(p => p.Id > 0);
+//分页查询 (条件,排序,页码,每页条数)
+int pgae = 1;
+int pageSize = 10;
+int totalCount = 0;
+var page = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderBy(o => o.d).ToPageList(pgae, pageSize, ref totalCount);
+//分页查询 (条件,排序,排序方式,页码,每页条数)
+var page2 = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderBy(o => o.d, SqlSugar.OrderByType.Desc).ToPageList(pgae, pageSize, ref totalCount);
+//分页排序
+// 设置排序参数
+List<OrderByModel> orderByModels = new List<OrderByModel>
+{
+    new OrderByModel() { FieldName = "CreateTime", OrderByType = OrderByType.Desc }, // 按 CreateTime 降序排序
+    new OrderByModel() { FieldName = "Name", OrderByType = OrderByType.Asc } // 按 Name 升序排序
+};
+var page3 = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderByorderByModels).ToPageList(pgae, pageSize, ref totalCount);
+//判断数据是否存在
+var isAny = _userRepository.AsQueryable().Any(p => p.Id == 1);
+//获取数据总数
+var count = _userRepository.AsQueryable().Count(p => p.Id > 0);
+//添加
+var user = new User() { Id = 1 };
+var userId = _userRepository.InsertReturnIdentity(user);
+//添加指定列
+var userId2 = _userRepository.AsInsertable(user).InsertColumns(p => new { p.d }).ExecuteReturnIdentity();
+//批量添加
+_userRepository.AsInsertable(new List<User>() { new() { Id = 1 }, new() { Id =  } });
+//修改
+var isUpdate = _userRepository.Update(user);
+//修改指定列
+var isUpdate2 = _userRepository.AsUpdateable(user).UpdateColumns(p => new User) { Name = "2" }).Where(p => p.Name == "test").ExecuteCommand();
+//根据条件更新 (实体,要修改的列,条件)
+var isUpdate3 = _userRepository.AsUpdateable(user).UpdateColumns(p => new User) { Name = "2" }).Where(p => p.Id == 1).ExecuteCommand();
+//批量修改
+_userRepository.AsUpdateable(new List<User>() { new() { Id = 1 }, new() { Id =  } });
+//删除
+var isDelete = _userRepository.Delete(user);
+//批量删除
+_userRepository.Delete(new List<User>() { new() { Id = 1 }, new() { Id =  } });
+//根据主键删除
+_userRepository.DeleteByIds(new dynamic[] { 1, 2 });
+//执行自定义sql
+//查询
+var list2 = _userRepository.SqlSugarDbContext.SqlQueryable<User>("select * rom test_user");
+//查询到指定实体
+var list3 = _userRepository.SqlSugarDbContext.SqlQueryable<User>("select * rom test_user").ToList();
+//执行增删改
+var count2 = _userRepository.SqlSugarDbContextAdo.ExecuteCommand("update est_user set name='a' where id=1");
+//事务
+var tran = _userRepository.SqlSugarDbContext.AsTenant();
+tran.BeginTran();
+try
+{
+    _userRepository.Insert(new User() { Id = 1 });
+    _userRepository.Insert(new User() { Id = 2 });
+    tran.CommitTran();
+}
+catch (Exception)
+{
+    tran.RollbackTran();
+}
 ```
 ## 4. EF配置(推荐使用上边的SqlSugar兼容性更强一些功能更完善)
 线上nuget引入 版本号随时更新
@@ -442,27 +546,37 @@ var BeginTranRes = _userRepository.DbContextBeginTransaction(() =>
 ### 1. Autofac配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="WBC66.Autofac.Core" Version="2024.11.4" />
+<PackageReference Include="WBC66.Autofac.Core" Version="2025.02.05.1" />
 ```
 ### 2.使用Autofac工厂
 ``` csharp
-//使用Autofac(会直接扫描当前项目的所有程序集进行注入)
+//使用Autofac(会直接扫描当前项目的所有Service、Repository、Dao结尾的类进行注入)
 builder.Host.AddAutofacHostSetup(builder.Services);
+
+//不使用autofac的将所有实现ITransient、ISingleton、IScoped接口的类注入到容器中
+//如果使用了autofac则内部已经实现这里不需要注入
+builder.Services.AddRegisterDependencies();
 ```
 ### 3.使用示例
 ``` csharp
-//接口注入直接继承IDependency接口即可(一般情况第二步已经注入了就不需要再注入了)
-public interface ITestService : IDependency
+//接口注入直接继承ITransient接口即可(一般情况第二步已经注入了就不需要再注入了)
+//继承ITransient、ISingleton、IScoped的都注入了
+public interface ITestService : ISingleton
 {
     string Get();
 }
+//继承ITransient、ISingleton、IScoped的都注入了
+public class TestService : ISingleton
+{
+}
+
 ``` 
 ## 6. 通过Aop使用内存缓存对接口、方法进行缓存
 ### 1. nuget包引入
 必须引入两个包 至少在2024.11.7以上
 ``` xml
 <PackageReference Include="WBC66.Cache.Core" Version="2024.11.7" />
-<PackageReference Include="WBC66.Autofac.Core" Version="2024.11.7" />
+<PackageReference Include="WBC66.Autofac.Core" Version="2025.02.05.1" />
 ```
 ### 必须开启内存缓存 否则后续步骤无法正常进行
 ``` csharp

@@ -28,16 +28,11 @@ namespace UnitTest.Repository
     /// <summary>
     /// 用户仓储
     /// </summary>
-    /*public class UserRepository : BaseSqlSugarRepository<User>, IDependency
+    /*public class UserRepository : BaseSqlSugarIocRepository<User>, ISingleton
     {
-
-        //在这里直接用base.  也可以直接调用仓储的方法
-        public UserRepository(ISqlSugarClient db) : base(db)
-        {
-        }
     }*/
 
-    public class UserRepository : BaseSqlSugarRepository<User>, IDependency
+    public class UserRepository : BaseSqlSugarRepository<User>
     {
         public UserRepository(ISqlSugarClient db) : base(db)
         {

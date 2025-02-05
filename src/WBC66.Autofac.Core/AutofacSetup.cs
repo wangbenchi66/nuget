@@ -1,5 +1,7 @@
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Security.AccessControl;
+using System.Xml.Linq;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,41 +31,79 @@ namespace WBC66.Autofac.Core
                 //自定义模块必须在批量注入之后
                 customizeModule?.Invoke(builder);
             });
+            services.AddRegisterDependencies();
             services.AddAutofac();
         }
 
+
         /// <summary>
-        /// 批量注入实现IDependency接口的类型
+        /// 批量注入Service、Repository、Dao结尾的类
         /// </summary>
         /// <param name="builder">容器构建器</param>
-        public static void AddAutofacModule(this ContainerBuilder builder)
+        /// <returns></returns>
+        private static void AddAutofacModule(this ContainerBuilder builder)
         {
-            //IDependency接口自动注入
-            Type baseType = typeof(IDependency);
-            //Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies().ToArray();
+            /* var compilationLibrary = DependencyContext.Default.RuntimeLibraries.Where(x => !x.Serviceable && x.Type == "project").ToList();
+             List<Assembly> assemblies = new List<Assembly>();
+             foreach (var _compilation in compilationLibrary)
+             {
+                 try
+                 {
+                     assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(_compilation.Name)));
+                 }
+                 catch (Exception ex)
+                 {
+                     Console.WriteLine(_compilation.Name + ex.Message);
+                 }
+             }*/
 
-            var compilationLibrary = DependencyContext.Default.RuntimeLibraries.Where(x => !x.Serviceable && x.Type == "project").ToList();
-            List<Assembly> assemblies = new List<Assembly>();
-            foreach (var _compilation in compilationLibrary)
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+
+            builder.RegisterAssemblyTypes(assemblies.ToArray())//程序集内所有具象类 
+            .Where(c => c.Name.ToLower().EndsWith("repository") || c.Name.ToLower().EndsWith("service") || c.Name.ToLower().EndsWith("dao"))
+            .PublicOnly()//只要public访问权限的
+            .Where(cc => cc.IsClass)//只要class型（主要为了排除值和interface类型） 
+            .InstancePerLifetimeScope();
+
+
+            builder.RegisterAssemblyTypes(assemblies.ToArray())//程序集内所有具象类 
+            .Where(c => c.Name.ToLower().EndsWith("repository") || c.Name.ToLower().EndsWith("service") || c.Name.ToLower().EndsWith("dao"))
+            .PublicOnly()//只要public访问权限的
+            .Where(cc => cc.IsClass)//只要class型（主要为了排除值和interface类型） 
+            .InstancePerLifetimeScope()
+            .AsImplementedInterfaces();
+        }
+
+
+        /// <summary>
+        /// 不使用autofac的将所有继承ITransient、ISingleton、IScoped接口的类注入到容器中
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static void AddRegisterDependencies(this IServiceCollection services)
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            foreach (var assembly in assemblies)
             {
-                try
+                var dependencyTypes = assembly.GetTypes()
+                    .Where(t => typeof(ITransient).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+                var singletonTypes = assembly.GetTypes()
+                .Where(t => typeof(ISingleton).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+                var scopedTypes = assembly.GetTypes()
+                .Where(t => typeof(IScoped).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+                foreach (var type in dependencyTypes)
                 {
-                    assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(_compilation.Name)));
+                    services.AddTransient(type);
                 }
-                catch (Exception ex)
+                foreach (var type in singletonTypes)
                 {
-                    Console.WriteLine(_compilation.Name + ex.Message);
+                    services.AddSingleton(type);
+                }
+                foreach (var type in scopedTypes)
+                {
+                    services.AddScoped(type);
                 }
             }
-            builder.RegisterAssemblyTypes(assemblies.ToArray())
-              .Where(type => baseType.IsAssignableFrom(type) && !type.IsAbstract)
-              .AsImplementedInterfaces()
-              .InstancePerLifetimeScope()
-              .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
-            builder.RegisterAssemblyTypes(assemblies.ToArray())
-            .AsImplementedInterfaces()
-            .InstancePerDependency()
-                .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
         }
     }
 }

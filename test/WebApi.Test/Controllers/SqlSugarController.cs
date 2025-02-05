@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SqlSugar;
 using UnitTest.Repository;
 
 namespace WebApi.Test.Controllers
@@ -34,7 +35,7 @@ namespace WebApi.Test.Controllers
             //分页查询 (条件,排序,页码,每页条数)
             var page = _userRepository.QueryPage(p => p.Id > 0, "", 1, 10);
             //分页查询 (条件,排序,排序方式,页码,每页条数)
-            var page2 = _userRepository.QueryPage(p => p.Id > 0, o => o.Id, OrderByType.Desc, 1, 10);
+            var page2 = _userRepository.QueryPage(p => p.Id > 0, o => o.Id, SqlSugar.OrderByType.Desc, 1, 10);
             //分页排序
             // 设置排序参数
             // Dictionary<string, QueryOrderBy> orderBy = new Dictionary<string, QueryOrderBy>
@@ -63,7 +64,7 @@ namespace WebApi.Test.Controllers
             var isUpdate4 = _userRepository.Update(new List<User>() { new User() { Id = 1 }, new User() { Id = 2 } });
             //删除
             var isDelete = _userRepository.Delete(obj);
-            //批量删除  有问题
+            //批量删除 
             var isDelete2 = _userRepository.Delete(new List<User>() { new User() { Id = 1 }, new User() { Id = 2 } });
             //根据主键删除
             //var isDelete3 = _userRepository.DeleteByIds(new int[] { 1, 2 });
@@ -85,9 +86,84 @@ namespace WebApi.Test.Controllers
                 _userRepository.Insert(new User() { Id = 1 });
                 _userRepository.Insert(new User() { Id = 2 });
                 return true;
-            });
+            });*/
 
-            return "ok";*/
+            //普通仓储模式
+            /*
+                        var list = _userRepository.GetList(p => p.Id > 0);
+                        //分页查询 (条件,排序,页码,每页条数)
+                        int pgae = 1;
+                        int pageSize = 10;
+                        int totalCount = 0;
+                        var page = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderBy(o => o.Id).ToPageList(pgae, pageSize, ref totalCount);
+                        //分页查询 (条件,排序,排序方式,页码,每页条数)
+                        var page2 = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderBy(o => o.Id, SqlSugar.OrderByType.Desc).ToPageList(pgae, pageSize, ref totalCount);
+                        //分页排序
+                        // 设置排序参数
+                        List<OrderByModel> orderByModels = new List<OrderByModel>
+                        {
+                            new OrderByModel() { FieldName = "CreateTime", OrderByType = OrderByType.Desc }, // 按 CreateTime 降序排序
+                            new OrderByModel() { FieldName = "Name", OrderByType = OrderByType.Asc } // 按 Name 升序排序
+                        };
+                        var page3 = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderBy(orderByModels).ToPageList(pgae, pageSize, ref totalCount);
+
+
+                        //判断数据是否存在
+                        var isAny = _userRepository.AsQueryable().Any(p => p.Id == 1);
+                        //获取数据总数
+                        var count = _userRepository.AsQueryable().Count(p => p.Id > 0);
+
+                        //添加
+                        var user = new User() { Id = 1 };
+                        var userId = _userRepository.InsertReturnIdentity(user);
+                        //添加指定列
+                        var userId2 = _userRepository.AsInsertable(user).InsertColumns(p => new { p.Id }).ExecuteReturnIdentity();
+                        //批量添加
+                        _userRepository.AsInsertable(new List<User>() { new() { Id = 1 }, new() { Id = 2 } });
+
+                        //修改
+                        var isUpdate = _userRepository.Update(user);
+                        //修改指定列
+                        var isUpdate2 = _userRepository.AsUpdateable(user).UpdateColumns(p => new User() { Name = "2" }).Where(p => p.Name == "test").ExecuteCommand();
+                        //根据条件更新 (实体,要修改的列,条件)
+                        var isUpdate3 = _userRepository.AsUpdateable(user).UpdateColumns(p => new User() { Name = "2" }).Where(p => p.Id == 1).ExecuteCommand();
+                        //批量修改
+                        _userRepository.AsUpdateable(new List<User>() { new() { Id = 1 }, new() { Id = 2 } });
+
+                        //删除
+                        var isDelete = _userRepository.Delete(user);
+                        //批量删除
+                        _userRepository.Delete(new List<User>() { new() { Id = 1 }, new() { Id = 2 } });
+                        //根据主键删除
+                        _userRepository.DeleteByIds(new dynamic[] { 1, 2 });
+
+                        //执行自定义sql
+                        //查询
+                        var list2 = _userRepository.SqlSugarDbContext.SqlQueryable<User>("select * from test_user");
+                        //查询到指定实体
+                        var list3 = _userRepository.SqlSugarDbContext.SqlQueryable<User>("select * from test_user").ToList();
+                        //执行增删改
+                        var count2 = _userRepository.SqlSugarDbContextAdo.ExecuteCommand("update test_user set name='a' where id=1");
+
+                        //事务
+                        var tran = _userRepository.SqlSugarDbContext.AsTenant();
+                        tran.BeginTran();
+                        try
+                        {
+                            _userRepository.Insert(new User() { Id = 1 });
+                            _userRepository.Insert(new User() { Id = 2 });
+                            tran.CommitTran();
+                        }
+                        catch (Exception)
+                        {
+                            tran.RollbackTran();
+                        }*/
+
+
+
+
+
+            return "ok";
         }
     }
 }
