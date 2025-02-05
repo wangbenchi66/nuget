@@ -195,19 +195,19 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public virtual bool Update(List<T> entity)
+        public virtual int Update(List<T> entity)
         {
-            return SqlSugarDbContext.Updateable(entity).ExecuteCommandHasChange();
+            return SqlSugarDbContext.Updateable(entity).ExecuteCommand();
         }
 
         /// <summary>
-        /// 批量更新实体数据
+        /// 批量更新实体数据    
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public virtual async Task<bool> UpdateAsync(List<T> entity)
+        public virtual async Task<int> UpdateAsync(List<T> entity)
         {
-            return await SqlSugarDbContext.Updateable(entity).ExecuteCommandHasChangeAsync();
+            return await SqlSugarDbContext.Updateable(entity).ExecuteCommandAsync();
         }
 
         /// <summary>
@@ -215,9 +215,9 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public virtual bool Update(T entity)
+        public virtual int Update(T entity)
         {
-            return SqlSugarDbContext.Updateable(entity).ExecuteCommandHasChange();
+            return SqlSugarDbContext.Updateable(entity).ExecuteCommand();
         }
 
         /// <summary>
@@ -225,70 +225,125 @@ namespace WBC66.SqlSugar.Core
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public virtual async Task<bool> UpdateAsync(T entity)
+        public virtual async Task<int> UpdateAsync(T entity)
         {
-            return await SqlSugarDbContext.Updateable(entity).ExecuteCommandHasChangeAsync();
+            return await SqlSugarDbContext.Updateable(entity).ExecuteCommandAsync();
         }
 
         /// <summary>
         /// 更新某个字段
         /// </summary>
-        /// <param name="columns">lamdba表达式,如it =&gt; new Student() { Name = "a", CreateTime = DateTime.Now }</param>
-        /// <param name="where">lamdba判断</param>
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual bool Update(Expression<Func<T, T>> columns, Expression<Func<T, bool>> where)
+        public virtual int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where)
         {
-            var i = SqlSugarDbContext.Updateable<T>().SetColumns(columns).Where(where).ExecuteCommand();
-            return i > 0;
+            return SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).Where(where).ExecuteCommand();
         }
 
         /// <summary>
         /// 更新某个字段
         /// </summary>
-        /// <param name="columns">lamdba表达式,如it =&gt; new Student() { Name = "a", CreateTime = DateTime.Now }</param>
-        /// <param name="where">lamdba判断</param>
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual async Task<bool> UpdateAsync(Expression<Func<T, T>> columns, Expression<Func<T, bool>> where)
+        public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>().SetColumns(columns).Where(where).ExecuteCommandHasChangeAsync();
+            return await SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).Where(where).ExecuteCommandAsync();
         }
 
         /// <summary>
         /// 根据条件更新
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="lstColumns"></param>
-        /// <param name="lstIgnoreColumns"></param>
-        /// <param name="strWhere"></param>
+        /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
+        /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual async Task<bool> UpdateAsync(T entity, List<string>? lstColumns = null,
-            List<string>? lstIgnoreColumns = null, string strWhere = "")
+        public virtual int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, bool>> where)
         {
-            var up = SqlSugarDbContext.Updateable(entity);
-            if (lstIgnoreColumns?.Count > 0)
-                up = up.IgnoreColumns(lstIgnoreColumns.ToArray());
-            if (lstColumns?.Count > 0) up = up.UpdateColumns(lstColumns.ToArray());
-            if (!string.IsNullOrEmpty(strWhere)) up = up.Where(strWhere);
-            return await up.ExecuteCommandHasChangeAsync();
+            return SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).IgnoreColumns(ignoreColumns).Where(where).ExecuteCommand();
         }
 
         /// <summary>
         /// 根据条件更新
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="lstColumns"></param>
-        /// <param name="lstIgnoreColumns"></param>
-        /// <param name="strWhere"></param>
+        /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
+        /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual bool Update(T entity, List<string>? lstColumns = null, List<string>? lstIgnoreColumns = null,
-            string strWhere = "")
+        public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, bool>> where)
         {
-            var up = SqlSugarDbContext.Updateable(entity);
-            if (lstIgnoreColumns?.Count > 0)
-                up = up.IgnoreColumns(lstIgnoreColumns.ToArray());
-            if (lstColumns?.Count > 0) up = up.UpdateColumns(lstColumns.ToArray());
-            if (!string.IsNullOrEmpty(strWhere)) up = up.Where(strWhere);
-            return up.ExecuteCommandHasChange();
+            return await SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).IgnoreColumns(ignoreColumns).Where(where).ExecuteCommandAsync();
+        }
+
+        /// <summary>
+        /// 无实体更新
+        /// </summary>
+        /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        public virtual int Update(Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where)
+        {
+            return SqlSugarDbContext.Updateable<T>().UpdateColumns(updateColumns).Where(where).ExecuteCommand();
+        }
+
+        /// <summary>
+        /// 无实体更新
+        /// </summary>
+        /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        public virtual async Task<int> UpdateAsync(Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where)
+        {
+            return await SqlSugarDbContext.Updateable<T>().UpdateColumns(updateColumns).Where(where).ExecuteCommandAsync();
+        }
+
+        /// <summary>
+        /// 无实体更新
+        /// </summary>
+        /// <param name="updateColumns">要更新的列</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        public virtual int Update(Dictionary<string, object> updateColumns, Expression<Func<T, bool>> where)
+        {
+            return SqlSugarDbContext.Updateable<T>(updateColumns).Where(where).ExecuteCommand();
+        }
+
+        /// <summary>
+        /// 无实体更新
+        /// </summary>
+        /// <param name="updateColumns">要更新的列</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        public virtual async Task<int> UpdateAsync(Dictionary<string, object> updateColumns, Expression<Func<T, bool>> where)
+        {
+            return await SqlSugarDbContext.Updateable<T>(updateColumns).Where(where).ExecuteCommandAsync();
+        }
+
+        /// <summary>
+        /// 无实体更新(批量)
+        /// </summary>
+        /// <param name="updateColumns">要更新的列</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        public virtual int Update(List<Dictionary<string, object>> updateColumns, Expression<Func<T, bool>> where)
+        {
+            return SqlSugarDbContext.Updateable<T>(updateColumns).Where(where).ExecuteCommand();
+        }
+
+        /// <summary>
+        /// 无实体更新(批量)
+        /// </summary>
+        /// <param name="updateColumns">要更新的列</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        public virtual async Task<int> UpdateAsync(List<Dictionary<string, object>> updateColumns, Expression<Func<T, bool>> where)
+        {
+            return await SqlSugarDbContext.Updateable<T>(updateColumns).Where(where).ExecuteCommandAsync();
         }
 
         #endregion 更新实体数据

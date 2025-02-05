@@ -132,66 +132,116 @@ namespace WBC66.SqlSugar.Core
         /// <summary>
         /// 批量更新实体数据
         /// </summary>
-        /// <param name="entity">实体类集合</param>
-        /// <returns>是否更新成功</returns>
-        bool Update(List<T> entity);
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        int Update(List<T> entity);
 
         /// <summary>
-        /// 异步批量更新实体数据
+        /// 批量更新实体数据    
         /// </summary>
-        /// <param name="entity">实体类集合</param>
-        /// <returns>是否更新成功</returns>
-        Task<bool> UpdateAsync(List<T> entity);
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(List<T> entity);
 
         /// <summary>
         /// 更新实体数据
         /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns>是否更新成功</returns>
-        bool Update(T entity);
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        int Update(T entity);
 
         /// <summary>
-        /// 异步更新实体数据
+        /// 更新实体数据
         /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns>是否更新成功</returns>
-        Task<bool> UpdateAsync(T entity);
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(T entity);
 
         /// <summary>
         /// 更新某个字段
         /// </summary>
-        /// <param name="columns">lambda表达式,如it => new Student() { Name = "a", CreateTime = DateTime.Now }</param>
-        /// <param name="where">lambda判断</param>
-        /// <returns>是否更新成功</returns>
-        bool Update(Expression<Func<T, T>> columns, Expression<Func<T, bool>> where);
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where);
 
         /// <summary>
-        /// 异步更新某个字段
+        /// 更新某个字段
         /// </summary>
-        /// <param name="columns">lambda表达式,如it => new Student() { Name = "a", CreateTime = DateTime.Now }</param>
-        /// <param name="where">lambda判断</param>
-        /// <returns>是否更新成功</returns>
-        Task<bool> UpdateAsync(Expression<Func<T, T>> columns, Expression<Func<T, bool>> where);
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where);
 
         /// <summary>
         /// 根据条件更新
         /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <param name="lstColumns">更新列</param>
-        /// <param name="lstIgnoreColumns">忽略列</param>
-        /// <param name="strWhere">条件</param>
-        /// <returns>是否更新成功</returns>
-        bool Update(T entity, List<string>? lstColumns = default, List<string>? lstIgnoreColumns = default, string strWhere = "");
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
+        /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, bool>> where);
 
         /// <summary>
-        /// 异步根据条件更新
+        /// 根据条件更新
         /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <param name="lstColumns">更新列</param>
-        /// <param name="lstIgnoreColumns">忽略列</param>
-        /// <param name="strWhere">条件</param>
-        /// <returns>是否更新成功</returns>
-        Task<bool> UpdateAsync(T entity, List<string>? lstColumns = default, List<string>? lstIgnoreColumns = default, string strWhere = "");
+        /// <param name="entity"></param>
+        /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
+        /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, bool>> where);
+
+        /// <summary>
+        /// 无实体更新
+        /// </summary>
+        /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        int Update(Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where);
+
+        /// <summary>
+        /// 无实体更新
+        /// </summary>
+        /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where);
+
+        /// <summary>
+        /// 无实体更新
+        /// </summary>
+        /// <param name="updateColumns">要更新的列</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        int Update(Dictionary<string, object> updateColumns, Expression<Func<T, bool>> where);
+
+        /// <summary>
+        /// 无实体更新
+        /// </summary>
+        /// <param name="updateColumns">要更新的列</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(Dictionary<string, object> updateColumns, Expression<Func<T, bool>> where);
+
+        /// <summary>
+        /// 无实体更新(批量)
+        /// </summary>
+        /// <param name="updateColumns">要更新的列</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        int Update(List<Dictionary<string, object>> updateColumns, Expression<Func<T, bool>> where);
+
+        /// <summary>
+        /// 无实体更新(批量)
+        /// </summary>
+        /// <param name="updateColumns">要更新的列</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(List<Dictionary<string, object>> updateColumns, Expression<Func<T, bool>> where);
 
         #endregion 更新实体数据
 

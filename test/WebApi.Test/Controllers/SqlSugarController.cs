@@ -28,8 +28,8 @@ namespace WebApi.Test.Controllers
 
             var obj1 = _categoryRepository.GetSingle(p => p.ID == 1);
             _logger.LogInformation("查询单个结果：{@obj1}", obj1);
-            return obj;
-            /*//查询列表
+            //return obj;
+            //查询列表
             var list = _userRepository.GetList(p => p.Id > 0);
             //分页查询 (条件,排序,页码,每页条数)
             var page = _userRepository.QueryPage(p => p.Id > 0, "", 1, 10);
@@ -58,9 +58,15 @@ namespace WebApi.Test.Controllers
             //修改指定列
             var isUpdate2 = _userRepository.Update(p => new User() { Name = "2" }, p => p.Name == "test");
             //根据条件更新 (实体,要修改的列,条件)
-            var isUpdate3 = _userRepository.Update(obj, new List<string>() { "name" }, new List<string>() { "Id = 1" });
+            var isUpdate3 = _userRepository.Update(obj, x => new { x.Name }, x => x.Id == 1);
             //批量修改
             var isUpdate4 = _userRepository.Update(new List<User>() { new User() { Id = 1 }, new User() { Id = 2 } });
+            //无实体更新
+            Dictionary<string, object> updateColumns = new Dictionary<string, object>
+            {
+                { "name", "2" }
+            };
+            var isUpdate5 = _userRepository.Update(updateColumns, x => x.Id == 1);
             //删除
             var isDelete = _userRepository.Delete(obj);
             //批量删除 
@@ -85,7 +91,7 @@ namespace WebApi.Test.Controllers
                 _userRepository.Insert(new User() { Id = 1 });
                 _userRepository.Insert(new User() { Id = 2 });
                 return true;
-            });*/
+            });
 
             //普通仓储模式
             /*
@@ -177,7 +183,7 @@ namespace WebApi.Test.Controllers
                 //查询结果
                 var obj = _userRepository.GetSingle(p => p.Name == "99999");
                 var obj1 = _categoryRepository.GetSingle(p => p.Title == "99999");
-                return false;
+                return true;
             });
             return "ok";
         }

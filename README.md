@@ -316,6 +316,12 @@ var isUpdate2 = _userRepository.Update(p => new User() { Name = "2" }, p => p.Na
 var isUpdate3 = _userRepository.Update(obj, new List<string>() { "name" }, new List<string>() { "Id = 1" });
 //批量修改
 var isUpdate4 = _userRepository.Update(new List<User>() { new User() { Id = 1 }, new User() { Id = 2 } });
+//无实体更新
+Dictionary<string, object> updateColumns = new Dictionary<string, object>
+{
+    { "name", "2" }
+};
+var isUpdate5 = _userRepository.Update(updateColumns, x => x.Id == 1);
 //删除
 var isDelete = _userRepository.Delete(obj);
 //批量删除  有问题
@@ -334,7 +340,7 @@ var count2 = _userRepository.ExecuteSql("update test_user set name='a' where id=
 var page4 = _userRepository.SqlPageQuery<User>("select * from test_user", null, 1, 1);
 var page4Count = page4.TotalCount;
 
-//执行事务
+//执行事务 return true表示提交,return false表示回滚
 var BeginTranRes = _userRepository.DbContextBeginTransaction(() =>
 {
     _userRepository.Insert(new User() { Id = 1 });

@@ -21,8 +21,10 @@ namespace WebApi.Test
         [SugarColumn(ColumnName = "ID", IsPrimaryKey = true)]
         public int Id { get; set; }
 
-        [SugarColumn(ColumnName = "Name")]
         public string Name { get; set; }
+
+        [SugarColumn(InsertServerTime = true)]
+        public DateTime CreateTime { get; set; }
     }
 
 
