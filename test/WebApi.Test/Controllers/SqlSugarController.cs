@@ -219,5 +219,19 @@ namespace WebApi.Test.Controllers
             return "ok";
         }
 
+        //测试sql语句执行
+        [HttpGet("SqlQuery")]
+        public object SqlQuery()
+        {
+            //执行自定义sql
+            //查询
+            var list2 = _userRepository.SqlQuery("select * from j_user", null);
+            //查询到指定实体
+            var list3 = _userRepository.SqlQuery<User>("select * from j_user", null);
+            //查询单条
+            var list4 = _userRepository.SqlQuerySingle<User>("select * from j_user", null);
+            return "ok";
+        }
+
     }
 }

@@ -208,6 +208,24 @@ namespace Easy.SqlSugar.Core
         Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
 
         /// <summary>
+        /// 更新某个字段
+        /// </summary>
+        /// <param name="entitys"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        int Update(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
+
+        /// <summary>
+        /// 更新某个字段
+        /// </summary>
+        /// <param name="entitys"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
+
+        /// <summary>
         /// 根据条件更新
         /// </summary>
         /// <param name="entity"></param>
@@ -559,6 +577,24 @@ namespace Easy.SqlSugar.Core
         /// <param name="parameters">参数</param>
         /// <returns>实体对象列表</returns>
         Task<List<T>> SqlQueryAsync<T>(string sql, object? parameters);
+
+        /// <summary>
+        /// 执行sql语句并返回到指定实体中
+        /// </summary>
+        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <param name="sql">sql</param>
+        /// <param name="parameters">参数</param>
+        /// <returns></returns>
+        T SqlQuerySingle<T>(string sql, object? parameters);
+
+        /// <summary>
+        /// 执行sql语句并返回到指定实体中
+        /// </summary>
+        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <param name="sql">sql</param>
+        /// <param name="parameters">参数</param>
+        /// <returns></returns>
+        Task<T> SqlQuerySingleAsync<T>(string sql, object? parameters);
 
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中

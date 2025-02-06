@@ -299,6 +299,30 @@ namespace Easy.SqlSugar.Core
         }
 
         /// <summary>
+        /// 更新某个字段
+        /// </summary>
+        /// <param name="entitys"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        public virtual int Update(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
+        {
+            return SqlSugarDbContext.Updateable<T>(entitys).UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommand();
+        }
+
+        /// <summary>
+        /// 更新某个字段
+        /// </summary>
+        /// <param name="entitys"></param>
+        /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
+        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <returns></returns>
+        public virtual async Task<int> UpdateAsync(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
+        {
+            return await SqlSugarDbContext.Updateable<T>(entitys).UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommandAsync();
+        }
+
+        /// <summary>
         /// 根据条件更新
         /// </summary>
         /// <param name="entity"></param>
@@ -861,6 +885,30 @@ namespace Easy.SqlSugar.Core
         public virtual async Task<List<T>> SqlQueryAsync<T>(string sql, object? parameters)
         {
             return await SqlSugarDbContext.Ado.SqlQueryAsync<T>(sql, parameters);
+        }
+
+        /// <summary>
+        /// 执行sql语句并返回到指定实体中
+        /// </summary>
+        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <param name="sql">sql</param>
+        /// <param name="parameters">参数</param>
+        /// <returns></returns>
+        public virtual T SqlQuerySingle<T>(string sql, object? parameters)
+        {
+            return SqlSugarDbContext.Ado.SqlQuerySingle<T>(sql, parameters);
+        }
+
+        /// <summary>
+        /// 执行sql语句并返回到指定实体中
+        /// </summary>
+        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <param name="sql">sql</param>
+        /// <param name="parameters">参数</param>
+        /// <returns></returns>
+        public virtual async Task<T> SqlQuerySingleAsync<T>(string sql, object? parameters)
+        {
+            return await SqlSugarDbContext.Ado.SqlQuerySingleAsync<T>(sql, parameters);
         }
 
         /// <summary>

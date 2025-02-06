@@ -134,7 +134,7 @@ builder.AddNLogSteup(configuration);
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="Easy.SqlSugar.Core" Version="2025.02.05.1" />
+<PackageReference Include="Easy.SqlSugar.Core" Version="2025.02.06.6" />
 ```
 ### 3.1.1 SqlSugar配置文件
 ``` json
@@ -218,7 +218,7 @@ builder.Services.AddSqlSugarIocSetup(configuration.GetSection("DBS").Get<List<Io
         Console.WriteLine("这是自定义事件{0}", sql);
     };
 });
-
+```
 #### 3.2.2 使用普通模式的配置
 ``` csharp
 //使用SqlSugar
@@ -237,7 +237,6 @@ foreach (var item in list)
 }
 #endif
 builder.Services.AddSqlSugarSetup(list);
-```
 
 //注入3.2.1.1中的仓储(如果使用其他方式注入，可以忽略这里)
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
