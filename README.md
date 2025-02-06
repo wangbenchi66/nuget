@@ -322,6 +322,17 @@ Dictionary<string, object> updateColumns = new Dictionary<string, object>
     { "name", "2" }
 };
 var isUpdate5 = _userRepository.Update(updateColumns, x => x.Id == 1);
+
+
+//添加或更新 单条或list集合
+//根据主键添加或更新
+var inserOrUpdate = _userRepository.InsertOrUpdate(new User() { Id = 1, Name ="admin" });
+//根据条件添加或更新
+var inserOrUpdate2 = _userRepository.InsertOrUpdate(new User() { Id = 1, Name= "admin" }, x => new { x.Id, x.Name });
+//根据条件添加并更新指定列
+var isInsertOrUpdate = _userRepository.InsertOrUpdate(user, x => new { xName }, x => new { x.Id, x.Name });
+
+
 //删除
 var isDelete = _userRepository.Delete(obj);
 //批量删除  有问题

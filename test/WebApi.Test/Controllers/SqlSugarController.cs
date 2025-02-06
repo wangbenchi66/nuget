@@ -72,6 +72,16 @@ namespace WebApi.Test.Controllers
             //无实体更新2,先将值放在实体中,只更新要更新的值(实体内字段如果全部更新就不要带where条件,避免误传导致数值问题,有where必须由更新字段指定)
             var user = new User() { Name = "2" };
             var isUpdate6 = _userRepository.Update(user, x => new { x.Name }, x => x.Id == 1);
+
+
+            //添加或更新 单条或list集合
+            //根据主键添加或更新
+            var inserOrUpdate = _userRepository.InsertOrUpdate(new User() { Id = 1, Name = "admin" });
+            //根据条件添加或更新
+            var inserOrUpdate2 = _userRepository.InsertOrUpdate(new User() { Id = 1, Name = "admin" }, x => new { x.Id, x.Name });
+            //根据条件添加并更新指定列
+            var isInsertOrUpdate = _userRepository.InsertOrUpdate(user, x => new { x.Name }, x => new { x.Id, x.Name });
+
             //删除
             var isDelete = _userRepository.Delete(obj);
             //批量删除 
@@ -176,7 +186,10 @@ namespace WebApi.Test.Controllers
             return "ok";
         }
 
-        //测试事务
+        /// <summary>
+        /// 测试事务
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Tran")]
         public object Tran()
         {
@@ -192,5 +205,18 @@ namespace WebApi.Test.Controllers
             });
             return "ok";
         }
+
+        //测试添加或更新
+        [HttpGet("InsertOrUpdate")]
+        public object InsertOrUpdate()
+        {
+            //添加或更新
+            var user = new User() { Id = 1, Name = "admin1" };
+            var user2 = new User() { Id = 99999, Name = "admin99" };
+            var list = new List<User> { user, user2 };
+            var isInsertOrUpdate = _userRepository.InsertOrUpdate(list, x => new { x.Name, x.Id }, x => new { x.Id, x.Name });
+            return "ok";
+        }
+
     }
 }
