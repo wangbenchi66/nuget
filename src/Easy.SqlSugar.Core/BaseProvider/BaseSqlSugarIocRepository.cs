@@ -281,9 +281,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where)
+        public virtual int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).Where(where).ExecuteCommand();
+            return SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommand();
         }
 
         /// <summary>
@@ -293,9 +293,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where)
+        public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).Where(where).ExecuteCommandAsync();
+            return await SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommandAsync();
         }
 
         /// <summary>
@@ -306,9 +306,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, bool>> where)
+        public virtual int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).IgnoreColumns(ignoreColumns).Where(where).ExecuteCommand();
+            return SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).IgnoreColumns(ignoreColumns).WhereColumns(where).ExecuteCommand();
         }
 
         /// <summary>
@@ -319,9 +319,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, bool>> where)
+        public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).IgnoreColumns(ignoreColumns).Where(where).ExecuteCommandAsync();
+            return await SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).IgnoreColumns(ignoreColumns).WhereColumns(where).ExecuteCommandAsync();
         }
 
         /// <summary>
@@ -330,9 +330,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual int Update(Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where)
+        public virtual int Update(Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>().UpdateColumns(updateColumns).Where(where).ExecuteCommand();
+            return SqlSugarDbContext.Updateable<T>().UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommand();
         }
 
         /// <summary>
@@ -341,9 +341,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual async Task<int> UpdateAsync(Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where)
+        public virtual async Task<int> UpdateAsync(Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>().UpdateColumns(updateColumns).Where(where).ExecuteCommandAsync();
+            return await SqlSugarDbContext.Updateable<T>().UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommandAsync();
         }
 
         /// <summary>
@@ -352,9 +352,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual int Update(Dictionary<string, object> updateColumns, Expression<Func<T, bool>> where)
+        public virtual int Update(Dictionary<string, object> updateColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>(updateColumns).Where(where).ExecuteCommand();
+            return SqlSugarDbContext.Updateable<T>(updateColumns).WhereColumns(where).ExecuteCommand();
         }
 
         /// <summary>
@@ -363,9 +363,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual async Task<int> UpdateAsync(Dictionary<string, object> updateColumns, Expression<Func<T, bool>> where)
+        public virtual async Task<int> UpdateAsync(Dictionary<string, object> updateColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>(updateColumns).Where(where).ExecuteCommandAsync();
+            return await SqlSugarDbContext.Updateable<T>(updateColumns).WhereColumns(where).ExecuteCommandAsync();
         }
 
         /// <summary>
@@ -374,9 +374,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual int Update(List<Dictionary<string, object>> updateColumns, Expression<Func<T, bool>> where)
+        public virtual int Update(List<Dictionary<string, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>(updateColumns).Where(where).ExecuteCommand();
+            return SqlSugarDbContext.Updateable<T>(updateColumns).WhereColumns(where).ExecuteCommand();
         }
 
         /// <summary>
@@ -385,9 +385,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        public virtual async Task<int> UpdateAsync(List<Dictionary<string, object>> updateColumns, Expression<Func<T, bool>> where)
+        public virtual async Task<int> UpdateAsync(List<Dictionary<string, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>(updateColumns).Where(where).ExecuteCommandAsync();
+            return await SqlSugarDbContext.Updateable<T>(updateColumns).WhereColumns(where).ExecuteCommandAsync();
         }
 
         #endregion 更新实体数据

@@ -136,7 +136,7 @@ builder.AddNLogSteup(configuration);
 ``` xml
 <PackageReference Include="Easy.SqlSugar.Core" Version="2025.02.05.1" />
 ```
-### 3.1 SqlSugar配置文件
+### 3.1.1 SqlSugar配置文件
 ``` json
 
     /*
@@ -158,6 +158,51 @@ builder.AddNLogSteup(configuration);
     }
   ]
 ```
+### 3.1.2 或者使用自定义的配置只要转换为对应的List配置集合就行,Ioc需要转换为List<IocConfig>,普通模式需要转换为List<ConnectionConfig>
+#### 根据字符串获取DbType
+``` csharp
+DataBaseTypeExtensions.GetDatabaseType("sql连接字符串")
+```
+#### 自定义的配置文件示例
+``` csharp
+    public static class SqlSugarSetup
+    {
+        public static void AddSqlSugarSetup(this IServiceCollection services, IConfiguration configuration)
+        {
+            var dblist = new List<IocConfig>();
+            var conn = configuration.GetConnectionString("连接字符串");
+            if (string.IsNullOrWhiteSpace(conn))
+            {
+                continue;
+            }
+            dblist.Add(new IocConfig()
+            {
+                ConfigId = "TestConfig",
+                ConnectionString = conn,
+                DbType = DataBaseTypeExtensions.GetDatabaseType(conn),
+                IsAutoCloseConnection = true
+            });
+            bool aopLogging = false;
+            Action<SqlSugarClient> aopConfigAction = null;
+            //开发环境打印实际sql语句
+#if DEBUG
+            aopLogging = true;
+            aopConfigAction = sqlSugarClient =>
+            {
+                foreach (var config in dblist)
+                {
+                    sqlSugarClient.GetConnection(config.ConfigId).Aop.OnLogExecuting = (Action<string, SugarParameter[]>)((sql, p) =>
+       {
+           Console.WriteLine($"----------------{Environment.NewLine}{DateTime.Now},ConfigId:{config.ConfigId},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)config.DbType, sql, p)}{Environment.NewLine}----------------");
+       });
+                }
+            };
+#endif
+            services.AddSqlSugarIocSetup(dblist, aopLogging, aopConfigAction);
+        }
+    }
+```
+
 ### 3.2 SqlSugar配置
 #### 3.2.1 使用Ioc模式的配置
 ``` csharp
@@ -308,12 +353,15 @@ var userId = _userRepository.Insert(new User() { Id = 1 });
 var userId2 = _userRepository.Insert(new User() { Id = 1 }, p => new { p.Id });
 //批量添加
 var userIds = _userRepository.Insert(new List<User>() { new User() { Id = 1 }, new User() { Id = 2 } });
+
 //修改
 var isUpdate = _userRepository.Update(obj);
 //修改指定列
-var isUpdate2 = _userRepository.Update(p => new User() { Name = "2" }, p => p.Name == "test");
+var isUpdate7 = _userRepository.Update(obj, x => new { x.Name });
+//修改指定条件数据
+var isUpdate2 = _userRepository.Update(p => new User() { Name = "2" }, p => new { p.Id });
 //根据条件更新 (实体,要修改的列,条件)
-var isUpdate3 = _userRepository.Update(obj, new List<string>() { "name" }, new List<string>() { "Id = 1" });
+var isUpdate3 = _userRepository.Update(obj, x => new { x.Name }, x => new { x.Id });
 //批量修改
 var isUpdate4 = _userRepository.Update(new List<User>() { new User() { Id = 1 }, new User() { Id = 2 } });
 //无实体更新
@@ -321,7 +369,10 @@ Dictionary<string, object> updateColumns = new Dictionary<string, object>
 {
     { "name", "2" }
 };
-var isUpdate5 = _userRepository.Update(updateColumns, x => x.Id == 1);
+var isUpdate5 = _userRepository.Update(updateColumns, x => new { x.Id });
+//无实体更新2,先将值放在实体中,只更新要更新的值(实体内字段如果全部更新就不要带where条件,避免误传导致数值问题,有where必须由更新字段指定)
+var user = new User() { Name = "2" };
+var isUpdate6 = _userRepository.Update(user, x => new { x.Name }, x => new { x.Id });
 
 
 //添加或更新 单条或list集合

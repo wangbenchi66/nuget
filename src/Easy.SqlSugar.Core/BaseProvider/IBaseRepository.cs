@@ -196,7 +196,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where);
+        int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
 
         /// <summary>
         /// 更新某个字段
@@ -205,7 +205,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where);
+        Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
 
         /// <summary>
         /// 根据条件更新
@@ -215,7 +215,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, bool>> where);
+        int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where);
 
         /// <summary>
         /// 根据条件更新
@@ -225,7 +225,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, bool>> where);
+        Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where);
 
         /// <summary>
         /// 无实体更新
@@ -233,7 +233,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        int Update(Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where);
+        int Update(Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
 
         /// <summary>
         /// 无实体更新
@@ -241,7 +241,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        Task<int> UpdateAsync(Expression<Func<T, object>> updateColumns, Expression<Func<T, bool>> where);
+        Task<int> UpdateAsync(Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
 
         /// <summary>
         /// 无实体更新
@@ -249,7 +249,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        int Update(Dictionary<string, object> updateColumns, Expression<Func<T, bool>> where);
+        int Update(Dictionary<string, object> updateColumns, Expression<Func<T, object>> where);
 
         /// <summary>
         /// 无实体更新
@@ -257,7 +257,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        Task<int> UpdateAsync(Dictionary<string, object> updateColumns, Expression<Func<T, bool>> where);
+        Task<int> UpdateAsync(Dictionary<string, object> updateColumns, Expression<Func<T, object>> where);
 
         /// <summary>
         /// 无实体更新(批量)
@@ -265,7 +265,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        int Update(List<Dictionary<string, object>> updateColumns, Expression<Func<T, bool>> where);
+        int Update(List<Dictionary<string, object>> updateColumns, Expression<Func<T, object>> where);
 
         /// <summary>
         /// 无实体更新(批量)
@@ -273,7 +273,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的列</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        Task<int> UpdateAsync(List<Dictionary<string, object>> updateColumns, Expression<Func<T, bool>> where);
+        Task<int> UpdateAsync(List<Dictionary<string, object>> updateColumns, Expression<Func<T, object>> where);
 
         #endregion 更新实体数据
 
