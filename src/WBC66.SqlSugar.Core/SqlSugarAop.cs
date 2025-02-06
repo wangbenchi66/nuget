@@ -1,6 +1,6 @@
 using SqlSugar;
 
-namespace WBC66.SqlSugar.Core;
+namespace Easy.SqlSugar.Core;
 
 /// <summary>
 /// SqlSugarAop

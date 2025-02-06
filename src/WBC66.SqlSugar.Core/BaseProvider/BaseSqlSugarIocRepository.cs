@@ -2,9 +2,9 @@
 using System.Reflection;
 using SqlSugar;
 using SqlSugar.IOC;
-using WBC66.SqlSugar.Core.BiewModels;
+using Easy.SqlSugar.Core.BiewModels;
 
-namespace WBC66.SqlSugar.Core
+namespace Easy.SqlSugar.Core
 {
     /// <summary>
     /// SqlSugar通用仓储(Ioc模式)

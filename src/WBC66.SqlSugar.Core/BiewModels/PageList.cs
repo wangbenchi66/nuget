@@ -1,4 +1,4 @@
-﻿namespace WBC66.SqlSugar.Core.BiewModels
+﻿namespace Easy.SqlSugar.Core.BiewModels
 {
     /// <summary>
     /// 分页组件实体类

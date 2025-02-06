@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.Test", "test\WebApi.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Core", "src\Common.Core\Common.Core.csproj", "{8C818882-AEEE-4D2E-B52E-0F1E1BB1DDFB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WBC66.SqlSugar.Core", "src\WBC66.SqlSugar.Core\WBC66.SqlSugar.Core.csproj", "{410367B8-47AA-4D59-836F-6FE8F7B5F7B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Easy.SqlSugar.Core", "src\WBC66.SqlSugar.Core\Easy.SqlSugar.Core.csproj", "{410367B8-47AA-4D59-836F-6FE8F7B5F7B9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WBC66.Core", "src\WBC66.Core\WBC66.Core.csproj", "{82019346-9056-42D6-B2D1-65C3C931FC5D}"
 EndProject

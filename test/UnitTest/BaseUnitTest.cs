@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SqlSugar.IOC;
 using UnitTest.Repository;
-using WBC66.SqlSugar.Core;
+using Easy.SqlSugar.Core;
 
 namespace UnitTest
 {

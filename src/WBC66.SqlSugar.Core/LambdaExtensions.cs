@@ -2,7 +2,7 @@
 using System.Reflection;
 using SqlSugar;
 
-namespace WBC66.SqlSugar.Core
+namespace Easy.SqlSugar.Core
 {
     public static class LambdaExtensions
     {

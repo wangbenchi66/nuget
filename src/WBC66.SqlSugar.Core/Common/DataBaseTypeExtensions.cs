@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SqlSugar.IOC;
 
-namespace WBC66.SqlSugar.Core.Common
+namespace Easy.SqlSugar.Core.Common
 {
     /// <summary>
     /// 数据库类型扩展

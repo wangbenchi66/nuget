@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SqlSugar;
 using SqlSugar.IOC;
-using WBC66.SqlSugar.Core.BaseProvider;
+using Easy.SqlSugar.Core.BaseProvider;
 
-namespace WBC66.SqlSugar.Core
+namespace Easy.SqlSugar.Core
 {
     /// <summary>
     /// sqlsugar服务

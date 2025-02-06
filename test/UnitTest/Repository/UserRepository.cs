@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using SqlSugar;
-using WBC66.SqlSugar.Core;
+using Easy.SqlSugar.Core;
 
 namespace UnitTest.Repository
 {

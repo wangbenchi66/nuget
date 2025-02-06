@@ -6,7 +6,7 @@ using WBC66.Cache.Core;
 using WBC66.Core;
 using WBC66.Core.Filters;
 using WBC66.Serilog.Core;
-using WBC66.SqlSugar.Core;
+using Easy.SqlSugar.Core;
 using WebApi.Test;
 using WebApi.Test.Filter;
 using Microsoft.Extensions.DependencyInjection;

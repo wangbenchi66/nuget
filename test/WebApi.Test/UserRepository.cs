@@ -2,8 +2,8 @@
 using System.Linq.Expressions;
 using SqlSugar;
 using WBC66.Autofac.Core;
-using WBC66.SqlSugar.Core;
-using WBC66.SqlSugar.Core.BaseProvider;
+using Easy.SqlSugar.Core;
+using Easy.SqlSugar.Core.BaseProvider;
 
 namespace WebApi.Test
 {

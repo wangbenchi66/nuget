@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
 using SqlSugar;
-using WBC66.SqlSugar.Core.BiewModels;
+using Easy.SqlSugar.Core.BiewModels;
 
-namespace WBC66.SqlSugar.Core.BaseProvider
+namespace Easy.SqlSugar.Core.BaseProvider
 {
     /// <summary>
     /// 通用仓储

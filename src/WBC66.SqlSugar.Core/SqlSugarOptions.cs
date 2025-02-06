@@ -1,7 +1,7 @@
 using SqlSugar;
 using SqlSugar.IOC;
 
-namespace WBC66.SqlSugar.Core
+namespace Easy.SqlSugar.Core
 {
     /// <summary>
     /// SqlSugar 配置选项类

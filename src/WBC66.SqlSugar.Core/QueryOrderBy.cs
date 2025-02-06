@@ -1,4 +1,4 @@
-﻿namespace WBC66.SqlSugar.Core
+﻿namespace Easy.SqlSugar.Core
 {
     /// <summary>
     /// 查询排序

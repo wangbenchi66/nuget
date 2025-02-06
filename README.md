@@ -134,7 +134,7 @@ builder.AddNLogSteup(configuration);
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="WBC66.SqlSugar.Core" Version="2025.02.05.1" />
+<PackageReference Include="Easy.SqlSugar.Core" Version="2025.02.05.1" />
 ```
 ### 3.1 SqlSugar配置文件
 ``` json
