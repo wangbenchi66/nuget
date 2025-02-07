@@ -650,7 +650,7 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="func">事务操作</param>
         /// <returns>事务是否成功</returns>
-        Task<bool> DbContextBeginTransactionAsync(Func<bool> func);
+        Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func);
 
         #endregion 开启事务
     }

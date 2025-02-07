@@ -1086,14 +1086,14 @@ namespace Easy.SqlSugar.Core.BaseProvider
         /// </summary>
         /// <param name="func"></param>
         /// <returns></returns>
-        public virtual async Task<bool> DbContextBeginTransactionAsync(Func<bool> func)
+        public virtual async Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func)
         {
             var result = new bool();
             var tran = Tenant;
             try
             {
                 await tran.BeginTranAsync();
-                result = func();
+                result = await func();
                 if (result)
                 {
                     await tran.CommitTranAsync();
