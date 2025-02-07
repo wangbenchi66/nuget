@@ -504,19 +504,20 @@ namespace Easy.SqlSugar.Core.BaseProvider
         public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
             var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
-            SqlSugarDbContext.AsTenant().BeginTran();
+            var tran = Tenant;
+            tran.BeginTran();
             try
             {
                 var insertList = x.InsertList.Select(z => z.Item).ToList();
                 var updateList = x.UpdateList.Select(z => z.Item).ToList();
                 int insertCount = SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommand();
                 int updateCount = SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommand();
-                SqlSugarDbContext.AsTenant().CommitTran();
+                tran.CommitTran();
                 return insertCount + updateCount;
             }
             catch (Exception e)
             {
-                SqlSugarDbContext.AsTenant().RollbackTran();
+                tran.RollbackTran();
                 Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
                 throw e;
             }
@@ -532,19 +533,20 @@ namespace Easy.SqlSugar.Core.BaseProvider
         public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
             var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
-            SqlSugarDbContext.AsTenant().BeginTran();
+            var tran = Tenant;
+            tran.BeginTran();
             try
             {
                 var insertList = x.InsertList.Select(z => z.Item).ToList();
                 var updateList = x.UpdateList.Select(z => z.Item).ToList();
                 int insertCount = SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommand();
                 int updateCount = SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommand();
-                SqlSugarDbContext.AsTenant().CommitTran();
+                tran.CommitTran();
                 return insertCount + updateCount;
             }
             catch (Exception e)
             {
-                SqlSugarDbContext.AsTenant().RollbackTran();
+                tran.RollbackTran();
                 Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
                 throw e;
             }
@@ -560,19 +562,20 @@ namespace Easy.SqlSugar.Core.BaseProvider
         public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
             var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
-            await SqlSugarDbContext.AsTenant().BeginTranAsync();
+            var tran = Tenant;
+            await tran.BeginTranAsync();
             try
             {
                 var insertList = x.InsertList.Select(z => z.Item).ToList();
                 var updateList = x.UpdateList.Select(z => z.Item).ToList();
                 int insertCount = await SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommandAsync();
                 int updateCount = await SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommandAsync();
-                await SqlSugarDbContext.AsTenant().CommitTranAsync();
+                await tran.CommitTranAsync();
                 return insertCount + updateCount;
             }
             catch (Exception e)
             {
-                await SqlSugarDbContext.AsTenant().RollbackTranAsync();
+                await tran.RollbackTranAsync();
                 Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
                 throw e;
             }
@@ -588,19 +591,20 @@ namespace Easy.SqlSugar.Core.BaseProvider
         public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
             var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
-            await SqlSugarDbContext.AsTenant().BeginTranAsync();
+            var tran = Tenant;
+            await tran.BeginTranAsync();
             try
             {
                 var insertList = x.InsertList.Select(z => z.Item).ToList();
                 var updateList = x.UpdateList.Select(z => z.Item).ToList();
                 int insertCount = await SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommandAsync();
                 int updateCount = await SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommandAsync();
-                await SqlSugarDbContext.AsTenant().CommitTranAsync();
+                await tran.CommitTranAsync();
                 return insertCount + updateCount;
             }
             catch (Exception e)
             {
-                await SqlSugarDbContext.AsTenant().RollbackTranAsync();
+                await tran.RollbackTranAsync();
                 Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
                 throw e;
             }
@@ -1053,23 +1057,24 @@ namespace Easy.SqlSugar.Core.BaseProvider
         public virtual bool DbContextBeginTransaction(Func<bool> func)
         {
             var result = new bool();
+            var tran = Tenant;
             try
             {
-                Tenant.BeginTran();
+                tran.BeginTran();
                 result = func();
                 if (result)
                 {
-                    Tenant.CommitTran();
+                    tran.CommitTran();
                 }
                 else
                 {
-                    Tenant.RollbackTran();
+                    tran.RollbackTran();
                     result = false;
                 }
             }
             catch (Exception ex)
             {
-                Tenant.RollbackTran();
+                tran.RollbackTran();
                 result = false;
                 Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
             }
@@ -1084,23 +1089,24 @@ namespace Easy.SqlSugar.Core.BaseProvider
         public virtual async Task<bool> DbContextBeginTransactionAsync(Func<bool> func)
         {
             var result = new bool();
+            var tran = Tenant;
             try
             {
-                await Tenant.BeginTranAsync();
+                await tran.BeginTranAsync();
                 result = func();
                 if (result)
                 {
-                    await Tenant.CommitTranAsync();
+                    await tran.CommitTranAsync();
                 }
                 else
                 {
-                    await Tenant.RollbackTranAsync();
+                    await tran.RollbackTranAsync();
                     result = false;
                 }
             }
             catch (Exception ex)
             {
-                await Tenant.RollbackTranAsync();
+                await tran.RollbackTranAsync();
                 result = false;
                 Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
             }
