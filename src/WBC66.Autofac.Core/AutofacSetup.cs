@@ -43,21 +43,9 @@ namespace WBC66.Autofac.Core
         /// <returns></returns>
         private static void AddAutofacModule(this ContainerBuilder builder)
         {
-            /* var compilationLibrary = DependencyContext.Default.RuntimeLibraries.Where(x => !x.Serviceable && x.Type == "project").ToList();
-             List<Assembly> assemblies = new List<Assembly>();
-             foreach (var _compilation in compilationLibrary)
-             {
-                 try
-                 {
-                     assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(_compilation.Name)));
-                 }
-                 catch (Exception ex)
-                 {
-                     Console.WriteLine(_compilation.Name + ex.Message);
-                 }
-             }*/
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            //var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            var assemblies = GetAllAssemblies();
 
             builder.RegisterAssemblyTypes(assemblies.ToArray())//程序集内所有具象类 
             .Where(c => c.Name.ToLower().EndsWith("repository") || c.Name.ToLower().EndsWith("service") || c.Name.ToLower().EndsWith("dao"))
@@ -81,7 +69,8 @@ namespace WBC66.Autofac.Core
         /// <returns></returns>
         public static void AddRegisterDependencies(this IServiceCollection services)
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            //var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            var assemblies = GetAllAssemblies();
             foreach (var assembly in assemblies)
             {
                 var dependencyTypes = assembly.GetTypes()
@@ -137,6 +126,29 @@ namespace WBC66.Autofac.Core
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 获取所有引用的程序集
+        /// </summary>
+        /// <returns></returns>
+        private static List<Assembly> GetAllAssemblies()
+        {
+            var assemblies = new List<Assembly>();
+            var dependencies = DependencyContext.Default.RuntimeLibraries;
+            foreach (var library in dependencies)
+            {
+                try
+                {
+                    var assembly = Assembly.Load(new AssemblyName(library.Name));
+                    assemblies.Add(assembly);
+                }
+                catch
+                {
+                    // 忽略加载失败的程序集
+                }
+            }
+            return assemblies;
         }
     }
 }
