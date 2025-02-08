@@ -8,12 +8,12 @@ namespace WebApi.Test.Controllers
     [ApiController]
     public class SqlSugarController : ControllerBase
     {
-        private readonly UserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
         private readonly ILogger<SqlSugarController> _logger;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IUserService _userServices;
 
-        public SqlSugarController(UserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository, IUserService userServices)
+        public SqlSugarController(IUserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository, IUserService userServices)
         {
             _userRepository = userRepository;
             _logger = logger;
@@ -246,7 +246,7 @@ namespace WebApi.Test.Controllers
 
             RefAsync<int> t = 0, p = 0;
 
-            var list = _userRepository.QueryPage(x=>x.Id==1, " CreateTime desc", 1, 10);
+            var list = _userRepository.QueryPage(x => x.Id == 1, " CreateTime desc", 1, 10);
 
             _logger.LogInformation("查询单个结果：{@obj}", obj);
             return "ok";

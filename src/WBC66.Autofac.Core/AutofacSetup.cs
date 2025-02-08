@@ -87,20 +87,54 @@ namespace WBC66.Autofac.Core
                 var dependencyTypes = assembly.GetTypes()
                     .Where(t => typeof(ITransient).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
                 var singletonTypes = assembly.GetTypes()
-                .Where(t => typeof(ISingleton).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+                    .Where(t => typeof(ISingleton).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
                 var scopedTypes = assembly.GetTypes()
-                .Where(t => typeof(IScoped).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+                    .Where(t => typeof(IScoped).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
                 foreach (var type in dependencyTypes)
                 {
-                    services.AddTransient(type);
+                    var interfaces = type.GetInterfaces();
+                    if (interfaces.Any())
+                    {
+                        foreach (var @interface in interfaces)
+                        {
+                            services.AddTransient(@interface, type);
+                        }
+                    }
+                    else
+                    {
+                        services.AddTransient(type);
+                    }
                 }
                 foreach (var type in singletonTypes)
                 {
-                    services.AddSingleton(type);
+                    var interfaces = type.GetInterfaces();
+                    if (interfaces.Any())
+                    {
+                        foreach (var @interface in interfaces)
+                        {
+                            services.AddSingleton(@interface, type);
+                        }
+                    }
+                    else
+                    {
+                        services.AddSingleton(type);
+                    }
                 }
                 foreach (var type in scopedTypes)
                 {
-                    services.AddScoped(type);
+                    var interfaces = type.GetInterfaces();
+                    if (interfaces.Any())
+                    {
+                        foreach (var @interface in interfaces)
+                        {
+                            services.AddScoped(@interface, type);
+                        }
+                    }
+                    else
+                    {
+                        services.AddScoped(type);
+                    }
                 }
             }
         }

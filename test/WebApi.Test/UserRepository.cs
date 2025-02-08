@@ -45,11 +45,11 @@ namespace WebApi.Test
     /// <summary>
     /// 用户仓储接口层
     /// </summary>
-    public interface IUserRepository : IBaseSqlSugarRepository<User>
+    public interface IUserRepository : IBaseSqlSugarRepository<User>, ISingleton
     {
     }
 
-    public class UserService : BaseSqlSugarService<User, IUserRepository>, IUserService, ISingleton
+    public class UserService : BaseSqlSugarService<User, IUserRepository>, IUserService
     {
         public UserService(IUserRepository repository) : base(repository)
         {
