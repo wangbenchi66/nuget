@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq.Expressions;
+using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 
 namespace WebApi.Test.Controllers
@@ -241,6 +242,12 @@ namespace WebApi.Test.Controllers
         {
             //查询单个
             var obj = _userServices.GetSingle(p => p.Id == 1);
+
+
+            RefAsync<int> t = 0, p = 0;
+
+            var list = _userRepository.QueryPage(x=>x.Id==1, " CreateTime desc", 1, 10);
+
             _logger.LogInformation("查询单个结果：{@obj}", obj);
             return "ok";
         }

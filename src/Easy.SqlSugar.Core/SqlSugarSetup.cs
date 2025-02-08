@@ -67,7 +67,7 @@ namespace Easy.SqlSugar.Core
                 throw new ArgumentNullException("请检查是否配置数据库连接字符串");
             //services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             var db = new SqlSugarClient(configs);
-            services.AddSingleton<ISqlSugarClient>(s =>
+            services.AddScoped<ISqlSugarClient>(s =>
             {
                 SqlSugarScope Db = new SqlSugarScope(configs);
                 return Db;
