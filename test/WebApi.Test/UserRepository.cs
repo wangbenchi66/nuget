@@ -35,7 +35,7 @@ namespace WebApi.Test
     {
     }*/
 
-    public class UserRepository : BaseSqlSugarRepository<User>
+    public class UserRepository : BaseSqlSugarRepository<User>, IUserRepository
     {
         public UserRepository(ISqlSugarClient db) : base(db)
         {
@@ -45,9 +45,21 @@ namespace WebApi.Test
     /// <summary>
     /// 用户仓储接口层
     /// </summary>
-    public interface IUserRepository : IBaseRepository<User>
+    public interface IUserRepository : IBaseSqlSugarRepository<User>
     {
     }
+
+    public class UserService : BaseSqlSugarService<User, IUserRepository>, IUserService, ISingleton
+    {
+        public UserService(IUserRepository repository) : base(repository)
+        {
+        }
+    }
+
+    public interface IUserService : IBaseSqlSugarService<User>, ISingleton
+    {
+    }
+
 
     #region 打卡模块
 
@@ -58,7 +70,7 @@ namespace WebApi.Test
         }
     }
 
-    public interface ICategoryRepository : IBaseRepository<Category>, ISingleton
+    public interface ICategoryRepository : IBaseSqlSugarRepository<Category>, ISingleton
     {
     }
 

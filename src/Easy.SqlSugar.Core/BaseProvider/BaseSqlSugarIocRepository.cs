@@ -1058,6 +1058,8 @@ namespace Easy.SqlSugar.Core
 
         #endregion 执行sql语句
 
+        #region 事务
+
         /// <summary>
         /// 事务
         /// </summary>
@@ -1121,5 +1123,7 @@ namespace Easy.SqlSugar.Core
             }
             return result;
         }
+
+        #endregion 事务
     }
 }

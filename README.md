@@ -300,6 +300,19 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
     {
     }
 
+    //有基类的Service可以使用,也可以只用Repository 不强制
+    //Service中排除了sql操作与DbContext操作
+    public class UserService : BaseSqlSugarService<User, IUserRepository>, IUserService, ISingleton
+    {
+        public UserService(IUserRepository repository) : base(repository)
+        {
+        }
+    }
+
+    public interface IUserService : IBaseSqlSugarService<User>, ISingleton
+    {
+    }
+
     
     //注入
     private readonly IUserRepository _userRepository;

@@ -1,38 +1,26 @@
 ﻿using System.Linq.Expressions;
-using SqlSugar;
 using Easy.SqlSugar.Core.BiewModels;
+using SqlSugar;
 
-namespace Easy.SqlSugar.Core
+namespace Easy.SqlSugar.Core.BaseProvider
 {
     /// <summary>
-    /// 通用仓储
+    /// SqlSugar服务基类
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class BaseSqlSugarRepository<T> : SimpleClient<T> where T : class, new()
+    /// <typeparam name="TRepository"></typeparam>
+    public class BaseSqlSugarService<T, TRepository>
+        where T : class, new()
+        where TRepository : IBaseSqlSugarRepository<T>
     {
 
-        /// <summary>
-        /// db上下文
-        /// </summary>
-        public ISqlSugarClient SqlSugarDbContext { get; private set; }
+        protected IBaseSqlSugarRepository<T> _repository;
 
-        /// <summary>
-        /// SqlSugarAdo
-        /// </summary>
-        public IAdo SqlSugarDbContextAdo { get; private set; }
-
-        /// <summary>
-        /// //多租户事务、GetConnection、IsAnyConnection等功能
-        /// </summary>
-        public ITenant Tenant { get; private set; }
-
-        public BaseSqlSugarRepository(ISqlSugarClient db)
+        public BaseSqlSugarService(TRepository repository)
         {
-            Tenant = db.AsTenant();//用来处理事务
-            base.Context = db.AsTenant().GetConnectionWithAttr<T>();//获取子Db
-            SqlSugarDbContext = Context;
-            SqlSugarDbContextAdo = Context.Ado;
+            _repository = repository;
         }
+
 
         #region 获取单个实体
 
@@ -43,7 +31,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual T GetSingle(Expression<Func<T, bool>> where)
         {
-            return SqlSugarDbContext.Queryable<T>().First(where);
+            return _repository.GetSingle(where);
         }
 
         /// <summary>
@@ -53,7 +41,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<T> GetSingleAsync(Expression<Func<T, bool>> where)
         {
-            return await SqlSugarDbContext.Queryable<T>().FirstAsync(where);
+            return await _repository.GetSingleAsync(where);
         }
 
         #endregion 获取单个实体
@@ -67,7 +55,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual List<T> GetList(Expression<Func<T, bool>> where)
         {
-            return SqlSugarDbContext.Queryable<T>().Where(where).ToList();
+            return _repository.GetList(where);
         }
 
         /// <summary>
@@ -77,7 +65,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> where)
         {
-            return await SqlSugarDbContext.Queryable<T>().Where(where).ToListAsync();
+            return await _repository.GetListAsync(where);
         }
 
         /// <summary>
@@ -88,8 +76,7 @@ namespace Easy.SqlSugar.Core
         /// <returns>泛型实体集合</returns>
         public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy = "")
         {
-            return await SqlSugarDbContext.Queryable<T>().OrderByIF(!string.IsNullOrEmpty(orderBy), orderBy)
-                    .WhereIF(predicate != null, predicate).ToListAsync();
+            return await _repository.GetListAsync(predicate, orderBy);
         }
 
         /// <summary>
@@ -101,8 +88,7 @@ namespace Easy.SqlSugar.Core
         /// <returns>泛型实体集合</returns>
         public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByPredicate, OrderByType orderByType)
         {
-            return await SqlSugarDbContext.Queryable<T>().OrderByIF(orderByPredicate != null, orderByPredicate, orderByType)
-                    .WhereIF(predicate != null, predicate).ToListAsync();
+            return await _repository.GetListAsync(predicate, orderByPredicate, orderByType);
         }
 
         #endregion 获取列表
@@ -116,7 +102,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Insert(T entity)
         {
-            return SqlSugarDbContext.Insertable(entity).ExecuteReturnIdentity();
+            return _repository.Insert(entity);
         }
 
         /// <summary>
@@ -126,7 +112,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertAsync(T entity)
         {
-            return await SqlSugarDbContext.Insertable(entity).ExecuteReturnIdentityAsync();
+            return await _repository.InsertAsync(entity);
         }
 
         /// <summary>
@@ -137,10 +123,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Insert(T entity, Expression<Func<T, object>>? insertColumns = null)
         {
-            var insert = SqlSugarDbContext.Insertable(entity);
-            if (insertColumns == null)
-                return insert.ExecuteReturnIdentity();
-            return insert.InsertColumns(insertColumns).ExecuteReturnIdentity();
+            return _repository.Insert(entity, insertColumns);
         }
 
         /// <summary>
@@ -151,10 +134,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertAsync(T entity, Expression<Func<T, object>>? insertColumns = null)
         {
-            var insert = SqlSugarDbContext.Insertable(entity);
-            if (insertColumns == null)
-                return await insert.ExecuteReturnIdentityAsync();
-            return await insert.InsertColumns(insertColumns).ExecuteReturnIdentityAsync();
+            return await _repository.InsertAsync(entity, insertColumns);
         }
 
         /// <summary>
@@ -164,7 +144,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Insert(List<T> entity)
         {
-            return SqlSugarDbContext.Insertable(entity.ToArray()).ExecuteReturnIdentity();
+            return _repository.Insert(entity);
         }
 
         /// <summary>
@@ -174,7 +154,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertAsync(List<T> entity)
         {
-            return await SqlSugarDbContext.Insertable(entity.ToArray()).ExecuteCommandAsync();
+            return await _repository.InsertAsync(entity);
         }
 
         #endregion 写入实体数据
@@ -188,7 +168,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Update(List<T> entity)
         {
-            return SqlSugarDbContext.Updateable(entity).ExecuteCommand();
+            return _repository.Update(entity);
         }
 
         /// <summary>
@@ -198,7 +178,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(List<T> entity)
         {
-            return await SqlSugarDbContext.Updateable(entity).ExecuteCommandAsync();
+            return await _repository.UpdateAsync(entity);
         }
 
         /// <summary>
@@ -208,7 +188,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Update(T entity)
         {
-            return SqlSugarDbContext.Updateable(entity).ExecuteCommand();
+            return _repository.Update(entity);
         }
 
         /// <summary>
@@ -218,7 +198,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(T entity)
         {
-            return await SqlSugarDbContext.Updateable(entity).ExecuteCommandAsync();
+            return await _repository.UpdateAsync(entity);
         }
 
         /// <summary>
@@ -229,7 +209,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Update(List<T> entity, Expression<Func<T, object>> updateColumns)
         {
-            return SqlSugarDbContext.Updateable(entity).UpdateColumns(updateColumns).ExecuteCommand();
+            return _repository.Update(entity, updateColumns);
         }
 
         /// <summary>
@@ -240,7 +220,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(List<T> entity, Expression<Func<T, object>> updateColumns)
         {
-            return await SqlSugarDbContext.Updateable(entity).UpdateColumns(updateColumns).ExecuteCommandAsync();
+            return await _repository.UpdateAsync(entity, updateColumns);
         }
 
         /// <summary>
@@ -251,7 +231,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Update(T entity, Expression<Func<T, object>> updateColumns)
         {
-            return SqlSugarDbContext.Updateable(entity).UpdateColumns(updateColumns).ExecuteCommand();
+            return _repository.Update(entity, updateColumns);
         }
 
         /// <summary>
@@ -262,7 +242,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns)
         {
-            return await SqlSugarDbContext.Updateable(entity).UpdateColumns(updateColumns).ExecuteCommandAsync();
+            return await _repository.UpdateAsync(entity, updateColumns);
         }
 
         /// <summary>
@@ -274,7 +254,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommand();
+            return _repository.Update(entity, updateColumns, where);
         }
 
         /// <summary>
@@ -286,7 +266,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommandAsync();
+            return await _repository.UpdateAsync(entity, updateColumns, where);
         }
 
         /// <summary>
@@ -298,7 +278,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Update(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>(entitys).UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommand();
+            return _repository.Update(entitys, updateColumns, where);
         }
 
         /// <summary>
@@ -310,7 +290,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>(entitys).UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommandAsync();
+            return await _repository.UpdateAsync(entitys, updateColumns, where);
         }
 
         /// <summary>
@@ -323,7 +303,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).IgnoreColumns(ignoreColumns).WhereColumns(where).ExecuteCommand();
+            return _repository.Update(entity, updateColumns, ignoreColumns, where);
         }
 
         /// <summary>
@@ -336,7 +316,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>(entity).UpdateColumns(updateColumns).IgnoreColumns(ignoreColumns).WhereColumns(where).ExecuteCommandAsync();
+            return await _repository.UpdateAsync(entity, updateColumns, ignoreColumns, where);
         }
 
         /// <summary>
@@ -347,7 +327,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Update(Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>().UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommand();
+            return _repository.Update(updateColumns, where);
         }
 
         /// <summary>
@@ -358,7 +338,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>().UpdateColumns(updateColumns).WhereColumns(where).ExecuteCommandAsync();
+            return await _repository.UpdateAsync(updateColumns, where);
         }
 
         /// <summary>
@@ -369,7 +349,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Update(Dictionary<string, object> updateColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>(updateColumns).WhereColumns(where).ExecuteCommand();
+            return _repository.Update(updateColumns, where);
         }
 
         /// <summary>
@@ -380,7 +360,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(Dictionary<string, object> updateColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>(updateColumns).WhereColumns(where).ExecuteCommandAsync();
+            return await _repository.UpdateAsync(updateColumns, where);
         }
 
         /// <summary>
@@ -391,7 +371,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Update(List<Dictionary<string, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Updateable<T>(updateColumns).WhereColumns(where).ExecuteCommand();
+            return _repository.Update(updateColumns, where);
         }
 
         /// <summary>
@@ -402,7 +382,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(List<Dictionary<string, object>> updateColumns, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Updateable<T>(updateColumns).WhereColumns(where).ExecuteCommandAsync();
+            return await _repository.UpdateAsync(updateColumns, where);
         }
 
         #endregion 更新实体数据
@@ -416,7 +396,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(T entity)
         {
-            return SqlSugarDbContext.Storageable(entity).DefaultAddElseUpdate().ExecuteCommand();
+            return _repository.InsertOrUpdate(entity);
         }
 
         /// <summary>
@@ -426,7 +406,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(List<T> entitys)
         {
-            return SqlSugarDbContext.Storageable(entitys).DefaultAddElseUpdate().ExecuteCommand();
+            return _repository.InsertOrUpdate(entitys);
         }
 
         /// <summary>
@@ -436,7 +416,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(T entity)
         {
-            return await SqlSugarDbContext.Storageable(entity).DefaultAddElseUpdate().ExecuteCommandAsync();
+            return await _repository.InsertOrUpdateAsync(entity);
         }
 
         /// <summary>
@@ -446,7 +426,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys)
         {
-            return await SqlSugarDbContext.Storageable(entitys).DefaultAddElseUpdate().ExecuteCommandAsync();
+            return await _repository.InsertOrUpdateAsync(entitys);
         }
 
         /// <summary>
@@ -457,7 +437,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Storageable(entity).WhereColumns(where).ExecuteCommand();
+            return _repository.InsertOrUpdate(entity, where);
         }
 
         /// <summary>
@@ -468,7 +448,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ExecuteCommand();
+            return _repository.InsertOrUpdate(entitys, where);
         }
 
         /// <summary>
@@ -479,7 +459,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Storageable(entity).WhereColumns(where).ExecuteCommandAsync();
+            return await _repository.InsertOrUpdateAsync(entity, where);
         }
 
         /// <summary>
@@ -490,9 +470,8 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ExecuteCommandAsync();
+            return await _repository.InsertOrUpdateAsync(entitys, where);
         }
-
 
         /// <summary>
         /// 添加或更新
@@ -503,24 +482,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
-            var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
-            var tran = Tenant;
-            tran.BeginTran();
-            try
-            {
-                var insertList = x.InsertList.Select(z => z.Item).ToList();
-                var updateList = x.UpdateList.Select(z => z.Item).ToList();
-                int insertCount = SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommand();
-                int updateCount = SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommand();
-                tran.CommitTran();
-                return insertCount + updateCount;
-            }
-            catch (Exception e)
-            {
-                tran.RollbackTran();
-                Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
-                throw e;
-            }
+            return _repository.InsertOrUpdate(entity, columns, where);
         }
 
         /// <summary>
@@ -532,24 +494,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
-            var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
-            var tran = Tenant;
-            tran.BeginTran();
-            try
-            {
-                var insertList = x.InsertList.Select(z => z.Item).ToList();
-                var updateList = x.UpdateList.Select(z => z.Item).ToList();
-                int insertCount = SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommand();
-                int updateCount = SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommand();
-                tran.CommitTran();
-                return insertCount + updateCount;
-            }
-            catch (Exception e)
-            {
-                tran.RollbackTran();
-                Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
-                throw e;
-            }
+            return _repository.InsertOrUpdate(entitys, columns, where);
         }
 
         /// <summary>
@@ -561,24 +506,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
-            var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
-            var tran = Tenant;
-            await tran.BeginTranAsync();
-            try
-            {
-                var insertList = x.InsertList.Select(z => z.Item).ToList();
-                var updateList = x.UpdateList.Select(z => z.Item).ToList();
-                int insertCount = await SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommandAsync();
-                int updateCount = await SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommandAsync();
-                await tran.CommitTranAsync();
-                return insertCount + updateCount;
-            }
-            catch (Exception e)
-            {
-                await tran.RollbackTranAsync();
-                Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
-                throw e;
-            }
+            return await _repository.InsertOrUpdateAsync(entity, columns, where);
         }
 
         /// <summary>
@@ -590,24 +518,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
-            var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
-            var tran = Tenant;
-            await tran.BeginTranAsync();
-            try
-            {
-                var insertList = x.InsertList.Select(z => z.Item).ToList();
-                var updateList = x.UpdateList.Select(z => z.Item).ToList();
-                int insertCount = await SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommandAsync();
-                int updateCount = await SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommandAsync();
-                await tran.CommitTranAsync();
-                return insertCount + updateCount;
-            }
-            catch (Exception e)
-            {
-                await tran.RollbackTranAsync();
-                Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
-                throw e;
-            }
+            return await _repository.InsertOrUpdateAsync(entitys, columns, where);
         }
 
         #endregion 添加或更新
@@ -621,7 +532,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual bool Delete(T entity)
         {
-            return SqlSugarDbContext.Deleteable(entity).ExecuteCommandHasChange();
+            return _repository.Delete(entity);
         }
 
         /// <summary>
@@ -631,7 +542,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<bool> DeleteAsync(T entity)
         {
-            return await SqlSugarDbContext.Deleteable(entity).ExecuteCommandHasChangeAsync();
+            return await _repository.DeleteAsync(entity);
         }
 
         /// <summary>
@@ -641,7 +552,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual bool Delete(List<T> entity)
         {
-            return base.Delete(entity);
+            return _repository.Delete(entity);
         }
 
         /// <summary>
@@ -651,7 +562,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<bool> DeleteAsync(List<T> entity)
         {
-            return await base.DeleteAsync(entity);
+            return await _repository.DeleteAsync(entity);
         }
 
         /// <summary>
@@ -661,7 +572,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<bool> DeleteAsync(Expression<Func<T, bool>> where)
         {
-            return await SqlSugarDbContext.Deleteable<T>().Where(where).ExecuteCommandHasChangeAsync();
+            return await _repository.DeleteAsync(where);
         }
 
         /// <summary>
@@ -671,7 +582,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual bool DeleteByIds(object[] ids)
         {
-            return SqlSugarDbContext.Deleteable<T>().In(ids).ExecuteCommandHasChange();
+            return _repository.DeleteByIds(ids);
         }
 
         /// <summary>
@@ -681,7 +592,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<bool> DeleteByIdsAsync(object[] ids)
         {
-            return await SqlSugarDbContext.Deleteable<T>().In(ids).ExecuteCommandHasChangeAsync();
+            return await _repository.DeleteByIdsAsync(ids);
         }
 
         #endregion 删除数据
@@ -695,7 +606,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual bool Exists(Expression<Func<T, bool>> predicate)
         {
-            return SqlSugarDbContext.Queryable<T>().Where(predicate).Any();
+            return _repository.Exists(predicate);
         }
 
         /// <summary>
@@ -705,7 +616,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
         {
-            return await SqlSugarDbContext.Queryable<T>().Where(predicate).AnyAsync();
+            return await _repository.ExistsAsync(predicate);
         }
 
         #endregion 判断数据是否存在
@@ -719,7 +630,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int GetCount(Expression<Func<T, bool>> predicate)
         {
-            return SqlSugarDbContext.Queryable<T>().Count(predicate);
+            return _repository.GetCount(predicate);
         }
 
         /// <summary>
@@ -729,7 +640,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> GetCountAsync(Expression<Func<T, bool>> predicate)
         {
-            return await SqlSugarDbContext.Queryable<T>().CountAsync(predicate);
+            return await _repository.GetCountAsync(predicate);
         }
 
         #endregion 获取数据总数
@@ -747,11 +658,7 @@ namespace Easy.SqlSugar.Core
         public virtual IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1,
             int pageSize = 20)
         {
-            var totalCount = 0;
-            var page = SqlSugarDbContext.Queryable<T>().OrderByIF(!string.IsNullOrEmpty(orderBy), orderBy)
-                    .WhereIF(predicate != null, predicate).ToPageList(pageIndex, pageSize, ref totalCount);
-            var list = new PageList<T>(page, pageIndex, pageSize, totalCount);
-            return list;
+            return _repository.QueryPage(predicate, orderBy, pageIndex, pageSize);
         }
 
         /// <summary>
@@ -765,11 +672,7 @@ namespace Easy.SqlSugar.Core
         public virtual async Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, string orderBy = "",
             int pageIndex = 1, int pageSize = 20)
         {
-            RefAsync<int> totalCount = 0;
-            var page = await SqlSugarDbContext.Queryable<T>().OrderByIF(!string.IsNullOrEmpty(orderBy), orderBy)
-                    .WhereIF(predicate != null, predicate).ToPageListAsync(pageIndex, pageSize, totalCount);
-            var list = new PageList<T>(page, pageIndex, pageSize, totalCount);
-            return list;
+            return await _repository.QueryPageAsync(predicate, orderBy, pageIndex, pageSize);
         }
 
         /// <summary>
@@ -785,11 +688,7 @@ namespace Easy.SqlSugar.Core
             Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1,
             int pageSize = 20)
         {
-            var totalCount = 0;
-            var page = SqlSugarDbContext.Queryable<T>().OrderByIF(orderByExpression != null, orderByExpression, orderByType)
-                    .WhereIF(predicate != null, predicate).ToPageList(pageIndex, pageSize, ref totalCount);
-            var list = new PageList<T>(page, pageIndex, pageSize, totalCount);
-            return list;
+            return _repository.QueryPage(predicate, orderByExpression, orderByType, pageIndex, pageSize);
         }
 
         /// <summary>
@@ -805,11 +704,7 @@ namespace Easy.SqlSugar.Core
             Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1,
             int pageSize = 20)
         {
-            RefAsync<int> totalCount = 0;
-            var page = await SqlSugarDbContext.Queryable<T>().WhereIF(predicate != null, predicate).OrderByIF(orderByExpression != null, orderByExpression, orderByType)
-                    .ToPageListAsync(pageIndex, pageSize, totalCount);
-            var list = new PageList<T>(page, pageIndex, pageSize, totalCount);
-            return list;
+            return await _repository.QueryPageAsync(predicate, orderByExpression, orderByType, pageIndex, pageSize);
         }
 
         /// <summary>
@@ -824,230 +719,10 @@ namespace Easy.SqlSugar.Core
         /// <returns>分页后的查询对象</returns>
         public virtual ISugarQueryable<T> IQueryablePage(ISugarQueryable<T> queryable, int pageIndex, int pagesize, out int rowcount, Dictionary<string, QueryOrderBy> orderBy, bool returnRowCount = true)
         {
-            pageIndex = pageIndex <= 0 ? 1 : pageIndex;
-            pagesize = pagesize <= 0 ? 10 : pagesize;
-            rowcount = returnRowCount ? queryable.Count() : 0;
-            return queryable.GetISugarQueryableOrderBy<T>(orderBy)
-                .Skip((pageIndex - 1) * pagesize)
-                .Take(pagesize);
+            return _repository.IQueryablePage(queryable, pageIndex, pagesize, out rowcount, orderBy, returnRowCount);
         }
 
         #endregion 根据条件查询分页数据
-
-        #region 执行sql语句
-
-        /// <summary>
-        /// 执行sql语句并返回List[T]
-        /// </summary>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        public virtual List<T> SqlQuery(string sql, object? parameters)
-        {
-            return SqlSugarDbContext.Ado.SqlQuery<T>(sql, parameters);
-        }
-
-        /// <summary>
-        /// 执行sql语句并返回List[T]
-        /// </summary>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        public virtual async Task<List<T>> SqlQueryAsync(string sql, object? parameters)
-        {
-            return await SqlSugarDbContext.Ado.SqlQueryAsync<T>(sql, parameters);
-        }
-
-        /// <summary>
-        /// 执行sql语句并返回到指定实体中
-        /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
-        /// <param name="sql">sql</param>
-        /// <param name="parameters">参数</param>
-        /// <returns></returns>
-        public virtual List<T> SqlQuery<T>(string sql, object? parameters)
-        {
-            return SqlSugarDbContext.Ado.SqlQuery<T>(sql, parameters);
-        }
-
-        /// <summary>
-        /// 执行sql语句并返回到指定实体中
-        /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
-        /// <param name="sql">sql</param>
-        /// <param name="parameters">参数</param>
-        /// <returns></returns>
-        public virtual async Task<List<T>> SqlQueryAsync<T>(string sql, object? parameters)
-        {
-            return await SqlSugarDbContext.Ado.SqlQueryAsync<T>(sql, parameters);
-        }
-
-        /// <summary>
-        /// 执行sql语句并返回到指定实体中
-        /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
-        /// <param name="sql">sql</param>
-        /// <param name="parameters">参数</param>
-        /// <returns></returns>
-        public virtual T SqlQuerySingle<T>(string sql, object? parameters)
-        {
-            return SqlSugarDbContext.Ado.SqlQuerySingle<T>(sql, parameters);
-        }
-
-        /// <summary>
-        /// 执行sql语句并返回到指定实体中
-        /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
-        /// <param name="sql">sql</param>
-        /// <param name="parameters">参数</param>
-        /// <returns></returns>
-        public virtual async Task<T> SqlQuerySingleAsync<T>(string sql, object? parameters)
-        {
-            return await SqlSugarDbContext.Ado.SqlQuerySingleAsync<T>(sql, parameters);
-        }
-
-        /// <summary>
-        /// 执行分页sql语句并返回到指定实体中
-        /// </summary>
-        /// <typeparam name="T1"></typeparam>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <returns></returns>
-        public virtual IPageList<T1> SqlPageQuery<T1>(string sql, object? parameters, int pageIndex, int pageSize)
-        {
-            //计算分页
-            var skip = (pageIndex - 1) * pageSize;
-            var take = pageSize;
-            var list = SqlSugarDbContext.Ado.SqlQuery<T1>(sql, parameters);
-            var total = list.Count;
-            if (total == 0)
-                return new PageList<T1>(null, pageIndex, pageSize, total);
-            return new PageList<T1>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
-        }
-
-        /// <summary>
-        /// 执行分页sql语句并返回到指定实体中
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <returns></returns>
-        public virtual async Task<IPageList<T>> SqlPageQueryAsync<T>(string sql, object? parameters, int pageIndex, int pageSize)
-        {
-            //计算分页
-            var skip = (pageIndex - 1) * pageSize;
-            var take = pageSize;
-            var list = await SqlSugarDbContext.Ado.SqlQueryAsync<T>(sql, parameters);
-            var total = list.Count;
-            if (total == 0)
-                return new PageList<T>(null, pageIndex, pageSize, total);
-            return new PageList<T>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
-        }
-
-        /// <summary>
-        /// 执行sql语句返回影响行数
-        /// </summary>
-        /// <param name="sql">sql语句</param>
-        /// <param name="parameters">参数</param>
-        /// <returns>返回影响行数</returns>
-        public virtual int ExecuteSql(string sql, object? parameters)
-        {
-            if (parameters is IEnumerable<object> parameterList)
-            {
-                int totalAffectedRows = 0;
-                using (SqlSugarDbContext.Ado.OpenAlways())
-                {
-                    foreach (var parameter in GetSugarParameters(parameterList) as List<SugarParameter[]>)
-                    {
-                        totalAffectedRows += SqlSugarDbContext.Ado.ExecuteCommand(sql, parameter);
-                    }
-                    return totalAffectedRows;
-                }
-            }
-            else
-            {
-                return SqlSugarDbContext.Ado.ExecuteCommand(sql, parameters);
-            }
-        }
-
-        /// <summary>
-        /// 执行sql语句返回影响行数
-        /// </summary>
-        /// <param name="sql">sql语句</param>
-        /// <param name="parameters">参数</param>
-        /// <returns>返回影响行数</returns>
-        public virtual async Task<int> ExecuteSqlAsync(string sql, object? parameters)
-        {
-            if (parameters is IEnumerable<object> parameterList)
-            {
-                int totalAffectedRows = 0;
-                using (SqlSugarDbContext.Ado.OpenAlways())
-                {
-                    foreach (var parameter in GetSugarParameters(parameterList) as List<SugarParameter[]>)
-                    {
-                        totalAffectedRows += await SqlSugarDbContext.Ado.ExecuteCommandAsync(sql, parameter);
-                    }
-                    return totalAffectedRows;
-                }
-            }
-            else
-            {
-                return await SqlSugarDbContext.Ado.ExecuteCommandAsync(sql, parameters);
-            }
-        }
-
-        /// <summary>
-        /// 将parameter中的参数转换成List[SugarParameter]类型
-        /// </summary>
-        /// <param name="parameter"></param>
-        /// <returns></returns>
-        private static object GetSugarParameters(object parameter)
-        {
-            if (parameter == null)
-            {
-                return null;
-            }
-            if (parameter is IEnumerable<object> parameterList)
-            {
-                List<SugarParameter[]> sugarParameters = new List<SugarParameter[]>();
-                foreach (var item in parameterList)
-                {
-                    var properties = item.GetType().GetProperties();
-                    List<SugarParameter> sugarParameter = new List<SugarParameter>();
-                    foreach (var property in properties)
-                    {
-                        var value = property.GetValue(item);
-                        if (value != null)
-                        {
-                            sugarParameter.Add(new SugarParameter(property.Name, value));
-                        }
-                    }
-                    sugarParameters.Add(sugarParameter.ToArray());
-                }
-                return sugarParameters;
-            }
-            if (parameter is T)
-            {
-                var properties = parameter.GetType().GetProperties();
-                List<SugarParameter> sugarParameters = new List<SugarParameter>();
-                foreach (var property in properties)
-                {
-                    var value = property.GetValue(parameter);
-                    if (value != null)
-                    {
-                        sugarParameters.Add(new SugarParameter(property.Name, value));
-                    }
-                }
-                return sugarParameters;
-            }
-            return parameter;
-        }
-
-        #endregion 执行sql语句
 
         #region 事务
 
@@ -1058,29 +733,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual bool DbContextBeginTransaction(Func<bool> func)
         {
-            var result = new bool();
-            var tran = Tenant;
-            try
-            {
-                tran.BeginTran();
-                result = func();
-                if (result)
-                {
-                    tran.CommitTran();
-                }
-                else
-                {
-                    tran.RollbackTran();
-                    result = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                tran.RollbackTran();
-                result = false;
-                Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
-            }
-            return result;
+            return _repository.DbContextBeginTransaction(func);
         }
 
         /// <summary>
@@ -1090,29 +743,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func)
         {
-            var result = new bool();
-            var tran = Tenant;
-            try
-            {
-                await tran.BeginTranAsync();
-                result = await func();
-                if (result)
-                {
-                    await tran.CommitTranAsync();
-                }
-                else
-                {
-                    await tran.RollbackTranAsync();
-                    result = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                await tran.RollbackTranAsync();
-                result = false;
-                Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
-            }
-            return result;
+            return await _repository.DbContextBeginTransactionAsync(func);
         }
 
         #endregion 事务

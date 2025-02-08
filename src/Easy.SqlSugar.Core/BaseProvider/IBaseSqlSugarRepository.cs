@@ -8,7 +8,7 @@ namespace Easy.SqlSugar.Core
     /// 通用仓储接口
     /// </summary>
     /// <typeparam name="T">泛型实体类型</typeparam>
-    public interface IBaseRepository<T> where T : class, new()
+    public interface IBaseSqlSugarRepository<T> where T : class, new()
     {
 
         /// <summary>

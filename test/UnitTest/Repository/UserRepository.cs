@@ -55,7 +55,7 @@ namespace UnitTest.Repository
     /// <summary>
     /// 用户仓储接口层
     /// </summary>
-    public interface IUserRepository : IBaseRepository<User>
+    public interface IUserRepository : IBaseSqlSugarRepository<User>
     {
     }
 }

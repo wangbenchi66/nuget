@@ -10,12 +10,14 @@ namespace WebApi.Test.Controllers
         private readonly UserRepository _userRepository;
         private readonly ILogger<SqlSugarController> _logger;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IUserService _userServices;
 
-        public SqlSugarController(UserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository)
+        public SqlSugarController(UserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository, IUserService userServices)
         {
             _userRepository = userRepository;
             _logger = logger;
             _categoryRepository = categoryRepository;
+            _userServices = userServices;
         }
 
         [HttpGet]
@@ -230,6 +232,16 @@ namespace WebApi.Test.Controllers
             var list3 = _userRepository.SqlQuery<User>("select * from j_user", null);
             //查询单条
             var list4 = _userRepository.SqlQuerySingle<User>("select * from j_user", null);
+            return "ok";
+        }
+
+        //测试Service
+        [HttpGet("Service")]
+        public object Service()
+        {
+            //查询单个
+            var obj = _userServices.GetSingle(p => p.Id == 1);
+            _logger.LogInformation("查询单个结果：{@obj}", obj);
             return "ok";
         }
 

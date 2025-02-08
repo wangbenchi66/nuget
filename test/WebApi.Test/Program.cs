@@ -28,6 +28,7 @@ builder.Host.AddSerilogHost(configuration);
 //builder.Services.AddScoped<IUserEFRepository, UserEFRepository>();
 //注入
 //builder.Services.AddSingleton<ICategoryRepository, CategoryRepository>();
+builder.Services.AddSingleton<IUserService, UserService>();
 
 //开启内存缓存
 builder.Services.AddMemoryCacheSetup();

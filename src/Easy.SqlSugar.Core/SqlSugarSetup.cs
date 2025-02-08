@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SqlSugar;
 using SqlSugar.IOC;
-using Easy.SqlSugar.Core.BaseProvider;
+using Easy.SqlSugar.Core;
 
 namespace Easy.SqlSugar.Core
 {
