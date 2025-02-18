@@ -17,4 +17,7 @@ Idempotency-Key: test
 ###
 GET {{WebApi.Test_HostAddress}}/tests/tests
 
+### ≤‚ ‘sqlsugar
+GET {{host}}/SqlSugar/Service
 ###
+GET {{host}}/SqlSugar2/Repository

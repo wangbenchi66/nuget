@@ -23,7 +23,6 @@ namespace WebApi.Test
 
         public string Name { get; set; }
 
-        [SugarColumn(InsertServerTime = true)]
         public DateTime CreateTime { get; set; }
     }
 
@@ -35,7 +34,7 @@ namespace WebApi.Test
     {
     }*/
 
-    public class UserRepository : BaseSqlSugarRepository<User>, IUserRepository
+    public class UserRepository : BaseSqlSugarRepository<User>, IBaseSqlSugarRepository<User>
     {
         public UserRepository(ISqlSugarClient db) : base(db)
         {
@@ -45,21 +44,22 @@ namespace WebApi.Test
     /// <summary>
     /// 用户仓储接口层
     /// </summary>
-    public interface IUserRepository : IBaseSqlSugarRepository<User>, ISingleton
+    public interface IUserRepository : IBaseSqlSugarRepository<User>, IScoped
     {
     }
 
-    public class UserService : BaseSqlSugarService<User, IUserRepository>, IUserService
-    {
-        public UserService(IUserRepository repository) : base(repository)
+    /*
+        public class UserService : BaseSqlSugarService<User, IUserRepository>, IUserService
+        {
+            public UserService(IUserRepository repository) : base(repository)
+            {
+            }
+        }
+
+        public interface IUserService : IBaseSqlSugarService<User>, ISingleton
         {
         }
-    }
-
-    public interface IUserService : IBaseSqlSugarService<User>, ISingleton
-    {
-    }
-
+    */
 
     #region 打卡模块
 
@@ -70,7 +70,7 @@ namespace WebApi.Test
         }
     }
 
-    public interface ICategoryRepository : IBaseSqlSugarRepository<Category>, ISingleton
+    public interface ICategoryRepository : IBaseSqlSugarRepository<Category>, IScoped
     {
     }
 
@@ -90,7 +90,6 @@ namespace WebApi.Test
         /// <summary>
         /// 标题 
         ///</summary>
-        [SugarColumn(ColumnName = "Title")]
         public string Title { get; set; }
     }
 

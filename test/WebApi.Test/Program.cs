@@ -34,12 +34,12 @@ builder.Host.AddSerilogHost(configuration);
 builder.Services.AddMemoryCacheSetup();
 
 //使用autofac(内部会自动批量注入Service、Repository、Dao结尾的类  所有继承ITransient、ISingleton、IScoped接口的类注入到容器中)
-/*builder.Host.AddAutofacHostSetup(builder.Services, options =>
+builder.Host.AddAutofacHostSetup(builder.Services, options =>
 {
     //开启内存缓存拦截器(带有IProxyService接口的类将会被拦截),带有CacheResultAttribute特性的方法将会被缓存
     //options.AddMemoryCacheResultAop();
-});*/
-builder.Services.AddRegisterDependencies();
+});
+//builder.Services.AddRegisterDependencies();
 
 //builder.Services.AddSingleton<CategoryRepository>();
 
@@ -59,7 +59,7 @@ foreach (var item in list)
     };
 }
 #endif
-builder.Services.AddSqlSugarSetup(list);
+builder.Services.AddSqlSugarScopedSetup(list);
 
 builder.Services.AddControllers(options =>
 {

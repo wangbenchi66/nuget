@@ -55,7 +55,7 @@ namespace Easy.SqlSugar.Core
         }
 
         /// <summary>
-        /// SqlSugar服务
+        /// SqlSugar服务 Singleton单例
         /// </summary>
         /// <param name="services"></param>
         /// <param name="configs"></param>
@@ -65,14 +65,31 @@ namespace Easy.SqlSugar.Core
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
                 throw new ArgumentNullException("请检查是否配置数据库连接字符串");
-            //services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            var db = new SqlSugarClient(configs);
             services.AddSingleton<ISqlSugarClient>(s =>
             {
-                SqlSugarScope Db = new SqlSugarScope(configs);
-                return Db;
+                return new SqlSugarClient(configs);
+            });
+            services.AddSingleton(typeof(BaseSqlSugarRepository<>));
+            services.AddSingleton(typeof(SimpleClient<>));
+        }
+
+        /// <summary>
+        /// SqlSugar服务 Scoped作用域
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configs"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void AddSqlSugarScopedSetup(this IServiceCollection services, List<ConnectionConfig> configs)
+        {
+            if (services == null) { throw new ArgumentNullException(nameof(services)); }
+            if (configs == null)
+                throw new ArgumentNullException("请检查是否配置数据库连接字符串");
+            services.AddScoped<ISqlSugarClient>(s =>
+            {
+                return new SqlSugarClient(configs);
             });
             services.AddScoped(typeof(BaseSqlSugarRepository<>));
+            services.AddScoped(typeof(SimpleClient<>));
         }
     }
 }

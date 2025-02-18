@@ -158,7 +158,7 @@ builder.AddNLogSteup(configuration);
     }
   ]
 ```
-### 3.1.2 或者使用自定义的配置只要转换为对应的List配置集合就行,Ioc需要转换为List<IocConfig>,普通模式需要转换为List<ConnectionConfig>
+### 3.1.2 或者使用自定义的配置只要转换为对应的List配置集合就行
 #### 根据字符串获取DbType
 ``` csharp
 DataBaseTypeExtensions.GetDatabaseType("sql连接字符串")
@@ -167,6 +167,7 @@ DataBaseTypeExtensions.GetDatabaseType("sql连接字符串")
 ``` csharp
     public static class SqlSugarSetup
     {
+      //Ioc需要转换为List<IocConfig>,普通模式需要转换为List<ConnectionConfig>
         public static void AddSqlSugarSetup(this IServiceCollection services, IConfiguration configuration)
         {
             var dblist = new List<IocConfig>();
