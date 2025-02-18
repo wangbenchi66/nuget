@@ -34,17 +34,29 @@ namespace WebApi.Test
     {
     }*/
 
-    public class UserRepository : BaseSqlSugarRepository<User>, IBaseSqlSugarRepository<User>
+    public class UserRepository : Repository<User>, IUserRepository
     {
         public UserRepository(ISqlSugarClient db) : base(db)
         {
         }
     }
 
+    public class Repository<T> : BaseSqlSugarRepository<T> where T : class, new()
+    {
+        public Repository(ISqlSugarClient db) : base(db)
+        {
+        }
+
+        public override T GetSingle(Expression<Func<T, bool>> where)
+        {
+            return SqlSugarDbContext.Queryable<T>().Where(where).WithCache().First();
+        }
+    }
+
     /// <summary>
     /// 用户仓储接口层
     /// </summary>
-    public interface IUserRepository : IBaseSqlSugarRepository<User>, IScoped
+    public interface IUserRepository : IBaseSqlSugarRepository<User>
     {
     }
 

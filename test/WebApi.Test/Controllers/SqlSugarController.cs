@@ -11,14 +11,12 @@ namespace WebApi.Test.Controllers
         private readonly IUserRepository _userRepository;
         private readonly ILogger<SqlSugarController> _logger;
         private readonly ICategoryRepository _categoryRepository;
-        private readonly UserRepository _repository;
 
-        public SqlSugarController(IUserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository, UserRepository repository)
+        public SqlSugarController(IUserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository)
         {
             _userRepository = userRepository;
             _logger = logger;
             _categoryRepository = categoryRepository;
-            _repository = repository;
         }
 
         [HttpGet]
@@ -207,6 +205,7 @@ namespace WebApi.Test.Controllers
                 var obj1 = _categoryRepository.GetSingle(p => p.Title == "99999");
                 return true;
             });
+
             return "ok";
         }
 
@@ -256,9 +255,18 @@ namespace WebApi.Test.Controllers
         public object Repository()
         {
             //查询单个
-            var obj = _repository.GetSingle(p => p.Id == 1);
+            var obj = _userRepository.GetSingle(p => p.Id == 1);
             _logger.LogInformation("查询单个结果：{@obj}", obj);
             return "ok";
+        }
+
+        [HttpGet("Cache")]
+        public object Cache()
+        {
+            //var obj = _userRepository.SqlSugarDbContext.Queryable<User>().Where(p => p.Id == 1).WithCache().First();
+            var obj = _userRepository.GetSingle(p => p.Id == 1);
+            _logger.LogInformation("查询单个结果：{@obj}", obj);
+            return obj;
         }
     }
 }

@@ -11,6 +11,10 @@ using WebApi.Test;
 using WebApi.Test.Filter;
 using Microsoft.Extensions.DependencyInjection;
 using Autofac;
+using Microsoft.Extensions.Caching.Memory;
+using Easy.SqlSugar.Core.Cache;
+using CSRedis;
+using Microsoft.Extensions.Caching.Distributed;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -41,12 +45,31 @@ builder.Host.AddAutofacHostSetup(builder.Services, options =>
 });
 //builder.Services.AddRegisterDependencies();
 
-//builder.Services.AddSingleton<CategoryRepository>();
+//sqlsugar+内存缓存
+//builder.Services.AddMemoryCacheSetup();
+//ICacheService cacheService = new MemoryCacheService();
 
-//SqlSugar
+//sqlsugar+reids缓存
+CSRedisClient client = new CSRedisClient("192.168.21.235:6379,password=123456,defaultDatabase=1,poolsize=50,prefix=test");
+ICacheService cacheService = new CsRedisCache(client);
+
+//sqlsugar+分布式内存缓存
+// builder.Services.AddDistributedMemoryCache();
+// ICacheService cacheService = new DistributedCache(builder.Services.BuildServiceProvider().GetRequiredService<IDistributedCache>());
 var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
 foreach (var item in list)
 {
+    item.ConfigureExternalServices = new ConfigureExternalServices()
+    {
+        //使用缓存策略,使用内存缓存\redis缓存\分布式缓存
+        //如果开启缓存需要重写BaseSqlSugarRepository中的查询方法才能生效,或者使用db上下文查询中加入WithCache()
+        DataInfoCacheService = cacheService
+    };
+    //开启全自动清理，调用增删改会自动清除缓存
+    item.MoreSettings = new ConnMoreSettings()
+    {
+        IsAutoRemoveDataCache = true
+    };
     //日志输出
 #if DEBUG
     item.AopEvents = new AopEvents()

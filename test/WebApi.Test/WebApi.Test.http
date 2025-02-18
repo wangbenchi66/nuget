@@ -21,3 +21,6 @@ GET {{WebApi.Test_HostAddress}}/tests/tests
 GET {{host}}/SqlSugar/Service
 ###
 GET {{host}}/SqlSugar2/Repository
+###
+GET {{host}}/SqlSugar/Cache
+###

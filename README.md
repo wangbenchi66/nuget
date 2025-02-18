@@ -134,7 +134,7 @@ builder.AddNLogSteup(configuration);
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="Easy.SqlSugar.Core" Version="2025.02.06.6" />
+<PackageReference Include="Easy.SqlSugar.Core" Version="2025.02.18.1" />
 ```
 ### 3.1.1 SqlSugar配置文件
 ``` json
@@ -241,6 +241,36 @@ builder.Services.AddSqlSugarSetup(list);
 
 //注入3.2.1.1中的仓储(如果使用其他方式注入，可以忽略这里)
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
+```
+
+#### 3.2.3 开启内存缓存(ioc模式暂不支持)
+``` csharp
+//sqlsugar+内存缓存
+//builder.Services.AddMemoryCacheSetup();
+//ICacheService cacheService = new MemoryCacheService();
+
+//sqlsugar+reids缓存
+//CSRedisClient client = new CSRedisClient("localhost:6379,password=123456,defaultDatabase=1,poolsize=50,prefix=test");
+//ICacheService cacheService = new CsRedisCache(client);
+
+//sqlsugar+分布式内存缓存
+// builder.Services.AddDistributedMemoryCache();
+// ICacheService cacheService = new DistributedCache(builder.Services.BuildServiceProvider().GetRequiredService<IDistributedCache>());
+var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
+foreach (var item in list)
+{
+    item.ConfigureExternalServices = new ConfigureExternalServices()
+    {
+        //使用缓存策略,使用内存缓存\redis缓存\分布式缓存
+        //如果开启缓存需要重写BaseSqlSugarRepository中的查询方法才能生效,或者使用直接调用db上下文查询中加入WithCache()
+        //DataInfoCacheService = cacheService
+    };
+    //开启全自动清理，调用增删改会自动清除缓存
+    item.MoreSettings = new ConnMoreSettings()
+    {
+        IsAutoRemoveDataCache = true
+    };
+}
 ```
 ### 3.3 实体类、仓储
 ``` csharp
