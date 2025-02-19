@@ -1,5 +1,8 @@
 @WebApi.Test_HostAddress = http://localhost:5240
 @host = http://localhost:5240/api
+###
+GET {{host}}/SqlSugar
+###
 
 GET {{host}}/CacheResult
 Accept: application/json

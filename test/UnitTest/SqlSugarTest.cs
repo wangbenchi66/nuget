@@ -6,18 +6,16 @@ namespace UnitTest
     [TestClass]
     public class SqlSugarTest : BaseUnitTest
     {
-        private readonly IUserRepository _userRepository;
-
-        public SqlSugarTest()
-        {
-            _userRepository = ServiceProvider.GetRequiredService<IUserRepository>();
-        }
+        private readonly IUserRepository _userRepository = ServiceProvider.GetRequiredService<IUserRepository>();
+        private readonly ICategoryRepository _categoryRepository = ServiceProvider.GetRequiredService<ICategoryRepository>();
 
         [TestMethod]
         public async Task TestMethod1()
         {
             var list = await _userRepository.GetListAsync(p => p.Id > 0);
-            Assert.IsNotNull(list);
+            var list2 = await _categoryRepository.GetListAsync(p => true);
+            //Assert.IsNotNull(list);
+            Assert.IsTrue(list.Count == 7);
         }
 
         [TestMethod]

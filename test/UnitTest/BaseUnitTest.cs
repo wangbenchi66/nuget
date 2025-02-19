@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using SqlSugar.IOC;
-using UnitTest.Repository;
 using Easy.SqlSugar.Core;
+using SqlSugar;
+using WBC66.Autofac.Core;
 
 namespace UnitTest
 {
@@ -20,18 +19,11 @@ namespace UnitTest
             //NLog
             //builder.AddNLogSteup();
             //注入
-            builder.Services.AddSingleton<IUserRepository, UserRepository>();
-            ////SqlSugar
-            builder.Services.AddSqlSugarIocSetup(new List<IocConfig>()
-                {
-                    new IocConfig()
-                    {
-                        ConfigId = "journal",
-                        ConnectionString = "server=localhost;Database=journal;Uid=root;Pwd=123456;allowPublicKeyRetrieval=true;",
-                        DbType = IocDbType.MySql,
-                        IsAutoCloseConnection = true
-                    }
-                }, true);
+            //builder.Services.AddSingleton<IUserRepository, UserRepository>();
+            builder.Services.AddRegisterDependencies();
+            //SqlSugar
+            var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
+            builder.Services.AddSqlSugarIocSetup(list);
 
             //缓存
             // builder.Services.AddMemoryCacheSetup();

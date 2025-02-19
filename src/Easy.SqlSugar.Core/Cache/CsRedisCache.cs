@@ -1,4 +1,4 @@
-﻿using CSRedis;
+﻿/*using CSRedis;
 using SqlSugar;
 
 namespace Easy.SqlSugar.Core.Cache
@@ -73,4 +73,4 @@ namespace Easy.SqlSugar.Core.Cache
             RedisHelper.Del($"{key.Replace(prefix, "")}");
         }
     }
-}
+}*/

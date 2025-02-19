@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Caching.Memory;
@@ -42,7 +42,6 @@ namespace Easy.SqlSugar.Core.Cache
         {
             if (cache.Exists(cacheKey))
             {
-                Console.WriteLine("缓存命中*****************");
                 return cache.Get<V>(cacheKey);
             }
             else
@@ -55,7 +54,6 @@ namespace Easy.SqlSugar.Core.Cache
 
         public void Remove<V>(string key)
         {
-            Console.WriteLine("删除缓存*************");
             cache.Remove(key);
         }
     }
@@ -291,7 +289,7 @@ namespace Easy.SqlSugar.Core.Cache
             else
             {
                 const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-                var coherentState = Cache.GetType().GetField("_coherentState", flags).GetValue(Cache);//增加一个获取CoherentState对象环节
+                var coherentState = Cache.GetType().GetField("_coherentState", flags).GetValue(Cache);
                 var entries = coherentState.GetType().GetField("_stringEntries", flags).GetValue(coherentState);
                 var cacheItems = entries as IDictionary;
                 var keys = new List<string>();
@@ -304,4 +302,4 @@ namespace Easy.SqlSugar.Core.Cache
             }
         }
     }
-}
+}*/

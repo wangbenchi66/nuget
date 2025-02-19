@@ -29,7 +29,7 @@ namespace WebApi.Test.Controllers
 
             var obj1 = _categoryRepository.GetSingle(p => p.ID == 1);
             _logger.LogInformation("查询单个结果：{@obj1}", obj1);
-            //return obj;
+            return obj;
             //查询列表
             var list = _userRepository.GetList(p => p.Id > 0);
             //分页查询 (条件,排序,页码,每页条数)

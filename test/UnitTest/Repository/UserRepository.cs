@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using SqlSugar;
 using Easy.SqlSugar.Core;
+using WBC66.Autofac.Core;
 
 namespace UnitTest.Repository
 {
     internal enum DbData
     {
         journal,
-        Journal2
+        CheckIn
     }
 
     /// <summary>
@@ -49,13 +50,44 @@ namespace UnitTest.Repository
     /// </summary>
     public class UserRepository : BaseSqlSugarIocRepository<User>, IUserRepository
     {
-        //在这里直接用base.  也可以直接调用仓储的方法
     }
 
     /// <summary>
     /// 用户仓储接口层
     /// </summary>
-    public interface IUserRepository : IBaseSqlSugarRepository<User>
+    public interface IUserRepository : IBaseSqlSugarRepository<User>, ISingleton
     {
     }
+
+    #region 打卡模块
+
+    public class CategoryRepository : BaseSqlSugarIocRepository<Category>, ICategoryRepository
+    {
+    }
+
+    public interface ICategoryRepository : IBaseSqlSugarRepository<Category>, ISingleton
+    {
+    }
+
+    /// <summary>
+    /// 打卡类别
+    ///</summary>
+    [SugarTable("checkin.category")]
+    [Tenant(DbData.CheckIn)]
+    public class Category
+    {
+        /// <summary>
+        /// 主键 
+        ///</summary>
+        [SugarColumn(ColumnName = "ID", IsPrimaryKey = true, IsIdentity = true)]
+        public long ID { get; set; }
+
+        /// <summary>
+        /// 标题 
+        ///</summary>
+        public string Title { get; set; }
+    }
+
+
+    #endregion 打卡模块
 }

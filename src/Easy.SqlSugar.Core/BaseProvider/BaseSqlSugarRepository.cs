@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using SqlSugar;
 using Easy.SqlSugar.Core.BiewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Easy.SqlSugar.Core
 {
@@ -26,8 +27,12 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         public ITenant SqlSugarTenant { get; private set; }
 
-        public BaseSqlSugarRepository(ISqlSugarClient db)
+        public BaseSqlSugarRepository(ISqlSugarClient db = null)
         {
+            if (db == null)
+                db = AppService.Services.BuildServiceProvider().GetService<ISqlSugarClient>();
+            if (db == null)
+                return;
             SqlSugarTenant = db.AsTenant();//用来处理事务
             base.Context = db.AsTenant().GetConnectionWithAttr<T>();//获取子Db
             SqlSugarDbContext = Context;

@@ -3,6 +3,7 @@ using System.Reflection;
 using SqlSugar;
 using SqlSugar.IOC;
 using Easy.SqlSugar.Core.BiewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Easy.SqlSugar.Core
 {
@@ -26,6 +27,10 @@ namespace Easy.SqlSugar.Core
         {
             get
             {
+                //var serviceProvider = AppService.Services.BuildServiceProvider().GetService<IHttpContextAccessor>().HttpContext.RequestServices.GetService<ISqlSugarClient>();
+                var serviceProvider = AppService.Services.BuildServiceProvider().GetRequiredService<ISqlSugarClient>();
+                return serviceProvider;
+
                 var configId = typeof(T).GetCustomAttribute<TenantAttribute>()?.configId ?? SqlSugarContext.Options.Configs[0].ConfigId;
                 return DbScoped.SugarScope.GetConnection(configId);
             }

@@ -36,11 +36,11 @@ namespace WebApi.Test
 
     public class UserRepository : BaseSqlSugarRepository<User>, IUserRepository
     {
-        public UserRepository(ISqlSugarClient db) : base(db)
-        {
-        }
+        //public UserRepository(ISqlSugarClient db) : base(db)
+        //{
+        //}
 
-        public override User GetSingle(Expression<Func<User, bool>> where)
+        /*public override User GetSingle(Expression<Func<User, bool>> where)
         {
             return base.SqlSugarDbContext.Queryable<User>().Where(where).WithCache().First();
         }
@@ -48,7 +48,7 @@ namespace WebApi.Test
         public override int Update(User entity)
         {
             return base.SqlSugarDbContext.Updateable(entity).RemoveDataCache().ExecuteCommand();
-        }
+        }*/
     }
 
     /// <summary>

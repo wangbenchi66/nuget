@@ -3,6 +3,7 @@ using SqlSugar;
 using SqlSugar.IOC;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.AspNetCore.Http;
 
 namespace Easy.SqlSugar.Core
 {
@@ -55,6 +56,24 @@ namespace Easy.SqlSugar.Core
             }
         }
 
+        public static void AddSqlSugarIocSetup(this IServiceCollection services, List<ConnectionConfig> configs)
+        {
+            if (services == null) { throw new ArgumentNullException(nameof(services)); }
+            if (configs == null)
+                throw new ArgumentNullException("请检查是否配置数据库连接字符串");
+            services.AddHttpContextAccessor();
+            AppService.Services = services;
+            services.AddSingleton<ISqlSugarClient>(s =>
+            {
+                return new SqlSugarClient(configs);
+            });
+            var bseSqlSugarRepositorytypes = GetAssemblyList("BaseSqlSugarIocRepository");
+            foreach (var type in bseSqlSugarRepositorytypes)
+            {
+                services.TryAddSingleton(type);
+            }
+        }
+
         /// <summary>
         /// SqlSugar服务 Singleton单例
         /// </summary>
@@ -66,14 +85,15 @@ namespace Easy.SqlSugar.Core
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
                 throw new ArgumentNullException("请检查是否配置数据库连接字符串");
+            services.AddHttpContextAccessor();
+            AppService.Services = services;
             services.AddSingleton<ISqlSugarClient>(s =>
             {
                 return new SqlSugarClient(configs);
             });
             /*services.AddSingleton(typeof(BaseSqlSugarRepository<>));
             services.AddSingleton(typeof(SimpleClient<>));*/
-            var assembly = Assembly.GetEntryAssembly();
-            var bseSqlSugarRepositorytypes = assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == "BaseSqlSugarRepository");
+            var bseSqlSugarRepositorytypes = GetAssemblyList();
             foreach (var type in bseSqlSugarRepositorytypes)
             {
                 services.TryAddSingleton(type);
@@ -92,23 +112,25 @@ namespace Easy.SqlSugar.Core
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
                 throw new ArgumentNullException("请检查是否配置数据库连接字符串");
+            services.AddHttpContextAccessor();
+            AppService.Services = services;
             services.AddScoped<ISqlSugarClient>(s =>
             {
                 return new SqlSugarClient(configs);
             });
             /*services.AddScoped(typeof(BaseSqlSugarRepository<>));
             services.AddScoped(typeof(SimpleClient<>));*/
-            var assembly = Assembly.GetEntryAssembly();
-            var bseSqlSugarRepositorytypes = assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == "BaseSqlSugarRepository");
+            var bseSqlSugarRepositorytypes = GetAssemblyList();
             foreach (var type in bseSqlSugarRepositorytypes)
             {
                 services.TryAddScoped(type);
             }
-            /*var ibaseSqlSugarRepositorytypes = assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == "IBaseSqlSugarRepository");
-            foreach (var type in ibaseSqlSugarRepositorytypes)
-            {
-                services.AddScoped(type);
-            }*/
+        }
+
+        private static IEnumerable<Type> GetAssemblyList(string name = "BaseSqlSugarRepository")
+        {
+            var assembly = Assembly.GetEntryAssembly();
+            return assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == name);
         }
     }
 }
