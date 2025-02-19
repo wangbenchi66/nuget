@@ -24,3 +24,5 @@ GET {{host}}/SqlSugar2/Repository
 ###
 GET {{host}}/SqlSugar/Cache
 ###
+GET {{host}}/SqlSugar/Update
+###

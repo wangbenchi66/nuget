@@ -14,7 +14,7 @@ namespace Easy.SqlSugar.Core
         /// <summary>
         /// //多租户事务、GetConnection、IsAnyConnection等功能
         /// </summary>
-        ITenant Tenant { get; }
+        ITenant SqlSugarTenant { get; }
 
         /// <summary>
         /// 数据库上下文

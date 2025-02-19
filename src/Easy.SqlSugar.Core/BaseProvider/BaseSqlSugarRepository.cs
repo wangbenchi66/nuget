@@ -24,11 +24,11 @@ namespace Easy.SqlSugar.Core
         /// <summary>
         /// //多租户事务、GetConnection、IsAnyConnection等功能
         /// </summary>
-        public ITenant Tenant { get; private set; }
+        public ITenant SqlSugarTenant { get; private set; }
 
         public BaseSqlSugarRepository(ISqlSugarClient db)
         {
-            Tenant = db.AsTenant();//用来处理事务
+            SqlSugarTenant = db.AsTenant();//用来处理事务
             base.Context = db.AsTenant().GetConnectionWithAttr<T>();//获取子Db
             SqlSugarDbContext = Context;
             SqlSugarDbContextAdo = Context.Ado;
@@ -504,7 +504,7 @@ namespace Easy.SqlSugar.Core
         public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
             var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
-            var tran = Tenant;
+            var tran = SqlSugarTenant;
             tran.BeginTran();
             try
             {
@@ -533,7 +533,7 @@ namespace Easy.SqlSugar.Core
         public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
             var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
-            var tran = Tenant;
+            var tran = SqlSugarTenant;
             tran.BeginTran();
             try
             {
@@ -562,7 +562,7 @@ namespace Easy.SqlSugar.Core
         public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
             var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
-            var tran = Tenant;
+            var tran = SqlSugarTenant;
             await tran.BeginTranAsync();
             try
             {
@@ -591,7 +591,7 @@ namespace Easy.SqlSugar.Core
         public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
         {
             var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
-            var tran = Tenant;
+            var tran = SqlSugarTenant;
             await tran.BeginTranAsync();
             try
             {
@@ -1059,7 +1059,7 @@ namespace Easy.SqlSugar.Core
         public virtual bool DbContextBeginTransaction(Func<bool> func)
         {
             var result = new bool();
-            var tran = Tenant;
+            var tran = SqlSugarTenant;
             try
             {
                 tran.BeginTran();
@@ -1091,7 +1091,7 @@ namespace Easy.SqlSugar.Core
         public virtual async Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func)
         {
             var result = new bool();
-            var tran = Tenant;
+            var tran = SqlSugarTenant;
             try
             {
                 await tran.BeginTranAsync();

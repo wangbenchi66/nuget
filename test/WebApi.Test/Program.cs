@@ -7,14 +7,9 @@ using WBC66.Core;
 using WBC66.Core.Filters;
 using WBC66.Serilog.Core;
 using Easy.SqlSugar.Core;
-using WebApi.Test;
 using WebApi.Test.Filter;
-using Microsoft.Extensions.DependencyInjection;
-using Autofac;
 using Microsoft.Extensions.Caching.Memory;
 using Easy.SqlSugar.Core.Cache;
-using CSRedis;
-using Microsoft.Extensions.Caching.Distributed;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -47,28 +42,26 @@ builder.Host.AddAutofacHostSetup(builder.Services, options =>
 
 //sqlsugar+内存缓存
 //builder.Services.AddMemoryCacheSetup();
-//ICacheService cacheService = new MemoryCacheService();
+MemoryCacheService cache = new MemoryCacheService();
+ICacheService cacheService = cache;
 
 //sqlsugar+reids缓存
-CSRedisClient client = new CSRedisClient("192.168.21.235:6379,password=123456,defaultDatabase=1,poolsize=50,prefix=test");
-ICacheService cacheService = new CsRedisCache(client);
-
-//sqlsugar+分布式内存缓存
-// builder.Services.AddDistributedMemoryCache();
-// ICacheService cacheService = new DistributedCache(builder.Services.BuildServiceProvider().GetRequiredService<IDistributedCache>());
+//CSRedisClient client = new CSRedisClient("192.168.21.235:6379,password=123456,defaultDatabase=1,poolsize=50,prefix=t1111");
+//CsRedisCacheService cacheService = new CsRedisCacheService(client);
+//ICacheService cache = cacheService;
 var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
 foreach (var item in list)
 {
+    //开启全自动清理，调用增删改会自动清除缓存
+    item.MoreSettings = new ConnMoreSettings()
+    {
+        IsAutoRemoveDataCache = true
+    };
     item.ConfigureExternalServices = new ConfigureExternalServices()
     {
         //使用缓存策略,使用内存缓存\redis缓存\分布式缓存
         //如果开启缓存需要重写BaseSqlSugarRepository中的查询方法才能生效,或者使用db上下文查询中加入WithCache()
         DataInfoCacheService = cacheService
-    };
-    //开启全自动清理，调用增删改会自动清除缓存
-    item.MoreSettings = new ConnMoreSettings()
-    {
-        IsAutoRemoveDataCache = true
     };
     //日志输出
 #if DEBUG
@@ -76,12 +69,12 @@ foreach (var item in list)
     {
         OnLogExecuting = (sql, pars) =>
         {
-            //Console.WriteLine($"{DateTime.Now},ConfigId:{item.ConfigId}{Environment.NewLine}Sql:{UtilMethods.GetSqlString(DbType.MySql, sql, pars)}");
-            Console.WriteLine($"----------------{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)item.DbType, sql, pars)}{Environment.NewLine}----------------");
+            //Console.WriteLine($"----------------{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)item.DbType, sql, pars)}{Environment.NewLine}----------------");
         }
     };
 }
 #endif
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSqlSugarScopedSetup(list);
 
 builder.Services.AddControllers(options =>
@@ -113,7 +106,7 @@ app.UseKnife4UI(c =>
     c.RoutePrefix = "k4j";
 });
 app.MapControllers();
-app.UseMiddleware<LogMiddleware>();//添加日志中间件
+//app.UseMiddleware<LogMiddleware>();//添加日志中间件
 app.UseMiddleware<ExceptionMiddleware>();//添加异常处理中间件
 app.UseMiddleware<CurrentLimitingMiddleware>(1, 1);//添加限流中间件 1个线程 1个并发
 //app.UseMiddleware<IdempotenceMiddleware>();//添加幂等性中间件

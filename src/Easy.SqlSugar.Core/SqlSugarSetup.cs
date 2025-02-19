@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SqlSugar;
 using SqlSugar.IOC;
-using Easy.SqlSugar.Core;
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Easy.SqlSugar.Core
 {
@@ -60,7 +61,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="services"></param>
         /// <param name="configs"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public static void AddSqlSugarSetup(this IServiceCollection services, List<ConnectionConfig> configs)
+        public static void AddSqlSugarSingletonSetup(this IServiceCollection services, List<ConnectionConfig> configs)
         {
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
@@ -69,12 +70,19 @@ namespace Easy.SqlSugar.Core
             {
                 return new SqlSugarClient(configs);
             });
-            services.AddSingleton(typeof(BaseSqlSugarRepository<>));
-            services.AddSingleton(typeof(SimpleClient<>));
+            /*services.AddSingleton(typeof(BaseSqlSugarRepository<>));
+            services.AddSingleton(typeof(SimpleClient<>));*/
+            var assembly = Assembly.GetEntryAssembly();
+            var bseSqlSugarRepositorytypes = assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == "BaseSqlSugarRepository");
+            foreach (var type in bseSqlSugarRepositorytypes)
+            {
+                services.TryAddSingleton(type);
+            }
         }
 
         /// <summary>
         /// SqlSugar服务 Scoped作用域
+        /// 所有依赖BaseSqlSugarRepository的类会自动注入
         /// </summary>
         /// <param name="services"></param>
         /// <param name="configs"></param>
@@ -88,8 +96,19 @@ namespace Easy.SqlSugar.Core
             {
                 return new SqlSugarClient(configs);
             });
-            services.AddScoped(typeof(BaseSqlSugarRepository<>));
-            services.AddScoped(typeof(SimpleClient<>));
+            /*services.AddScoped(typeof(BaseSqlSugarRepository<>));
+            services.AddScoped(typeof(SimpleClient<>));*/
+            var assembly = Assembly.GetEntryAssembly();
+            var bseSqlSugarRepositorytypes = assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == "BaseSqlSugarRepository");
+            foreach (var type in bseSqlSugarRepositorytypes)
+            {
+                services.TryAddScoped(type);
+            }
+            /*var ibaseSqlSugarRepositorytypes = assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == "IBaseSqlSugarRepository");
+            foreach (var type in ibaseSqlSugarRepositorytypes)
+            {
+                services.AddScoped(type);
+            }*/
         }
     }
 }

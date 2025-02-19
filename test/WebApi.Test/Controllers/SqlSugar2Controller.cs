@@ -7,7 +7,7 @@ namespace WebApi.Test.Controllers
     [ApiController]
     public class SqlSugar2Controller : ControllerBase
     {
-        private readonly UserRepository _userRepository;
+        /*private readonly UserRepository _userRepository;
 
         public SqlSugar2Controller(UserRepository userRepository)
         {
@@ -20,6 +20,6 @@ namespace WebApi.Test.Controllers
             //查询单个
             var obj = _userRepository.GetSingle(p => p.Id == 1);
             return "ok";
-        }
+        }*/
     }
 }

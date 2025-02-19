@@ -34,22 +34,20 @@ namespace WebApi.Test
     {
     }*/
 
-    public class UserRepository : Repository<User>, IUserRepository
+    public class UserRepository : BaseSqlSugarRepository<User>, IUserRepository
     {
         public UserRepository(ISqlSugarClient db) : base(db)
         {
         }
-    }
 
-    public class Repository<T> : BaseSqlSugarRepository<T> where T : class, new()
-    {
-        public Repository(ISqlSugarClient db) : base(db)
+        public override User GetSingle(Expression<Func<User, bool>> where)
         {
+            return base.SqlSugarDbContext.Queryable<User>().Where(where).WithCache().First();
         }
 
-        public override T GetSingle(Expression<Func<T, bool>> where)
+        public override int Update(User entity)
         {
-            return SqlSugarDbContext.Queryable<T>().Where(where).WithCache().First();
+            return base.SqlSugarDbContext.Updateable(entity).RemoveDataCache().ExecuteCommand();
         }
     }
 
@@ -60,19 +58,6 @@ namespace WebApi.Test
     {
     }
 
-    /*
-        public class UserService : BaseSqlSugarService<User, IUserRepository>, IUserService
-        {
-            public UserService(IUserRepository repository) : base(repository)
-            {
-            }
-        }
-
-        public interface IUserService : IBaseSqlSugarService<User>, ISingleton
-        {
-        }
-    */
-
     #region 打卡模块
 
     public class CategoryRepository : BaseSqlSugarRepository<Category>, ICategoryRepository
@@ -82,7 +67,7 @@ namespace WebApi.Test
         }
     }
 
-    public interface ICategoryRepository : IBaseSqlSugarRepository<Category>, IScoped
+    public interface ICategoryRepository : IBaseSqlSugarRepository<Category>
     {
     }
 

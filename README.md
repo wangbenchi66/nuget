@@ -237,7 +237,12 @@ foreach (var item in list)
     };
 }
 #endif
-builder.Services.AddSqlSugarSetup(list);
+//这里有两个,一个是单例一个是作用域 推荐作用域
+//作用域
+builder.Services.AddSqlSugarScopedSetup(list);
+
+//单例
+builder.Services.AddSqlSugarSingletonSetup(list);
 
 //注入3.2.1.1中的仓储(如果使用其他方式注入，可以忽略这里)
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
@@ -252,10 +257,6 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
 //sqlsugar+reids缓存
 //CSRedisClient client = new CSRedisClient("localhost:6379,password=123456,defaultDatabase=1,poolsize=50,prefix=test");
 //ICacheService cacheService = new CsRedisCache(client);
-
-//sqlsugar+分布式内存缓存
-// builder.Services.AddDistributedMemoryCache();
-// ICacheService cacheService = new DistributedCache(builder.Services.BuildServiceProvider().GetRequiredService<IDistributedCache>());
 var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
 foreach (var item in list)
 {

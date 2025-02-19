@@ -264,9 +264,19 @@ namespace WebApi.Test.Controllers
         public object Cache()
         {
             //var obj = _userRepository.SqlSugarDbContext.Queryable<User>().Where(p => p.Id == 1).WithCache().First();
-            var obj = _userRepository.GetSingle(p => p.Id == 1);
+            var obj = _userRepository.GetSingle(p => p.Id == 99999);
             _logger.LogInformation("查询单个结果：{@obj}", obj);
             return obj;
         }
+
+        [HttpGet("Update")]
+        public object Update()
+        {
+            var obj = _userRepository.GetSingle(p => p.Id == 99999);
+            var user = new User() { Id = 99999, Name = "admin2" };
+            //return _userRepository.SqlSugarDbContext.Insertable<User>(user).RemoveDataCache().ExecuteCommand();
+            return _userRepository.SqlSugarDbContext.Updateable<User>(user).RemoveDataCache().ExecuteCommand();
+        }
+
     }
 }
