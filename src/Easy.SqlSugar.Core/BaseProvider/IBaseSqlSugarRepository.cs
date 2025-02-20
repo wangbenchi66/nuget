@@ -357,41 +357,42 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> where);
 
-        /// <summary>
-        /// 添加或更新(带事务)
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
-        /// <returns></returns>
-        int InsertOrUpdate(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where);
+        /*
+                /// <summary>
+                /// 添加或更新(带事务)
+                /// </summary>
+                /// <param name="entity"></param>
+                /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
+                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <returns></returns>
+                int InsertOrUpdate(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
 
-        /// <summary>
-        /// 添加或更新(带事务)
-        /// </summary>
-        /// <param name="entitys"></param>
-        /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
-        /// <returns></returns>
-        int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where);
+                /// <summary>
+                /// 添加或更新(带事务)
+                /// </summary>
+                /// <param name="entitys"></param>
+                /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
+                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <returns></returns>
+                int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
 
-        /// <summary>
-        /// 添加或更新(带事务)
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
-        /// <returns></returns>
-        Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where);
+                /// <summary>
+                /// 添加或更新(带事务)
+                /// </summary>
+                /// <param name="entity"></param>
+                /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
+                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <returns></returns>
+                Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
 
-        /// <summary>
-        /// 添加或更新(带事务)
-        /// </summary>
-        /// <param name="entitys"></param>
-        /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
-        /// <returns></returns>
-        Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where);
+                /// <summary>
+                /// 添加或更新(带事务)
+                /// </summary>
+                /// <param name="entitys"></param>
+                /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
+                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <returns></returns>
+                Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);*/
 
         #endregion 添加或更新
 

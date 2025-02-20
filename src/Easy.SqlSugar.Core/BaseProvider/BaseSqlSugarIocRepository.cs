@@ -130,7 +130,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Insert(T entity)
         {
-            return SqlSugarDbContext.Insertable(entity).ExecuteReturnIdentity();
+            return SqlSugarDbContext.Insertable(entity).ExecuteCommand();
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertAsync(T entity)
         {
-            return await SqlSugarDbContext.Insertable(entity).ExecuteReturnIdentityAsync();
+            return await SqlSugarDbContext.Insertable(entity).ExecuteCommandAsync();
         }
 
         /// <summary>
@@ -153,8 +153,8 @@ namespace Easy.SqlSugar.Core
         {
             var insert = SqlSugarDbContext.Insertable(entity);
             if (insertColumns == null)
-                return insert.ExecuteReturnIdentity();
-            return insert.InsertColumns(insertColumns).ExecuteReturnIdentity();
+                return insert.ExecuteCommand();
+            return insert.InsertColumns(insertColumns).ExecuteCommand();
         }
 
         /// <summary>
@@ -167,8 +167,8 @@ namespace Easy.SqlSugar.Core
         {
             var insert = SqlSugarDbContext.Insertable(entity);
             if (insertColumns == null)
-                return await insert.ExecuteReturnIdentityAsync();
-            return await insert.InsertColumns(insertColumns).ExecuteReturnIdentityAsync();
+                return await insert.ExecuteCommandAsync();
+            return await insert.InsertColumns(insertColumns).ExecuteCommandAsync();
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int Insert(List<T> entity)
         {
-            return SqlSugarDbContext.Insertable(entity.ToArray()).ExecuteReturnIdentity();
+            return SqlSugarDbContext.Insertable(entity.ToArray()).ExecuteCommand();
         }
 
         /// <summary>
@@ -471,7 +471,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Storageable(entity).WhereColumns(where).ExecuteCommand();
+            return SqlSugarDbContext.Storageable(entity).WhereColumns(where).DefaultAddElseUpdate().ExecuteCommand();
         }
 
         /// <summary>
@@ -482,7 +482,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ExecuteCommand();
+            return SqlSugarDbContext.Storageable(entitys).WhereColumns(where).DefaultAddElseUpdate().ExecuteCommand();
         }
 
         /// <summary>
@@ -493,7 +493,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Storageable(entity).WhereColumns(where).ExecuteCommandAsync();
+            return await SqlSugarDbContext.Storageable(entity).WhereColumns(where).DefaultAddElseUpdate().ExecuteCommandAsync();
         }
 
         /// <summary>
@@ -504,125 +504,111 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ExecuteCommandAsync();
+            return await SqlSugarDbContext.Storageable(entitys).WhereColumns(where).DefaultAddElseUpdate().ExecuteCommandAsync();
         }
 
+        /*
+                /// <summary>
+                /// 添加或更新
+                /// </summary>
+                /// <param name="entity"></param>
+                /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
+                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <returns></returns>
+                public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
+                {
+                    var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
+                    var tran = SqlSugarTenant;
+                    tran.BeginTran();
+                    try
+                    {
+                        var insertList = x.InsertList.Select(z => z.Item).ToList();
+                        var updateList = x.UpdateList.Select(z => z.Item).ToList();
+                        int insertCount = SqlSugarDbContext.Insertable(insertList).ExecuteCommand();
+                        int updateCount = SqlSugarDbContext.Updateable(updateList).UpdateColumns(updateColumns).ExecuteCommand();
+                        tran.CommitTran();
+                        return insertCount + updateCount;
+                    }
+                    catch (Exception e)
+                    {
+                        tran.RollbackTran();
+                        Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
+                        throw e;
+                    }
+                }
 
-        /// <summary>
-        /// 添加或更新
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
-        /// <returns></returns>
-        public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
-        {
-            var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
-            var tran = SqlSugarTenant;
-            tran.BeginTran();
-            try
-            {
-                var insertList = x.InsertList.Select(z => z.Item).ToList();
-                var updateList = x.UpdateList.Select(z => z.Item).ToList();
-                int insertCount = SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommand();
-                int updateCount = SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommand();
-                tran.CommitTran();
-                return insertCount + updateCount;
-            }
-            catch (Exception e)
-            {
-                tran.RollbackTran();
-                Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
-                throw e;
-            }
-        }
+                /// <summary>
+                /// 添加或更新
+                /// </summary>
+                /// <param name="entitys"></param>
+                /// <param name="updateColumns">要添加或更新的列x=>new {x.a,x.b}</param>
+                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <returns></returns>
+                public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
+                {
+                    var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
+                    var insertCount = x.AsInsertable.ExecuteCommand();
+                    var updateCount = x.AsUpdateable.UpdateColumns(updateColumns).ExecuteCommand();
+                    //var x = SqlSugarDbContext.Storageable(entitys).DefaultAddElseUpdate().ExecuteCommand();
+                }
 
-        /// <summary>
-        /// 添加或更新
-        /// </summary>
-        /// <param name="entitys"></param>
-        /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
-        /// <returns></returns>
-        public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
-        {
-            var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
-            var tran = SqlSugarTenant;
-            tran.BeginTran();
-            try
-            {
-                var insertList = x.InsertList.Select(z => z.Item).ToList();
-                var updateList = x.UpdateList.Select(z => z.Item).ToList();
-                int insertCount = SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommand();
-                int updateCount = SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommand();
-                tran.CommitTran();
-                return insertCount + updateCount;
-            }
-            catch (Exception e)
-            {
-                tran.RollbackTran();
-                Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
-                throw e;
-            }
-        }
+                /// <summary>
+                /// 添加或更新
+                /// </summary>
+                /// <param name="entity"></param>
+                /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
+                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <returns></returns>
+                public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
+                {
+                    var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
+                    var tran = SqlSugarTenant;
+                    await tran.BeginTranAsync();
+                    try
+                    {
+                        var insertList = x.InsertList.Select(z => z.Item).ToList();
+                        var updateList = x.UpdateList.Select(z => z.Item).ToList();
+                        int insertCount = await SqlSugarDbContext.Insertable(insertList).ExecuteCommandAsync();
+                        int updateCount = await SqlSugarDbContext.Updateable(updateList).UpdateColumns(updateColumns).ExecuteCommandAsync();
+                        await tran.CommitTranAsync();
+                        return insertCount + updateCount;
+                    }
+                    catch (Exception e)
+                    {
+                        await tran.RollbackTranAsync();
+                        Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
+                        throw e;
+                    }
+                }
 
-        /// <summary>
-        /// 添加或更新
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
-        /// <returns></returns>
-        public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
-        {
-            var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
-            var tran = SqlSugarTenant;
-            await tran.BeginTranAsync();
-            try
-            {
-                var insertList = x.InsertList.Select(z => z.Item).ToList();
-                var updateList = x.UpdateList.Select(z => z.Item).ToList();
-                int insertCount = await SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommandAsync();
-                int updateCount = await SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommandAsync();
-                await tran.CommitTranAsync();
-                return insertCount + updateCount;
-            }
-            catch (Exception e)
-            {
-                await tran.RollbackTranAsync();
-                Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
-                throw e;
-            }
-        }
-
-        /// <summary>
-        /// 添加或更新
-        /// </summary>
-        /// <param name="entitys"></param>
-        /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
-        /// <returns></returns>
-        public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
-        {
-            var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
-            var tran = SqlSugarTenant;
-            await tran.BeginTranAsync();
-            try
-            {
-                var insertList = x.InsertList.Select(z => z.Item).ToList();
-                var updateList = x.UpdateList.Select(z => z.Item).ToList();
-                int insertCount = await SqlSugarDbContext.Insertable(insertList).InsertColumns(columns).ExecuteCommandAsync();
-                int updateCount = await SqlSugarDbContext.Updateable(updateList).UpdateColumns(columns).ExecuteCommandAsync();
-                await tran.CommitTranAsync();
-                return insertCount + updateCount;
-            }
-            catch (Exception e)
-            {
-                await tran.RollbackTranAsync();
-                Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
-                throw e;
-            }
-        }
+                /// <summary>
+                /// 添加或更新
+                /// </summary>
+                /// <param name="entitys"></param>
+                /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
+                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <returns></returns>
+                public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
+                {
+                    var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
+                    var tran = SqlSugarTenant;
+                    await tran.BeginTranAsync();
+                    try
+                    {
+                        var insertList = x.InsertList.Select(z => z.Item).ToList();
+                        var updateList = x.UpdateList.Select(z => z.Item).ToList();
+                        int insertCount = await SqlSugarDbContext.Insertable(insertList).ExecuteCommandAsync();
+                        int updateCount = await SqlSugarDbContext.Updateable(updateList).UpdateColumns(updateColumns).ExecuteCommandAsync();
+                        await tran.CommitTranAsync();
+                        return insertCount + updateCount;
+                    }
+                    catch (Exception e)
+                    {
+                        await tran.RollbackTranAsync();
+                        Console.WriteLine($"执行添加或删除失败,错误:{e.Message},{e.StackTrace}");
+                        throw e;
+                    }
+                }*/
 
         #endregion 添加或更新
 

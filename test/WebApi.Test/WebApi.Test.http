@@ -29,3 +29,8 @@ GET {{host}}/SqlSugar/Cache
 ###
 GET {{host}}/SqlSugar/Update
 ###
+
+### 添加或更新
+GET {{WebApi.Test_HostAddress}}/api/sqlsugar/InsertOrUpdate
+
+###
