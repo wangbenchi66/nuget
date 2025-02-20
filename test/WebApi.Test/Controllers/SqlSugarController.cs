@@ -81,8 +81,6 @@ namespace WebApi.Test.Controllers
             var inserOrUpdate = _userRepository.InsertOrUpdate(new User() { Id = 1, Name = "admin" });
             //根据条件添加或更新
             var inserOrUpdate2 = _userRepository.InsertOrUpdate(new User() { Id = 1, Name = "admin" }, x => new { x.Id, x.Name });
-            //根据条件添加并更新指定列
-            var isInsertOrUpdate = _userRepository.InsertOrUpdate(user, x => new { x.Name }, x => new { x.Id, x.Name });
 
             //删除
             var isDelete = _userRepository.Delete(obj);
@@ -214,10 +212,10 @@ namespace WebApi.Test.Controllers
         public object InsertOrUpdate()
         {
             //添加或更新
-            var user = new User() { Id = 1, Name = "admin1" };
-            var user2 = new User() { Id = 99999, Name = "admin99" };
+            var user = new User() { Id = 1, Name = "admin12" };
+            var user2 = new User() { Id = 99999, Name = "admin91",CreateTime=DateTime.Now };
             var list = new List<User> { user, user2 };
-            var isInsertOrUpdate = _userRepository.InsertOrUpdate(list, x => new { x.Name, x.Id }, x => new { x.Id, x.Name });
+            var isInsertOrUpdate = _userRepository.InsertOrUpdate(list, x => new { x.Id, x.Name });
             return "ok";
         }
 

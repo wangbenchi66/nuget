@@ -462,7 +462,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Storageable(entity).WhereColumns(where).DefaultAddElseUpdate().ExecuteCommand();
+            return SqlSugarDbContext.Storageable(entity).WhereColumns(where).ExecuteCommand();
         }
 
         /// <summary>
@@ -473,7 +473,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Storageable(entitys).WhereColumns(where).DefaultAddElseUpdate().ExecuteCommand();
+            return SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ExecuteCommand();
         }
 
         /// <summary>
