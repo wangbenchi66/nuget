@@ -424,8 +424,6 @@ var isUpdate6 = _userRepository.Update(user, x => new { x.Name }, x => new { x.I
 var inserOrUpdate = _userRepository.InsertOrUpdate(new User() { Id = 1, Name ="admin" });
 //根据条件添加或更新
 var inserOrUpdate2 = _userRepository.InsertOrUpdate(new User() { Id = 1, Name= "admin" }, x => new { x.Id, x.Name });
-//根据条件添加并更新指定列
-var isInsertOrUpdate = _userRepository.InsertOrUpdate(user, x => new { xName }, x => new { x.Id, x.Name });
 
 
 //删除
