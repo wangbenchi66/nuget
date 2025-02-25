@@ -9,6 +9,7 @@ using WBC66.Serilog.Core;
 using Easy.SqlSugar.Core;
 using WebApi.Test.Filter;
 using Microsoft.Extensions.Caching.Memory;
+using Easy.DynamicApi;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -90,7 +91,8 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     //禁用默认的模型验证过滤器,否则无法返回自定义的错误信息
     options.SuppressModelStateInvalidFilter = true;
 });
-
+//动态api
+builder.Services.AddDynamicApi();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

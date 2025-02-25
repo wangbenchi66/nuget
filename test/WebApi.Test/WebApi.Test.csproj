@@ -11,6 +11,7 @@
     <!--<PackageReference Include="Easy.SqlSugar.Core" Version="2024.11.4.3" />-->
     </ItemGroup>
 <ItemGroup>
+  <ProjectReference Include="..\..\src\Easy.DynamicApi\Easy.DynamicApi.Core.csproj" />
   <ProjectReference Include="..\..\src\WBC66.Cache.Core\WBC66.Cache.Core.csproj" />
   <ProjectReference Include="..\..\src\WBC66.Core\WBC66.Core.csproj" />
   <ProjectReference Include="..\..\src\Easy.SqlSugar.Core\Easy.SqlSugar.Core.csproj" />
