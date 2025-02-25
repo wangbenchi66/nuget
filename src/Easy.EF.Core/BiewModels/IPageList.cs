@@ -1,4 +1,4 @@
-﻿namespace WBC66.EF.Core.BiewModels
+﻿namespace Easy.EF.Core.BiewModels
 {
     /// <summary>
     /// 定义分页列表接口，继承自 <see cref="IList{T}"/>。

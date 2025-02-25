@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WBC66.EF.Core
+namespace Easy.EF.Core
 {
     /// <summary>
     /// 查询排序

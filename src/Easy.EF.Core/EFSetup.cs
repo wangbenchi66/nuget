@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace WBC66.EF.Core
+namespace Easy.EF.Core
 {
     /// <summary>
     /// EF服务

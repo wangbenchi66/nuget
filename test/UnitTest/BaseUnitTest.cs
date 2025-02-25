@@ -37,6 +37,8 @@ namespace UnitTest
             };
             builder.Services.AddWeiXinService(weiXinOptions);*/
 
+            //builder.Services.AddEf
+
             var app = builder.Build();
             //app.UseSerilogSetup();
             ServiceProvider = app.Services;

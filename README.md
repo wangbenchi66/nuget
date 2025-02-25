@@ -522,7 +522,7 @@ catch (Exception)
 ## 4. EF配置(推荐使用上边的SqlSugar兼容性更强一些功能更完善)
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="WBC66.EF.Core" Version="2024.10.29" />
+<PackageReference Include="Easy.EF.Core" Version="2024.10.29" />
 ```
 ### 4.1 EF配置文件
 ``` json

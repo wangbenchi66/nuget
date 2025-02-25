@@ -2,9 +2,9 @@
 using System.Data.Common;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using WBC66.EF.Core.BiewModels;
+using Easy.EF.Core.BiewModels;
 
-namespace WBC66.EF.Core.BaseProvider
+namespace Easy.EF.Core.BaseProvider
 {
     /// <summary>
     /// EF通用仓储
@@ -115,7 +115,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity">实体类</param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public virtual int Insert(T entity, bool isSave = true)
+        public virtual int Insert(T entity, bool isSave = false)
         {
             _context.Set<T>().Add(entity);
             if (isSave)
@@ -129,7 +129,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity">实体类</param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public virtual async Task<int> InsertAsync(T entity, bool isSave = true)
+        public virtual async Task<int> InsertAsync(T entity, bool isSave = false)
         {
             await _context.Set<T>().AddAsync(entity);
             if (isSave)
@@ -143,7 +143,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity">实体类</param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public virtual int Insert(List<T> entity, bool isSave = true)
+        public virtual int Insert(List<T> entity, bool isSave = false)
         {
             _context.Set<T>().AddRange(entity);
             if (isSave)
@@ -157,7 +157,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity">实体类</param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public virtual async Task<int> InsertAsync(List<T> entity, bool isSave = true)
+        public virtual async Task<int> InsertAsync(List<T> entity, bool isSave = false)
         {
             await _context.Set<T>().AddRangeAsync(entity);
             if (isSave)
@@ -175,7 +175,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity"></param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public virtual bool Update(List<T> entity, bool isSave = true)
+        public virtual bool Update(List<T> entity, bool isSave = false)
         {
             _context.Set<T>().UpdateRange(entity);
             if (isSave)
@@ -189,7 +189,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity"></param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public virtual async Task<bool> UpdateAsync(List<T> entity, bool isSave = true)
+        public virtual async Task<bool> UpdateAsync(List<T> entity, bool isSave = false)
         {
             _context.Set<T>().UpdateRange(entity);
             if (isSave)
@@ -203,7 +203,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity"></param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public virtual bool Update(T entity, bool isSave = true)
+        public virtual bool Update(T entity, bool isSave = false)
         {
             _context.Set<T>().Update(entity);
             if (isSave)
@@ -217,13 +217,14 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity"></param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public virtual async Task<bool> UpdateAsync(T entity, bool isSave = true)
+        public virtual async Task<bool> UpdateAsync(T entity, bool isSave = false)
         {
             _context.Set<T>().Update(entity);
             if (isSave)
                 return await _context.SaveChangesAsync() > 0;
             return false;
         }
+
         /// <summary>
         /// 更新实体指定列
         /// </summary>
@@ -231,7 +232,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="property">更新值，用法：f=>new {f.Name,f.Age}</param>
         /// <param name="isSave"></param>
         /// <returns></returns>
-        public virtual bool Update(T entity, Expression<Func<T, object>> property, bool isSave = true)
+        public virtual bool Update(T entity, Expression<Func<T, object>> property, bool isSave = false)
         {
             _context.Set<T>().Attach(entity);
             _context.Entry(entity).Property(property).IsModified = true;
@@ -250,7 +251,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity">实体类</param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public virtual bool Delete(T entity, bool isSave = true)
+        public virtual bool Delete(T entity, bool isSave = false)
         {
             _context.Set<T>().Remove(entity);
             if (isSave)
@@ -264,7 +265,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity">实体类</param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        public virtual async Task<bool> DeleteAsync(T entity, bool isSave = true)
+        public virtual async Task<bool> DeleteAsync(T entity, bool isSave = false)
         {
             _context.Set<T>().Remove(entity);
             if (isSave)
@@ -478,33 +479,46 @@ namespace WBC66.EF.Core.BaseProvider
             return await _context.Set<T>().FromSqlRaw(sql, parameters).ToListAsync();
         }
 
-        /// <summary>
-        /// 执行sql语句并返回到指定实体中
-        /// </summary>
-        /// <typeparam name="TEntity">映射到这个实体</typeparam>
-        /// <param name="sql">sql</param>
-        /// <param name="parameters">参数</param>
-        /// <returns></returns>
-        public virtual List<TEntity> SqlQuery<TEntity>(string sql, DbParameter[]? parameters = null)
-        {
-            if (parameters == null)
-                return _context.Database.SqlQueryRaw<TEntity>(sql).ToList();
-            return _context.Database.SqlQueryRaw<TEntity>(sql, parameters).ToList();
-        }
+        /*
+                /// <summary>
+                /// 执行sql语句并返回到指定实体中
+                /// </summary>
+                /// <typeparam name="TEntity">映射到这个实体</typeparam>
+                /// <param name="sql">sql</param>
+                /// <param name="parameters">参数</param>
+                /// <returns></returns>
+                List<TResult> IBaseRepository<TDBContext, T>.SqlQuery<TResult>(string sql, object[]? parameters) where TResult : class
+                {
+        #if NET6_0
+                    if (parameters == null)
+                        return _context.Set<TResult>().FromSqlRaw(sql).ToList();
+                    return _context.Set<TResult>().FromSqlRaw(sql, parameters).ToList();
+        #else
+                    if (parameters == null)
+                        return _context.Database.SqlQueryRaw<TResult>(sql).ToList();
+                    return _context.Database.SqlQueryRaw<TResult>(sql, parameters).ToList();
+        #endif
+                }
 
-        /// <summary>
-        /// 执行sql语句并返回到指定实体中
-        /// </summary>
-        /// <typeparam name="TEntity">映射到这个实体</typeparam>
-        /// <param name="sql">sql</param>
-        /// <param name="parameters">参数</param>
-        /// <returns></returns>
-        public virtual async Task<List<TEntity>> SqlQueryAsync<TEntity>(string sql, DbParameter[]? parameters)
-        {
-            if (parameters == null)
-                return await _context.Database.SqlQueryRaw<TEntity>(sql).ToListAsync();
-            return await _context.Database.SqlQueryRaw<TEntity>(sql, parameters).ToListAsync();
-        }
+                /// <summary>
+                /// 执行sql语句并返回到指定实体中
+                /// </summary>
+                /// <typeparam name="TEntity">映射到这个实体</typeparam>
+                /// <param name="sql">sql</param>
+                /// <param name="parameters">参数</param>
+                /// <returns></returns>
+                async Task<List<TResult>> IBaseRepository<TDBContext, T>.SqlQueryAsync<TResult>(string sql, object[]? parameters) where TResult : class
+                {
+        #if NET6_0
+                    if (parameters == null)
+                        return await _context.Set<TResult>().FromSqlRaw(sql).ToListAsync();
+                    return await _context.Set<TResult>().FromSqlRaw(sql, parameters).ToListAsync();
+        #else
+                    if (parameters == null)
+                        return await _context.Database.SqlQueryRaw<TResult>(sql).ToListAsync();
+                        return await _context.Database.SqlQueryRaw<TResult>(sql, parameters).ToListAsync();
+        #endif
+                }*/
 
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中

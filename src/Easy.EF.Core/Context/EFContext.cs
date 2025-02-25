@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace WBC66.EF.Core.Context
+namespace Easy.EF.Core.Context
 {
     /// <summary>
     /// Ef上下文

@@ -1,4 +1,4 @@
-﻿namespace WBC66.EF.Core.BiewModels
+﻿namespace Easy.EF.Core.BiewModels
 {
     /// <summary>
     /// 分页组件实体类

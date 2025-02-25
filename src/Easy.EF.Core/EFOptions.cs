@@ -1,4 +1,4 @@
-﻿namespace WBC66.EF.Core
+﻿namespace Easy.EF.Core
 {
     /// <summary>
     /// EF配置文件

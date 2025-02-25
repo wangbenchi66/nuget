@@ -1,9 +1,9 @@
 using System.Data.Common;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using WBC66.EF.Core.BiewModels;
+using Easy.EF.Core.BiewModels;
 
-namespace WBC66.EF.Core.BaseProvider
+namespace Easy.EF.Core.BaseProvider
 {
     public interface IBaseRepository<TDBContext, T> where TDBContext : DbContext where T : class
     {
@@ -68,7 +68,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity">实体类</param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        int Insert(T entity, bool isSave = true);
+        int Insert(T entity, bool isSave = false);
 
         /// <summary>
         /// 写入实体数据
@@ -76,7 +76,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity">实体类</param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        Task<int> InsertAsync(T entity, bool isSave = true);
+        Task<int> InsertAsync(T entity, bool isSave = false);
 
         /// <summary>
         /// 批量写入实体数据
@@ -84,7 +84,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity">实体类</param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        int Insert(List<T> entity, bool isSave = true);
+        int Insert(List<T> entity, bool isSave = false);
 
         /// <summary>
         /// 批量写入实体数据
@@ -92,7 +92,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity">实体类</param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        Task<int> InsertAsync(List<T> entity, bool isSave = true);
+        Task<int> InsertAsync(List<T> entity, bool isSave = false);
 
         #endregion 写入实体数据
 
@@ -104,7 +104,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity"></param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        bool Update(List<T> entity, bool isSave = true);
+        bool Update(List<T> entity, bool isSave = false);
 
         /// <summary>
         /// 批量更新实体数据
@@ -112,7 +112,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity"></param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        Task<bool> UpdateAsync(List<T> entity, bool isSave = true);
+        Task<bool> UpdateAsync(List<T> entity, bool isSave = false);
 
         /// <summary>
         /// 更新实体数据
@@ -120,7 +120,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity"></param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        bool Update(T entity, bool isSave = true);
+        bool Update(T entity, bool isSave = false);
 
         /// <summary>
         /// 更新实体数据
@@ -128,7 +128,7 @@ namespace WBC66.EF.Core.BaseProvider
         /// <param name="entity"></param>
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        Task<bool> UpdateAsync(T entity, bool isSave = true);
+        Task<bool> UpdateAsync(T entity, bool isSave = false);
 
         #endregion 更新实体数据
 
@@ -138,15 +138,17 @@ namespace WBC66.EF.Core.BaseProvider
         /// 删除数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        bool Delete(T entity, bool isSave = true);
+        bool Delete(T entity, bool isSave = false);
 
         /// <summary>
         /// 删除数据
         /// </summary>
         /// <param name="entity">实体类</param>
+        /// <param name="isSave">保存更改</param>
         /// <returns></returns>
-        Task<bool> DeleteAsync(T entity, bool isSave = true);
+        Task<bool> DeleteAsync(T entity, bool isSave = false);
 
         #endregion 删除数据
 
@@ -262,45 +264,45 @@ namespace WBC66.EF.Core.BaseProvider
         /// <returns></returns>
         Task<List<T>> SqlQueryAsync(string sql, object? parameters = null);
 
-        /// <summary>
+        /*/// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="TEntity">映射到这个实体</typeparam>
+        /// <typeparam name="T">映射到这个实体</typeparam>
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        List<TEntity> SqlQuery<TEntity>(string sql, DbParameter[]? parameters = null);
+        List<TResult> SqlQuery<TResult>(string sql, DbParameter[]? parameters) where TResult : class;
 
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="TEntity">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        Task<List<TEntity>> SqlQueryAsync<TEntity>(string sql, DbParameter[]? parameters = null);
+        Task<List<TResult>> SqlQueryAsync<TResult>(string sql, DbParameter[]? parameters = null);*/
 
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        IPageList<TEntity> SqlPageQuery<TEntity>(string sql, object? parameters, int pageIndex, int pageSize) where TEntity : class, new();
+        IPageList<T> SqlPageQuery<T>(string sql, object? parameters, int pageIndex, int pageSize) where T : class, new();
 
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        Task<IPageList<TEntity>> SqlPageQueryAsync<TEntity>(string sql, object? parameters, int pageIndex, int pageSize) where TEntity : class, new();
+        Task<IPageList<T>> SqlPageQueryAsync<T>(string sql, object? parameters, int pageIndex, int pageSize) where T : class, new();
 
         /// <summary>
         /// 执行sql语句返回影响行数
