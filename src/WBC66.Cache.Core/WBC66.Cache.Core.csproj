@@ -31,7 +31,7 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6'">
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\Common.Core\Common.Core.csproj" />
+	  <ProjectReference Include="..\Easy.Common.Core\Easy.Common.Core.csproj" />
 	</ItemGroup>
 
 </Project>

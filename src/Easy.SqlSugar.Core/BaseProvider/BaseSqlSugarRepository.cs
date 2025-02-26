@@ -900,22 +900,22 @@ namespace Easy.SqlSugar.Core
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public virtual IPageList<T1> SqlPageQuery<T1>(string sql, object? parameters, int pageIndex, int pageSize)
+        public virtual IPageList<T> SqlPageQuery<T>(string sql, object? parameters, int pageIndex, int pageSize)
         {
             //计算分页
             var skip = (pageIndex - 1) * pageSize;
             var take = pageSize;
-            var list = SqlSugarDbContext.Ado.SqlQuery<T1>(sql, parameters);
+            var list = SqlSugarDbContext.Ado.SqlQuery<T>(sql, parameters);
             var total = list.Count;
             if (total == 0)
-                return new PageList<T1>(null, pageIndex, pageSize, total);
-            return new PageList<T1>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
+                return new PageList<T>(null, pageIndex, pageSize, total);
+            return new PageList<T>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
         }
 
         /// <summary>

@@ -1,5 +1,5 @@
 ﻿
-namespace Common.Core
+namespace Easy.Common.Core
 {
     /// <summary>
     /// http帮助类

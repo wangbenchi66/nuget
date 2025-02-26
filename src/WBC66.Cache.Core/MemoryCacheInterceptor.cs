@@ -1,5 +1,5 @@
 using Castle.DynamicProxy;
-using Common.Core;
+using Easy.Common.Core;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace WBC66.Cache.Core

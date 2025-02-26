@@ -36,7 +36,7 @@ namespace WebApi.Controllers
     [DynamicApi]//动态api标识
     [ApiExplorerSettings(GroupName = "v1")]//接口分组
     public class DynamicService : IDynamicApi//动态api接口
-    {
+    {   
 
     }
 }

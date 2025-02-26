@@ -1,4 +1,4 @@
-﻿namespace Common.Core
+﻿namespace Easy.Common.Core
 {
     /// <summary>
     /// 请求上下文帮助类

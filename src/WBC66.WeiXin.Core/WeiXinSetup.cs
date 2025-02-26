@@ -1,5 +1,4 @@
-﻿using Common.Core;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace WBC66.WeiXin.Core
 {

@@ -1,5 +1,3 @@
-using Common.Core;
-using Masuit.Tools;
 using WBC66.WeiXin.Core.Models;
 
 namespace WBC66.WeiXin.Core
@@ -16,7 +14,7 @@ namespace WBC66.WeiXin.Core
         public WeiXinExtensions(IHttpHelper httpClient)
         {
             _httpClient = httpClient;
-            if (_appId.IsNullOrEmpty() || _appSecret.IsNullOrEmpty())
+            if (_appId.IsNull() || _appSecret.IsNull())
                 throw new ArgumentNullException("请检查是否配置微信AppId和AppSecret");
         }
 
@@ -53,7 +51,7 @@ https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx807d86fb6b3d4fd2&red
         /// <returns>返回包含微信信息的对象</returns>
         public WxUserInfo GetWeiXinInfo(string? access_token)
         {
-            if (access_token.IsNullOrEmpty())
+            if (access_token.IsNull())
                 access_token = GetAccessToken().access_token;
             var url = $"https://api.weixin.qq.com/sns/oauth2/access_token?appid={_appId}&secret={_appSecret}&code={access_token}&grant_type=authorization_code";
             var res = _httpClient.Get<dynamic>(url);
@@ -70,9 +68,9 @@ https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx807d86fb6b3d4fd2&red
         /// <exception cref="ArgumentNullException"></exception>
         public WeiXinInfo GetWeiXinInfoByCode(string openId, string? access_token)
         {
-            if (openId.IsNullOrEmpty())
+            if (openId.IsNull())
                 throw new ArgumentNullException("openId不能为空");
-            if (access_token.IsNullOrEmpty())
+            if (access_token.IsNull())
                 access_token = GetAccessToken().access_token;
             var url = $" https://api.weixin.qq.com/cgi-bin/user/info?access_token={access_token}&openid={openId}&lang=zh_CN";
             return _httpClient.Get<WeiXinInfo>(url);
@@ -88,7 +86,7 @@ https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx807d86fb6b3d4fd2&red
         /// <returns>返回包含创建结果的对象</returns>
         public WeiXinRes CreateMenu(string menu, string? access_token)
         {
-            if (access_token.IsNullOrEmpty())
+            if (access_token.IsNull())
                 access_token = GetAccessToken().access_token;
             var url = $"https://api.weixin.qq.com/cgi-bin/menu/create?access_token={access_token}";
             return _httpClient.Post<WeiXinRes>(url, menu);
@@ -101,7 +99,7 @@ https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx807d86fb6b3d4fd2&red
         /// <returns>菜单内容：https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Querying_Custom_Menus.html</returns>
         public string GetMenu(string? access_token)
         {
-            if (access_token.IsNullOrEmpty())
+            if (access_token.IsNull())
                 access_token = GetAccessToken().access_token;
             var url = $"https://api.weixin.qq.com/cgi-bin/get_current_selfmenu_info?access_token=={access_token}";
             return _httpClient.Get<string>(url);
@@ -114,7 +112,7 @@ https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx807d86fb6b3d4fd2&red
         /// <returns></returns>
         public WeiXinRes DeleteMenu(string? access_token)
         {
-            if (access_token.IsNullOrEmpty())
+            if (access_token.IsNull())
                 access_token = GetAccessToken().access_token;
             var url = $"https://api.weixin.qq.com/cgi-bin/menu/delete?access_token={access_token}";
             return _httpClient.Get<WeiXinRes>(url);
@@ -131,7 +129,7 @@ https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx807d86fb6b3d4fd2&red
         /// <returns></returns>
         public string GetCurrentSelfMenuInfo(string? access_token)
         {
-            if (access_token.IsNullOrEmpty())
+            if (access_token.IsNull())
                 access_token = GetAccessToken().access_token;
             var url = $"https://api.weixin.qq.com/cgi-bin/menu/get?access_token={access_token}";
             return _httpClient.Get<string>(url);

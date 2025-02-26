@@ -1,26 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-	  <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
-	  <ImplicitUsings>enable</ImplicitUsings>
+	  <TargetFrameworks>net8.0;net7.0;net6.0;</TargetFrameworks>
+   <ImplicitUsings>enable</ImplicitUsings>
 	  <Nullable>enable</Nullable>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	  <Title>Easy.DynamicApi.Core</Title>
+	  <Title>Easy.Common.Core</Title>
 	  <Authors>wangbenchi66</Authors>
-	  <Description>基于Panda.DynamicWebApi</Description>
+	  <Description>常用方法封装</Description>
 	  <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
-	  <PackageReleaseNotes>基于Panda.DynamicWebApi</PackageReleaseNotes>
+	  <PackageReleaseNotes>常用方法封装</PackageReleaseNotes>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Version>2025.02.25.1</Version>
+	  <Version>2025.02.26.1</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
 	  <PackageReadmeFile>./README.md</PackageReadmeFile>
 	  <PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
   </PropertyGroup>
 
-  <ItemGroup>
-	  <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  
   <ItemGroup>
 	  <None Include=".\README.md" >
 		  <Pack>True</Pack>

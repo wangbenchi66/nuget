@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Common.Core;
+using Easy.Common.Core;
 
 namespace WBC66.Cache.Core
 {
