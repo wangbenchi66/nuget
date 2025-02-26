@@ -14,8 +14,16 @@
 	  <Version>2025.02.08.2</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
+	  <PackageReadmeFile>./README.md</PackageReadmeFile>
 	  <PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include=".\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
    <ItemGroup>
 	   <PackageReference Include="Autofac" Version="7.0.0" />
 	   <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />

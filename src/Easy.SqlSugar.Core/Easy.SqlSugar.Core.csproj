@@ -14,12 +14,12 @@
 	  <Version>2025.02.20.2</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
-	  <PackageReadmeFile>README.md</PackageReadmeFile>
+	  <PackageReadmeFile>./README.md</PackageReadmeFile>
 	  <PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md">
+    <None Include=".\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
@@ -32,9 +32,6 @@
 		<!--<PackageReference Include="CSRedisCore" Version="3.8.804" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />-->
 	</ItemGroup>
-	<!--<ItemGroup>
-	  <ProjectReference Include="..\Common.Core\Common.Core.csproj" />
-	</ItemGroup>-->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8'">
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
 		<PackageReference Include="sqlSugarCore" Version="5.1.4.175" />
