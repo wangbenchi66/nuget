@@ -41,5 +41,9 @@ namespace Easy.Common.Core
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         Task<T> PostAsync<T>(string sUrl, string? sParam = null);
+        string Get(string sUrl, string? sParam = null);
+        Task<string> GetAsync(string sUrl, string? sParam = null);
+        string Post(string sUrl, string? sParam = null);
+        Task<string> PostAsync(string sUrl, string? sParam = null);
     }
 }

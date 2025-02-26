@@ -9,10 +9,6 @@ namespace Easy.Common.Core
     {
         private string Content_Type = "application/json";
 
-        public HttpHelper()
-        {
-        }
-
         /// <summary>
         /// HttpClient异步发送Post请求方法
         /// </summary>
@@ -74,5 +70,10 @@ namespace Easy.Common.Core
         /// <param name="sParam"></param>
         /// <returns></returns>
         public T Get<T>(string sUrl, string? sParam = null) => GetAsync<T>(sUrl, sParam).Result;
+
+        public async Task<string> GetAsync(string sUrl, string? sParam = null) => await GetAsync<string>(sUrl, sParam);
+        public string Get(string sUrl, string? sParam = null) => GetAsync<string>(sUrl, sParam).Result;
+        public async Task<string> PostAsync(string sUrl, string? sParam = null) => await PostAsync<string>(sUrl, sParam);
+        public string Post(string sUrl, string? sParam = null) => PostAsync<string>(sUrl, sParam).Result;
     }
 }

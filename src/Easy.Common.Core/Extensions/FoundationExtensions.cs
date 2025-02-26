@@ -386,5 +386,31 @@ public static class FoundationExtensions
         return str == null || str.Count == 0;
     }
 
+    /// <summary>
+    /// 判断泛型集合是否为null或空
+    /// </summary>
+    /// <typeparam name="T">集合元素类型</typeparam>
+    /// <param name="source">泛型集合</param>
+    /// <returns>是否为null或空</returns>
+    public static bool IsNull<T>(this IEnumerable<T> source)
+    {
+        if (source == null)
+            return true;
+        using (var enumerator = source.GetEnumerator())
+            return !enumerator.MoveNext();
+    }
+
+    /// <summary>
+    /// 判断集合是否为null或空
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <returns></returns>
+    public static bool IsNull<T>(this List<T> list)
+    {
+        if (list == null || list.Count == 0) return true;
+        return false;
+    }
+
     #endregion 空值判断
 }
