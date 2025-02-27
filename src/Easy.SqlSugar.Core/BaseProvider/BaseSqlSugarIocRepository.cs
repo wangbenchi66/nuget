@@ -11,7 +11,7 @@ namespace Easy.SqlSugar.Core
     /// SqlSugar通用仓储(Ioc模式)
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BaseSqlSugarIocRepository<T> where T : class, new()
+    public abstract class BaseSqlSugarIocRepository<T> : SimpleClient<T> where T : class, new()
     {
         #region 数据库连接对象
 
@@ -50,49 +50,9 @@ namespace Easy.SqlSugar.Core
 
         #region 获取单个实体
 
-        /// <summary>
-        /// 获取单个实体
-        /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
-        public virtual T GetSingle(Expression<Func<T, bool>> where)
-        {
-            return SqlSugarDbContext.Queryable<T>().First(where);
-        }
-
-        /// <summary>
-        /// 获取单个实体
-        /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
-        public virtual async Task<T> GetSingleAsync(Expression<Func<T, bool>> where)
-        {
-            return await SqlSugarDbContext.Queryable<T>().FirstAsync(where);
-        }
-
         #endregion 获取单个实体
 
         #region 获取列表
-
-        /// <summary>
-        /// 获取列表
-        /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
-        public virtual List<T> GetList(Expression<Func<T, bool>> where)
-        {
-            return SqlSugarDbContext.Queryable<T>().Where(where).ToList();
-        }
-
-        /// <summary>
-        /// 获取列表
-        /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
-        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> where)
-        {
-            return await SqlSugarDbContext.Queryable<T>().Where(where).ToListAsync();
-        }
 
         /// <summary>
         /// 根据条件查询数据
@@ -122,26 +82,6 @@ namespace Easy.SqlSugar.Core
         #endregion 获取列表
 
         #region 写入实体数据
-
-        /// <summary>
-        /// 写入实体数据
-        /// </summary>
-        /// <param name="entity">实体数据</param>
-        /// <returns></returns>
-        public virtual int Insert(T entity)
-        {
-            return SqlSugarDbContext.Insertable(entity).ExecuteCommand();
-        }
-
-        /// <summary>
-        /// 写入实体数据
-        /// </summary>
-        /// <param name="entity">实体数据</param>
-        /// <returns></returns>
-        public virtual async Task<int> InsertAsync(T entity)
-        {
-            return await SqlSugarDbContext.Insertable(entity).ExecuteCommandAsync();
-        }
 
         /// <summary>
         /// 写入实体数据
@@ -211,26 +151,6 @@ namespace Easy.SqlSugar.Core
         /// <param name="entity"></param>
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(List<T> entity)
-        {
-            return await SqlSugarDbContext.Updateable(entity).ExecuteCommandAsync();
-        }
-
-        /// <summary>
-        /// 更新实体数据
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public virtual int Update(T entity)
-        {
-            return SqlSugarDbContext.Updateable(entity).ExecuteCommand();
-        }
-
-        /// <summary>
-        /// 更新实体数据
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public virtual async Task<int> UpdateAsync(T entity)
         {
             return await SqlSugarDbContext.Updateable(entity).ExecuteCommandAsync();
         }
@@ -424,46 +344,6 @@ namespace Easy.SqlSugar.Core
         #region 添加或更新
 
         /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public virtual int InsertOrUpdate(T entity)
-        {
-            return SqlSugarDbContext.Storageable(entity).DefaultAddElseUpdate().ExecuteCommand();
-        }
-
-        /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entitys"></param>
-        /// <returns></returns>
-        public virtual int InsertOrUpdate(List<T> entitys)
-        {
-            return SqlSugarDbContext.Storageable(entitys).DefaultAddElseUpdate().ExecuteCommand();
-        }
-
-        /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public virtual async Task<int> InsertOrUpdateAsync(T entity)
-        {
-            return await SqlSugarDbContext.Storageable(entity).DefaultAddElseUpdate().ExecuteCommandAsync();
-        }
-
-        /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entitys"></param>
-        /// <returns></returns>
-        public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys)
-        {
-            return await SqlSugarDbContext.Storageable(entitys).DefaultAddElseUpdate().ExecuteCommandAsync();
-        }
-
-        /// <summary>
         /// 添加或更新
         /// </summary>
         /// <param name="entity"></param>
@@ -515,7 +395,7 @@ namespace Easy.SqlSugar.Core
                 /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
+                public virtual int InsertOrUpdate(TResult entity, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where)
                 {
                     var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
                     var tran = SqlSugarTenant;
@@ -544,7 +424,7 @@ namespace Easy.SqlSugar.Core
                 /// <param name="updateColumns">要添加或更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
+                public virtual int InsertOrUpdate(List<TResult> entitys, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where)
                 {
                     var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
                     var insertCount = x.AsInsertable.ExecuteCommand();
@@ -559,7 +439,7 @@ namespace Easy.SqlSugar.Core
                 /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
+                public virtual async Task<int> InsertOrUpdateAsync(TResult entity, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where)
                 {
                     var x = SqlSugarDbContext.Storageable(entity).WhereColumns(where).ToStorage();
                     var tran = SqlSugarTenant;
@@ -588,7 +468,7 @@ namespace Easy.SqlSugar.Core
                 /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
+                public virtual async Task<int> InsertOrUpdateAsync(List<TResult> entitys, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where)
                 {
                     var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
                     var tran = SqlSugarTenant;
@@ -613,76 +493,6 @@ namespace Easy.SqlSugar.Core
         #endregion 添加或更新
 
         #region 删除数据
-
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns></returns>
-        public virtual bool Delete(T entity)
-        {
-            return SqlSugarDbContext.Deleteable(entity).ExecuteCommandHasChange();
-        }
-
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns></returns>
-        public virtual async Task<bool> DeleteAsync(T entity)
-        {
-            return await SqlSugarDbContext.Deleteable(entity).ExecuteCommandHasChangeAsync();
-        }
-
-        /// <summary>
-        /// 删除数据(批量)
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns></returns>
-        public virtual bool Delete(List<T> entity)
-        {
-            return SqlSugarDbContext.Deleteable<T>(entity).ExecuteCommandHasChange();
-        }
-
-        /// <summary>
-        /// 删除数据(批量)
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns></returns>
-        public virtual async Task<bool> DeleteAsync(List<T> entity)
-        {
-            return await SqlSugarDbContext.Deleteable<T>(entity).ExecuteCommandHasChangeAsync();
-        }
-
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
-        public virtual async Task<bool> DeleteAsync(Expression<Func<T, bool>> where)
-        {
-            return await SqlSugarDbContext.Deleteable<T>().Where(where).ExecuteCommandHasChangeAsync();
-        }
-
-        /// <summary>
-        /// 根据主键标识批量删除
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
-        public virtual bool DeleteByIds(object[] ids)
-        {
-            return SqlSugarDbContext.Deleteable<T>().In(ids).ExecuteCommandHasChange();
-        }
-
-        /// <summary>
-        /// 根据主键标识批量删除
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
-        public virtual async Task<bool> DeleteByIdsAsync(object[] ids)
-        {
-            return await SqlSugarDbContext.Deleteable<T>().In(ids).ExecuteCommandHasChangeAsync();
-        }
 
         #endregion 删除数据
 
@@ -837,7 +647,7 @@ namespace Easy.SqlSugar.Core
         #region 执行sql语句
 
         /// <summary>
-        /// 执行sql语句并返回List[T]
+        /// 执行sql语句并返回List[TResult]
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
@@ -848,7 +658,7 @@ namespace Easy.SqlSugar.Core
         }
 
         /// <summary>
-        /// 执行sql语句并返回List[T]
+        /// 执行sql语句并返回List[TResult]
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
@@ -861,91 +671,91 @@ namespace Easy.SqlSugar.Core
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        public virtual List<T> SqlQuery<T>(string sql, object? parameters)
+        public virtual List<TResult> SqlQuery<TResult>(string sql, object? parameters)
         {
-            return SqlSugarDbContext.Ado.SqlQuery<T>(sql, parameters);
+            return SqlSugarDbContext.Ado.SqlQuery<TResult>(sql, parameters);
         }
 
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        public virtual async Task<List<T>> SqlQueryAsync<T>(string sql, object? parameters)
+        public virtual async Task<List<TResult>> SqlQueryAsync<TResult>(string sql, object? parameters)
         {
-            return await SqlSugarDbContext.Ado.SqlQueryAsync<T>(sql, parameters);
+            return await SqlSugarDbContext.Ado.SqlQueryAsync<TResult>(sql, parameters);
         }
 
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        public virtual T SqlQuerySingle<T>(string sql, object? parameters)
+        public virtual TResult SqlQuerySingle<TResult>(string sql, object? parameters)
         {
-            return SqlSugarDbContext.Ado.SqlQuerySingle<T>(sql, parameters);
+            return SqlSugarDbContext.Ado.SqlQuerySingle<TResult>(sql, parameters);
         }
 
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        public virtual async Task<T> SqlQuerySingleAsync<T>(string sql, object? parameters)
+        public virtual async Task<TResult> SqlQuerySingleAsync<TResult>(string sql, object? parameters)
         {
-            return await SqlSugarDbContext.Ado.SqlQuerySingleAsync<T>(sql, parameters);
+            return await SqlSugarDbContext.Ado.SqlQuerySingleAsync<TResult>(sql, parameters);
         }
 
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public virtual IPageList<T1> SqlPageQuery<T1>(string sql, object? parameters, int pageIndex, int pageSize)
+        public virtual IPageList<TResult> SqlPageQuery<TResult>(string sql, object? parameters, int pageIndex, int pageSize)
         {
             //计算分页
             var skip = (pageIndex - 1) * pageSize;
             var take = pageSize;
-            var list = SqlSugarDbContext.Ado.SqlQuery<T1>(sql, parameters);
+            var list = SqlSugarDbContext.Ado.SqlQuery<TResult>(sql, parameters);
             var total = list.Count;
             if (total == 0)
-                return new PageList<T1>(null, pageIndex, pageSize, total);
-            return new PageList<T1>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
+                return new PageList<TResult>(null, pageIndex, pageSize, total);
+            return new PageList<TResult>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
         }
 
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public virtual async Task<IPageList<T>> SqlPageQueryAsync<T>(string sql, object? parameters, int pageIndex, int pageSize)
+        public virtual async Task<IPageList<TResult>> SqlPageQueryAsync<TResult>(string sql, object? parameters, int pageIndex, int pageSize)
         {
             //计算分页
             var skip = (pageIndex - 1) * pageSize;
             var take = pageSize;
-            var list = await SqlSugarDbContext.Ado.SqlQueryAsync<T>(sql, parameters);
+            var list = await SqlSugarDbContext.Ado.SqlQueryAsync<TResult>(sql, parameters);
             var total = list.Count;
             if (total == 0)
-                return new PageList<T>(null, pageIndex, pageSize, total);
-            return new PageList<T>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
+                return new PageList<TResult>(null, pageIndex, pageSize, total);
+            return new PageList<TResult>(list.Skip(skip).Take(take).ToList(), pageIndex, pageSize, total);
         }
 
         /// <summary>

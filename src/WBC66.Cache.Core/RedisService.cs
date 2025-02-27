@@ -74,7 +74,6 @@ namespace WBC66.Cache.Core
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
-        /// <param name="db"></param>
         /// <returns></returns>
         public async Task<T> GetAsync<T>(string key)
         {

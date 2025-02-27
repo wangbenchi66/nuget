@@ -69,7 +69,7 @@ foreach (var item in list)
     {
         OnLogExecuting = (sql, pars) =>
         {
-            //Console.WriteLine($"----------------{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)item.DbType, sql, pars)}{Environment.NewLine}----------------");
+            Console.WriteLine($"----------------{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)item.DbType, sql, pars)}{Environment.NewLine}----------------");
         }
     };
 }

@@ -36,6 +36,7 @@ namespace WebApi.Test
 
     public class UserRepository : BaseSqlSugarRepository<User>, IUserRepository
     {
+
         //public UserRepository(ISqlSugarClient db) : base(db)
         //{
         //}

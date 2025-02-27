@@ -9,9 +9,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TRepository"></typeparam>
-    public class BaseSqlSugarService<T, TRepository>
-        where T : class, new()
-        where TRepository : IBaseSqlSugarRepository<T>
+    public class BaseSqlSugarService<T, TRepository> where T : class, new() where TRepository : IBaseSqlSugarRepository<T>
     {
         private IBaseSqlSugarRepository<T> _repository;
 
@@ -185,7 +183,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public virtual int Update(T entity)
+        public virtual bool Update(T entity)
         {
             return _repository.Update(entity);
         }
@@ -195,7 +193,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public virtual async Task<int> UpdateAsync(T entity)
+        public virtual async Task<bool> UpdateAsync(T entity)
         {
             return await _repository.UpdateAsync(entity);
         }
@@ -393,7 +391,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public virtual int InsertOrUpdate(T entity)
+        public virtual bool InsertOrUpdate(T entity)
         {
             return _repository.InsertOrUpdate(entity);
         }
@@ -403,7 +401,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
         /// </summary>
         /// <param name="entitys"></param>
         /// <returns></returns>
-        public virtual int InsertOrUpdate(List<T> entitys)
+        public virtual bool InsertOrUpdate(List<T> entitys)
         {
             return _repository.InsertOrUpdate(entitys);
         }
@@ -413,7 +411,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public virtual async Task<int> InsertOrUpdateAsync(T entity)
+        public virtual async Task<bool> InsertOrUpdateAsync(T entity)
         {
             return await _repository.InsertOrUpdateAsync(entity);
         }
@@ -423,7 +421,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
         /// </summary>
         /// <param name="entitys"></param>
         /// <returns></returns>
-        public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys)
+        public virtual async Task<bool> InsertOrUpdateAsync(List<T> entitys)
         {
             return await _repository.InsertOrUpdateAsync(entitys);
         }
@@ -480,7 +478,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
                 /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
+                public virtual int InsertOrUpdate(TResult entity, Expression<Func<TResult, object>> columns, Expression<Func<TResult, object>> where)
                 {
                     return _repository.InsertOrUpdate(entity, columns, where);
                 }
@@ -492,7 +490,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
                 /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
+                public virtual int InsertOrUpdate(List<TResult> entitys, Expression<Func<TResult, object>> columns, Expression<Func<TResult, object>> where)
                 {
                     return _repository.InsertOrUpdate(entitys, columns, where);
                 }
@@ -504,7 +502,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
                 /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
+                public virtual async Task<int> InsertOrUpdateAsync(TResult entity, Expression<Func<TResult, object>> columns, Expression<Func<TResult, object>> where)
                 {
                     return await _repository.InsertOrUpdateAsync(entity, columns, where);
                 }
@@ -516,7 +514,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
                 /// <param name="columns">要添加或更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> columns, Expression<Func<T, object>> where)
+                public virtual async Task<int> InsertOrUpdateAsync(List<TResult> entitys, Expression<Func<TResult, object>> columns, Expression<Func<TResult, object>> where)
                 {
                     return await _repository.InsertOrUpdateAsync(entitys, columns, where);
                 }*/

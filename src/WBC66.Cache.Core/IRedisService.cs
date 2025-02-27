@@ -71,7 +71,6 @@ namespace WBC66.Cache.Core
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
-        /// <param name="db"></param>
         /// <returns></returns>
         T Get<T>(string key);
 

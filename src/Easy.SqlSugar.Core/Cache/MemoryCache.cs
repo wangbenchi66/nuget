@@ -189,12 +189,12 @@ namespace Easy.SqlSugar.Core.Cache
         /// </summary>
         /// <param name="key">缓存Key</param>
         /// <returns></returns>
-        public T Get<T>(string key)
+        public TResult Get<TResult>(string key)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            return Cache.Get<T>(key);
+            return Cache.Get<TResult>(key);
         }
 
         /// <summary>

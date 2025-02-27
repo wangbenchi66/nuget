@@ -8,7 +8,7 @@ namespace Easy.SqlSugar.Core
     /// 通用仓储接口
     /// </summary>
     /// <typeparam name="T">泛型实体类型</typeparam>
-    public interface IBaseSqlSugarRepository<T> where T : class, new()
+    public interface IBaseSqlSugarRepository<T> : ISimpleClient<T> where T : class, new()
     {
 
         /// <summary>
@@ -28,37 +28,9 @@ namespace Easy.SqlSugar.Core
 
         #region 获取单个实体
 
-        /// <summary>
-        /// 获取单个实体
-        /// </summary>
-        /// <param name="where">条件表达式树</param>
-        /// <returns>单个实体对象</returns>
-        T GetSingle(Expression<Func<T, bool>> where);
-
-        /// <summary>
-        /// 异步获取单个实体
-        /// </summary>
-        /// <param name="where">条件表达式树</param>
-        /// <returns>单个实体对象</returns>
-        Task<T> GetSingleAsync(Expression<Func<T, bool>> where);
-
         #endregion 获取单个实体
 
         #region 获取列表
-
-        /// <summary>
-        /// 获取列表
-        /// </summary>
-        /// <param name="where">条件表达式树</param>
-        /// <returns>实体对象列表</returns>
-        List<T> GetList(Expression<Func<T, bool>> where);
-
-        /// <summary>
-        /// 异步获取列表
-        /// </summary>
-        /// <param name="where">条件表达式树</param>
-        /// <returns>实体对象列表</returns>
-        Task<List<T>> GetListAsync(Expression<Func<T, bool>> where);
 
         /// <summary>
         /// 根据条件查询数据
@@ -80,20 +52,6 @@ namespace Easy.SqlSugar.Core
         #endregion 获取列表
 
         #region 写入实体数据
-
-        /// <summary>
-        /// 写入实体数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns>影响行数</returns>
-        int Insert(T entity);
-
-        /// <summary>
-        /// 异步写入实体数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns>影响行数</returns>
-        Task<int> InsertAsync(T entity);
 
         /// <summary>
         /// 写入实体数据
@@ -142,20 +100,6 @@ namespace Easy.SqlSugar.Core
         /// <param name="entity"></param>
         /// <returns></returns>
         Task<int> UpdateAsync(List<T> entity);
-
-        /// <summary>
-        /// 更新实体数据
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        int Update(T entity);
-
-        /// <summary>
-        /// 更新实体数据
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        Task<int> UpdateAsync(T entity);
 
         /// <summary>
         /// 批量更新实体数据指定字段
@@ -298,34 +242,6 @@ namespace Easy.SqlSugar.Core
         #region 添加或更新
 
         /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        int InsertOrUpdate(T entity);
-
-        /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        int InsertOrUpdate(List<T> entity);
-
-        /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        Task<int> InsertOrUpdateAsync(T entity);
-
-        /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entitys"></param>
-        /// <returns></returns>
-        Task<int> InsertOrUpdateAsync(List<T> entitys);
-
-        /// <summary>
         /// 添加或更新
         /// </summary>
         /// <param name="entitys"></param>
@@ -365,7 +281,7 @@ namespace Easy.SqlSugar.Core
                 /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                int InsertOrUpdate(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
+                int InsertOrUpdate(TResult entity, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where);
 
                 /// <summary>
                 /// 添加或更新(带事务)
@@ -374,7 +290,7 @@ namespace Easy.SqlSugar.Core
                 /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
+                int InsertOrUpdate(List<TResult> entitys, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where);
 
                 /// <summary>
                 /// 添加或更新(带事务)
@@ -383,7 +299,7 @@ namespace Easy.SqlSugar.Core
                 /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
+                Task<int> InsertOrUpdateAsync(TResult entity, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where);
 
                 /// <summary>
                 /// 添加或更新(带事务)
@@ -392,60 +308,11 @@ namespace Easy.SqlSugar.Core
                 /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
                 /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
-                Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);*/
+                Task<int> InsertOrUpdateAsync(List<TResult> entitys, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where);*/
 
         #endregion 添加或更新
 
         #region 删除数据
-
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns>是否删除成功</returns>
-        bool Delete(T entity);
-
-        /// <summary>
-        /// 异步删除数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns>是否删除成功</returns>
-        Task<bool> DeleteAsync(T entity);
-
-        /// <summary>
-        /// 批量删除数据
-        /// </summary>
-        /// <param name="entity">实体类集合</param>
-        /// <returns>是否删除成功</returns>
-        bool Delete(List<T> entity);
-
-        /// <summary>
-        /// 异步批量删除数据
-        /// </summary>
-        /// <param name="entity">实体类集合</param>
-        /// <returns>是否删除成功</returns>
-        Task<bool> DeleteAsync(List<T> entity);
-
-        /// <summary>
-        /// 根据条件删除数据
-        /// </summary>
-        /// <param name="predicate">条件表达式树</param>
-        /// <returns>是否删除成功</returns>
-        Task<bool> DeleteAsync(Expression<Func<T, bool>> predicate);
-
-        /// <summary>
-        /// 根据主键标识批量删除
-        /// </summary>
-        /// <param name="ids">主键标识数组</param>
-        /// <returns>是否删除成功</returns>
-        bool DeleteByIds(object[] ids);
-
-        /// <summary>
-        /// 异步根据主键标识批量删除
-        /// </summary>
-        /// <param name="ids">主键标识数组</param>
-        /// <returns>是否删除成功</returns>
-        Task<bool> DeleteByIdsAsync(object[] ids);
 
         #endregion 删除数据
 
@@ -546,7 +413,7 @@ namespace Easy.SqlSugar.Core
         #region 执行SQL语句
 
         /// <summary>
-        /// 执行sql语句并返回List[T]
+        /// 执行sql语句并返回List[TResult]
         /// </summary>
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
@@ -554,7 +421,7 @@ namespace Easy.SqlSugar.Core
         List<T> SqlQuery(string sql, object? parameters = default);
 
         /// <summary>
-        /// 异步执行sql语句并返回List[T]
+        /// 异步执行sql语句并返回List[TResult]
         /// </summary>
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
@@ -564,60 +431,60 @@ namespace Easy.SqlSugar.Core
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
         /// <returns>实体对象列表</returns>
-        List<T> SqlQuery<T>(string sql, object? parameters);
+        List<TResult> SqlQuery<TResult>(string sql, object? parameters);
 
         /// <summary>
         /// 异步执行sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
         /// <returns>实体对象列表</returns>
-        Task<List<T>> SqlQueryAsync<T>(string sql, object? parameters);
+        Task<List<TResult>> SqlQueryAsync<TResult>(string sql, object? parameters);
 
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        T SqlQuerySingle<T>(string sql, object? parameters);
+        TResult SqlQuerySingle<TResult>(string sql, object? parameters);
 
         /// <summary>
         /// 执行sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        Task<T> SqlQuerySingleAsync<T>(string sql, object? parameters);
+        Task<TResult> SqlQuerySingleAsync<TResult>(string sql, object? parameters);
 
         /// <summary>
         /// 执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分页大小</param>
         /// <returns>分页数据</returns>
-        IPageList<T> SqlPageQuery<T>(string sql, object? parameters, int pageIndex, int pageSize);
+        IPageList<TResult> SqlPageQuery<TResult>(string sql, object? parameters, int pageIndex, int pageSize);
 
         /// <summary>
         /// 异步执行分页sql语句并返回到指定实体中
         /// </summary>
-        /// <typeparam name="T1">映射到这个实体</typeparam>
+        /// <typeparam name="TResult">映射到这个实体</typeparam>
         /// <param name="sql">sql语句</param>
         /// <param name="parameters">参数</param>
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分页大小</param>
         /// <returns>分页数据</returns>
-        Task<IPageList<T>> SqlPageQueryAsync<T>(string sql, object? parameters, int pageIndex, int pageSize);
+        Task<IPageList<TResult>> SqlPageQueryAsync<TResult>(string sql, object? parameters, int pageIndex, int pageSize);
 
         /// <summary>
         /// 执行sql语句返回影响行数
