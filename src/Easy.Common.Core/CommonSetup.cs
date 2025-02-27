@@ -10,5 +10,6 @@ namespace Easy.Common.Core
     /// </summary>
     public static class CommonSetup
     {
+
     }
 }

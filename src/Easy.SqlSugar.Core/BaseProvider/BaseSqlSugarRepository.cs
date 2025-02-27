@@ -27,14 +27,14 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         public ITenant SqlSugarTenant { get; private set; }
 
-        public BaseSqlSugarRepository(ISqlSugarClient db = null)
+        public BaseSqlSugarRepository(ISqlSugarClient sqlSugarDb = null)
         {
-            if (db == null)
-                db = AppService.Services.BuildServiceProvider().GetService<ISqlSugarClient>();
-            if (db == null)
+            if (sqlSugarDb == null)
+                sqlSugarDb = AppService.Services.BuildServiceProvider().GetService<ISqlSugarClient>();
+            if (sqlSugarDb == null)
                 return;
-            SqlSugarTenant = db.AsTenant();//用来处理事务
-            base.Context = db.AsTenant().GetConnectionWithAttr<T>();//获取子Db
+            SqlSugarTenant = sqlSugarDb.AsTenant();//用来处理事务
+            base.Context = sqlSugarDb.AsTenant().GetConnectionWithAttr<T>();//获取子Db
             SqlSugarDbContext = Context;
             SqlSugarDbContextAdo = Context.Ado;
         }

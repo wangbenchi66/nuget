@@ -13,8 +13,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
         where T : class, new()
         where TRepository : IBaseSqlSugarRepository<T>
     {
-
-        protected IBaseSqlSugarRepository<T> _repository;
+        private IBaseSqlSugarRepository<T> _repository;
 
         public BaseSqlSugarService(TRepository repository)
         {
