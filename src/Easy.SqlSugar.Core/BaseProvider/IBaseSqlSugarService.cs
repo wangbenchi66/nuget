@@ -4,23 +4,10 @@ using SqlSugar;
 
 namespace Easy.SqlSugar.Core.BaseProvider
 {
-    public interface IBaseSqlSugarService<T> where T : class
+    public interface IBaseSqlSugarService<T> : ISimpleClient<T> where T : class, new()
     {
         #region 获取单个实体
 
-        /// <summary>
-        /// 获取单个实体
-        /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
-        T GetSingle(Expression<Func<T, bool>> where);
-
-        /// <summary>
-        /// 获取单个实体
-        /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
-        Task<T> GetSingleAsync(Expression<Func<T, bool>> where);
 
         #endregion 获取单个实体
 
@@ -60,20 +47,6 @@ namespace Easy.SqlSugar.Core.BaseProvider
         #endregion 获取列表
 
         #region 写入实体数据
-
-        /// <summary>
-        /// 写入实体数据
-        /// </summary>
-        /// <param name="entity">实体数据</param>
-        /// <returns></returns>
-        int Insert(T entity);
-
-        /// <summary>
-        /// 写入实体数据
-        /// </summary>
-        /// <param name="entity">实体数据</param>
-        /// <returns></returns>
-        Task<int> InsertAsync(T entity);
 
         /// <summary>
         /// 写入实体数据
@@ -122,20 +95,6 @@ namespace Easy.SqlSugar.Core.BaseProvider
         /// <param name="entity"></param>
         /// <returns></returns>
         Task<int> UpdateAsync(List<T> entity);
-
-        /// <summary>
-        /// 更新实体数据
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        int Update(T entity);
-
-        /// <summary>
-        /// 更新实体数据
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        Task<int> UpdateAsync(T entity);
 
         /// <summary>
         /// 批量更新实体数据指定字段
@@ -278,34 +237,6 @@ namespace Easy.SqlSugar.Core.BaseProvider
         #region 添加或更新
 
         /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        int InsertOrUpdate(T entity);
-
-        /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entitys"></param>
-        /// <returns></returns>
-        int InsertOrUpdate(List<T> entitys);
-
-        /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        Task<int> InsertOrUpdateAsync(T entity);
-
-        /// <summary>
-        /// 添加或更新(根据主键判断插入还是更新，例如id=0插入,否则更新)
-        /// </summary>
-        /// <param name="entitys"></param>
-        /// <returns></returns>
-        Task<int> InsertOrUpdateAsync(List<T> entitys);
-
-        /// <summary>
         /// 添加或更新
         /// </summary>
         /// <param name="entity"></param>
@@ -377,55 +308,6 @@ namespace Easy.SqlSugar.Core.BaseProvider
         #endregion 添加或更新
 
         #region 删除数据
-
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns></returns>
-        bool Delete(T entity);
-
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns></returns>
-        Task<bool> DeleteAsync(T entity);
-
-        /// <summary>
-        /// 删除数据(批量)
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns></returns>
-        bool Delete(List<T> entity);
-
-        /// <summary>
-        /// 删除数据(批量)
-        /// </summary>
-        /// <param name="entity">实体类</param>
-        /// <returns></returns>
-        Task<bool> DeleteAsync(List<T> entity);
-
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="where"></param>
-        /// <returns></returns>
-        Task<bool> DeleteAsync(Expression<Func<T, bool>> where);
-
-        /// <summary>
-        /// 根据主键标识批量删除
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
-        bool DeleteByIds(object[] ids);
-
-        /// <summary>
-        /// 根据主键标识批量删除
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
-        Task<bool> DeleteByIdsAsync(object[] ids);
 
         #endregion 删除数据
 
