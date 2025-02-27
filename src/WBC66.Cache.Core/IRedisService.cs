@@ -26,7 +26,6 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <param name="expiration"></param>
-        /// <param name="db"></param>
         /// <returns></returns>
         bool Add(string key, object value, int expiration = -1);
 
@@ -36,7 +35,6 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <param name="expiration"></param>
-        /// <param name="db"></param>
         /// <returns></returns>
         Task<bool> AddAsync(string key, object value, int expiration = -1);
 
@@ -47,7 +45,6 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="func"></param>
         /// <param name="expiration"></param>
-        /// <param name="db"></param>
         /// <returns></returns>
         Task<T> GetAsync<T>(string key, Func<T> func, int expiration = -1);
 
@@ -58,7 +55,6 @@ namespace WBC66.Cache.Core
         /// <param name="key"></param>
         /// <param name="func"></param>
         /// <param name="expiration"></param>
-        /// <param name="db"></param>
         /// <returns></returns>
         T Get<T>(string key, Func<T> func, int expiration = -1);
 
@@ -67,7 +63,6 @@ namespace WBC66.Cache.Core
         /// 是否存在
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="db"></param>
         /// <returns></returns>
         Task<bool> ExistsAsync(string key);
 
@@ -85,7 +80,6 @@ namespace WBC66.Cache.Core
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
-        /// <param name="db"></param>
         /// <returns></returns>
         Task<T> GetAsync<T>(string key);
 
@@ -93,7 +87,6 @@ namespace WBC66.Cache.Core
         /// 删除
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="db"></param>
         /// <returns></returns>
         Task<bool> Remove(string key);
     }

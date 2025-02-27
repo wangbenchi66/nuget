@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace Easy.Common.Core;
 /// <summary>
 /// 错误信息
@@ -43,7 +38,7 @@ public readonly struct ApiResultPlus<TSuccess, TError>
     /// <summary>
     /// 追踪ID，生成新的GUID
     /// </summary>
-    public Guid TraceId => Guid.NewGuid();
+    public Guid RequestId => Guid.NewGuid();
     /// <summary>
     /// 是否成功
     /// </summary>

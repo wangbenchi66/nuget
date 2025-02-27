@@ -3,11 +3,17 @@
 namespace Easy.Common.Core
 {
     /// <summary>
-    /// http帮助类
+    /// http帮助类,需要注册AddHttpClient功能
     /// </summary>
     public class HttpHelper : IHttpHelper
     {
         private string Content_Type = "application/json";
+        private readonly IHttpClientFactory _httpClient;
+
+        public HttpHelper(IHttpClientFactory httpClient)
+        {
+            _httpClient = httpClient;
+        }
 
         /// <summary>
         /// HttpClient异步发送Post请求方法
@@ -17,17 +23,23 @@ namespace Easy.Common.Core
         /// <returns></returns>
         public async Task<T> PostAsync<T>(string sUrl, string? sParam = null)
         {
-            HttpClient http = new HttpClient();
 # if NET8_0_OR_GREATER
             HttpContent content = new StringContent(sParam, mediaType: new MediaTypeHeaderValue(Content_Type));
 #else
             HttpContent content = new StringContent(sParam);
             content.Headers.ContentType = new MediaTypeHeaderValue(Content_Type);
 #endif
-            HttpResponseMessage req = await http.PostAsync(sUrl, content);
-            req.EnsureSuccessStatusCode();
-            var res = await req.Content.ReadAsStringAsync();
-            return JsonHelper.ToObject<T>(res);
+            var client = _httpClient.CreateClient();
+            HttpResponseMessage req = await client.PostAsync(sUrl, content);
+            if (req.IsSuccessStatusCode)
+            {
+                var res = await req.Content.ReadAsStringAsync();
+                return JsonHelper.ToObject<T>(res);
+            }
+            else
+            {
+                return default;
+            }
         }
 
         /// <summary>
@@ -46,7 +58,6 @@ namespace Easy.Common.Core
         /// <returns></returns>
         public async Task<T> GetAsync<T>(string sUrl, string? sParam = null)
         {
-            HttpClient http = new HttpClient();
             var url = sUrl;
             if (sParam != null)
             {
@@ -56,11 +67,18 @@ namespace Easy.Common.Core
                     url = sUrl + "&" + sParam;
             }
             //设置Content_Type请求头
-            http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(Content_Type));
-            HttpResponseMessage req = await http.GetAsync(url);
-            req.EnsureSuccessStatusCode();
-            var res = req.Content.ReadAsStringAsync().Result;
-            return JsonHelper.ToObject<T>(res);
+            var client = _httpClient.CreateClient();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(Content_Type));
+            HttpResponseMessage req = await client.GetAsync(url);
+            if (req.IsSuccessStatusCode)
+            {
+                var res = await req.Content.ReadAsStringAsync();
+                return JsonHelper.ToObject<T>(res);
+            }
+            else
+            {
+                return default;
+            }
         }
 
         /// <summary>
@@ -72,8 +90,11 @@ namespace Easy.Common.Core
         public T Get<T>(string sUrl, string? sParam = null) => GetAsync<T>(sUrl, sParam).Result;
 
         public async Task<string> GetAsync(string sUrl, string? sParam = null) => await GetAsync<string>(sUrl, sParam);
+
         public string Get(string sUrl, string? sParam = null) => GetAsync<string>(sUrl, sParam).Result;
+
         public async Task<string> PostAsync(string sUrl, string? sParam = null) => await PostAsync<string>(sUrl, sParam);
+
         public string Post(string sUrl, string? sParam = null) => PostAsync<string>(sUrl, sParam).Result;
     }
 }

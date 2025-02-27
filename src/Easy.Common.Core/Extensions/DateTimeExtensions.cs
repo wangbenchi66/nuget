@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Easy.Common.Core.Extensions;
+namespace Easy.Common.Core;
 public static class DateTimeExtensions
 {
 
