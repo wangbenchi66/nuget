@@ -49,6 +49,14 @@ namespace Easy.SqlSugar.Core
         #endregion 数据库连接对象
 
         #region 获取单个实体
+        public override T GetSingle(Expression<Func<T, bool>> whereExpression)
+        {
+            return SqlSugarDbContext.Queryable<T>().First(whereExpression);
+        }
+        public override Task<T> GetSingleAsync(Expression<Func<T, bool>> whereExpression)
+        {
+            return SqlSugarDbContext.Queryable<T>().FirstAsync(whereExpression);
+        }
 
         #endregion 获取单个实体
 
@@ -60,7 +68,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="predicate">条件表达式树</param>
         /// <param name="orderBy">排序字段，如name asc,age desc</param>
         /// <returns>泛型实体集合</returns>
-        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy = "")
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy)
         {
             return await SqlSugarDbContext.Queryable<T>().OrderByIF(!string.IsNullOrEmpty(orderBy), orderBy)
                     .WhereIF(predicate != null, predicate).ToListAsync();

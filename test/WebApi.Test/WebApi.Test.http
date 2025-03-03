@@ -34,3 +34,7 @@ GET {{host}}/SqlSugar/Update
 GET {{WebApi.Test_HostAddress}}/api/sqlsugar/InsertOrUpdate
 
 ###
+
+
+### ·Ö¿â·Ö±í
+POST {{host}}/SpiltTableApis/CreteData

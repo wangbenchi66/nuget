@@ -4,14 +4,15 @@ using SqlSugar;
 using WBC66.Autofac.Core;
 using Easy.SqlSugar.Core;
 using Easy.SqlSugar.Core.BaseProvider;
+using Nest;
 
 namespace WebApi.Test
 {
     /// <summary>
     /// 用户表
     ///</summary>
-    [SugarTable("j_user")]//表别名
-    [Tenant("journal")]//数据库标识 需要与配置文件中的ConfigId对应
+    [SugarTable("j_user")] //表别名
+    [Tenant("journal")] //数据库标识 需要与配置文件中的ConfigId对应
     public class User
     {
         /// <summary>
@@ -33,20 +34,21 @@ namespace WebApi.Test
     /*public class UserRepository : BaseSqlSugarIocRepository<User>, ISingleton
     {
     }*/
-
     public class UserRepository : BaseSqlSugarRepository<User>, IUserRepository
     {
-
         //public UserRepository(ISqlSugarClient db) : base(db)
         //{
         //}
-
-        /*public override User GetSingle(Expression<Func<User, bool>> where)
+        /// <summary>
+        /// 获取userid
+        /// </summary>
+        /// <returns></returns>
+        public UserDto GetUserId()
         {
-            return base.SqlSugarDbContext.Queryable<User>().Where(where).WithCache().First();
+            return base.SqlSugarDbContext.Queryable<User>().Select(x => new UserDto() { a = x.Id }, true).First();
         }
 
-        public override int Update(User entity)
+        /*public override int Update(User entity)
         {
             return base.SqlSugarDbContext.Updateable(entity).RemoveDataCache().ExecuteCommand();
         }*/
@@ -57,6 +59,13 @@ namespace WebApi.Test
     /// </summary>
     public interface IUserRepository : IBaseSqlSugarRepository<User>
     {
+        UserDto GetUserId();
+    }
+
+    public class UserDto
+    {
+        public int a { get; set; }
+        public string Name { get; set; }
     }
 
     #region 打卡模块
@@ -90,7 +99,6 @@ namespace WebApi.Test
         ///</summary>
         public string Title { get; set; }
     }
-
 
     #endregion 打卡模块
 }

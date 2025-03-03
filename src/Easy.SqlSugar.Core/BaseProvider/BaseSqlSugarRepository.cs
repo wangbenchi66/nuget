@@ -39,6 +39,10 @@ namespace Easy.SqlSugar.Core
             SqlSugarDbContextAdo = Context.Ado;
         }
 
+        #region 获取单个实体
+
+        #endregion 获取单个实体
+
         #region 获取列表
 
         /// <summary>
@@ -47,10 +51,23 @@ namespace Easy.SqlSugar.Core
         /// <param name="predicate">条件表达式树</param>
         /// <param name="orderBy">排序字段，如name asc,age desc</param>
         /// <returns>泛型实体集合</returns>
-        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy = "")
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy)
         {
-            return await SqlSugarDbContext.Queryable<T>().OrderByIF(!string.IsNullOrEmpty(orderBy), orderBy)
+            return await SqlSugarDbContext.Queryable<T>().OrderByIF(!string.IsNullOrWhiteSpace(orderBy), orderBy)
                     .WhereIF(predicate != null, predicate).ToListAsync();
+        }
+
+        /// <summary>
+        /// 根据条件查询数据
+        /// </summary>
+        /// <param name="predicate">条件表达式树</param>
+        /// <param name="orderByPredicate">排序字段</param>
+        /// <param name="orderByType">排序顺序</param>
+        /// <returns>泛型实体集合</returns>
+        public virtual List<T> GetList(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByPredicate, OrderByType orderByType)
+        {
+            return SqlSugarDbContext.Queryable<T>().OrderByIF(orderByPredicate != null, orderByPredicate, orderByType)
+                    .WhereIF(predicate != null, predicate).ToList();
         }
 
         /// <summary>

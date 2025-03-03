@@ -31,7 +31,7 @@ namespace Easy.SqlSugar.Core.BaseProvider
         /// <param name="predicate">条件表达式树</param>
         /// <param name="orderBy">排序字段，如name asc,age desc</param>
         /// <returns>泛型实体集合</returns>
-        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy = "")
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy)
         {
             return await _repository.GetListAsync(predicate, orderBy);
         }

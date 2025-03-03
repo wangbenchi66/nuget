@@ -21,8 +21,7 @@
         /// <returns></returns>
         public object GetUser()
         {
-            return _userRepository.GetSingle(x => x.Id == 1);
-            return "ok";
+            return _userRepository.GetUserId();
         }
     }
 }

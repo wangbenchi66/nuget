@@ -11,7 +11,7 @@
 	  <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
 	  <PackageReleaseNotes>基于SqlSugar进行封装使用</PackageReleaseNotes>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Version>2025.02.27.3</Version>
+	  <Version>2025.03.2.1</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
 	  <PackageReadmeFile>./README.md</PackageReadmeFile>

@@ -10,7 +10,6 @@ namespace Easy.SqlSugar.Core
     /// <typeparam name="T">泛型实体类型</typeparam>
     public interface IBaseSqlSugarRepository<T> : ISimpleClient<T> where T : class, new()
     {
-
         /// <summary>
         /// //多租户事务、GetConnection、IsAnyConnection等功能
         /// </summary>
@@ -38,7 +37,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="predicate">条件表达式树</param>
         /// <param name="orderBy">排序字段，如name asc,age desc</param>
         /// <returns>泛型实体集合</returns>
-        Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy = "");
+        Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, string orderBy);
 
         /// <summary>
         /// 根据条件查询数据
@@ -47,7 +46,8 @@ namespace Easy.SqlSugar.Core
         /// <param name="orderByPredicate">排序字段</param>
         /// <param name="orderByType">排序顺序</param>
         /// <returns>泛型实体集合</returns>
-        Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByPredicate, OrderByType orderByType);
+        Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByPredicate,
+            OrderByType orderByType);
 
         #endregion 获取列表
 
@@ -167,7 +167,8 @@ namespace Easy.SqlSugar.Core
         /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        Task<int> UpdateAsync(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where);
+        Task<int> UpdateAsync(List<T> entitys, Expression<Func<T, object>> updateColumns,
+            Expression<Func<T, object>> where);
 
         /// <summary>
         /// 根据条件更新
@@ -177,7 +178,8 @@ namespace Easy.SqlSugar.Core
         /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where);
+        int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns,
+            Expression<Func<T, object>> where);
 
         /// <summary>
         /// 根据条件更新
@@ -187,7 +189,8 @@ namespace Easy.SqlSugar.Core
         /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
         /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
         /// <returns></returns>
-        Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where);
+        Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns,
+            Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where);
 
         /// <summary>
         /// 无实体更新
@@ -362,7 +365,8 @@ namespace Easy.SqlSugar.Core
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分页大小</param>
         /// <returns>分页数据</returns>
-        IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1, int pageSize = 20);
+        IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1,
+            int pageSize = 20);
 
         /// <summary>
         /// 异步根据条件查询分页数据
@@ -372,7 +376,8 @@ namespace Easy.SqlSugar.Core
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分页大小</param>
         /// <returns>分页数据</returns>
-        Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1, int pageSize = 20);
+        Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, string orderBy = "", int pageIndex = 1,
+            int pageSize = 20);
 
         /// <summary>
         /// 根据条件查询分页数据
@@ -383,7 +388,8 @@ namespace Easy.SqlSugar.Core
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分页大小</param>
         /// <returns>分页数据</returns>
-        IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1, int pageSize = 20);
+        IPageList<T> QueryPage(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByExpression,
+            OrderByType orderByType, int pageIndex = 1, int pageSize = 20);
 
         /// <summary>
         /// 异步根据条件查询分页数据
@@ -394,7 +400,9 @@ namespace Easy.SqlSugar.Core
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分页大小</param>
         /// <returns>分页数据</returns>
-        Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1, int pageSize = 20);
+        Task<IPageList<T>> QueryPageAsync(Expression<Func<T, bool>> predicate,
+            Expression<Func<T, object>> orderByExpression, OrderByType orderByType, int pageIndex = 1,
+            int pageSize = 20);
 
         /// <summary>
         /// 分页查询
@@ -406,7 +414,8 @@ namespace Easy.SqlSugar.Core
         /// <param name="orderBy">排序字段</param>
         /// <param name="returnRowCount">是否返回总行数</param>
         /// <returns>分页查询对象</returns>
-        ISugarQueryable<T> IQueryablePage(ISugarQueryable<T> queryable, int pageIndex, int pagesize, out int rowcount, Dictionary<string, QueryOrderBy> orderBy, bool returnRowCount = true);
+        ISugarQueryable<T> IQueryablePage(ISugarQueryable<T> queryable, int pageIndex, int pagesize, out int rowcount,
+            Dictionary<string, QueryOrderBy> orderBy, bool returnRowCount = true);
 
         #endregion 查询分页数据
 
@@ -484,7 +493,8 @@ namespace Easy.SqlSugar.Core
         /// <param name="pageIndex">当前页面索引</param>
         /// <param name="pageSize">分页大小</param>
         /// <returns>分页数据</returns>
-        Task<IPageList<TResult>> SqlPageQueryAsync<TResult>(string sql, object? parameters, int pageIndex, int pageSize);
+        Task<IPageList<TResult>>
+            SqlPageQueryAsync<TResult>(string sql, object? parameters, int pageIndex, int pageSize);
 
         /// <summary>
         /// 执行sql语句返回影响行数

@@ -10,10 +10,26 @@ using Easy.SqlSugar.Core;
 using WebApi.Test.Filter;
 using Microsoft.Extensions.Caching.Memory;
 using Easy.DynamicApi;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(s =>
+{
+    var xmlsFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml");
+    foreach (var xmlFile in xmlsFiles)
+    {
+        s.IncludeXmlComments(xmlFile);
+    }
+    //设置swagger文档信息，如果没有注释则显示默认信息
+    s.CustomOperationIds(apiDesc =>
+    {
+        var controllerAction = apiDesc.ActionDescriptor as ControllerActionDescriptor;
+        if (controllerAction == null)
+            return apiDesc.RelativePath;
+        return  controllerAction.ControllerName+"-"+controllerAction.ActionName;
+    });
+});
 //Serilog
 builder.Host.AddSerilogHost(configuration);
 
