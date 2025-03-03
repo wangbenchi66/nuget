@@ -213,7 +213,7 @@ namespace WebApi.Test.Controllers
         {
             //添加或更新
             var user = new User() { Id = 1, Name = "admin12" };
-            var user2 = new User() { Id = 99999, Name = "admin91",CreateTime=DateTime.Now };
+            var user2 = new User() { Id = 99999, Name = "admin91", CreateTime = DateTime.Now };
             var list = new List<User> { user, user2 };
             var isInsertOrUpdate = _userRepository.InsertOrUpdate(list, x => new { x.Id, x.Name });
             return "ok";

@@ -40,6 +40,14 @@ namespace Easy.SqlSugar.Core
         }
 
         #region 获取单个实体
+        public override T GetSingle(Expression<Func<T, bool>> whereExpression)
+        {
+            return SqlSugarDbContext.Queryable<T>().First(whereExpression);
+        }
+        public override Task<T> GetSingleAsync(Expression<Func<T, bool>> whereExpression)
+        {
+            return SqlSugarDbContext.Queryable<T>().FirstAsync(whereExpression);
+        }
 
         #endregion 获取单个实体
 
