@@ -31,7 +31,8 @@
                 .AddFilter((category, level) => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)
                 .AddConsole();
         });
-        public TestDBContext(DbContextOptions options) : base(options)
+        //必须要有 不能忽略
+        public TestDBContext(DbContextOptions<TestDBContext> options) : base(options)
         {
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -57,6 +58,9 @@ builder.Services.AddEFSetup<TestDBContext>(efOptions);
 builder.Services.AddScoped<IUserEFRepository, UserEFRepository>();
 //注入
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
+
+// 如果遇到注入问题建议直接使用 WBC66.Autofac.Core包 可以解决大部分问题
+builder.Host.AddAutofacHostSetup(builder.Services);
 ```
 ### 4.4 实体类、仓储
 ``` csharp

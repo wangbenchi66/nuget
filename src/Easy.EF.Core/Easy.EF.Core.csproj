@@ -18,7 +18,7 @@
       <PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
   </PropertyGroup>
   <ItemGroup>
-	  <None Include=".\README.md" >
+	  <None Include=".\README.md">
 		  <Pack>True</Pack>
 		  <PackagePath>\</PackagePath>
 	  </None>
@@ -44,6 +44,12 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.36" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.36" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="6.103.7.1" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Easy.Common.Core\Easy.Common.Core.csproj" />
     </ItemGroup>
 
 </Project>

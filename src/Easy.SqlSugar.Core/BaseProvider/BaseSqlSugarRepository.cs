@@ -9,7 +9,7 @@ namespace Easy.SqlSugar.Core
     /// 通用仓储
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class BaseSqlSugarRepository<T> : SimpleClient<T> where T : class, new()
+    public class BaseSqlSugarRepository<T> : SimpleClient<T>, IBaseSqlSugarRepository<T> where T : class, new()
     {
 
         /// <summary>
@@ -40,10 +40,12 @@ namespace Easy.SqlSugar.Core
         }
 
         #region 获取单个实体
+
         public override T GetSingle(Expression<Func<T, bool>> whereExpression)
         {
             return SqlSugarDbContext.Queryable<T>().First(whereExpression);
         }
+
         public override Task<T> GetSingleAsync(Expression<Func<T, bool>> whereExpression)
         {
             return SqlSugarDbContext.Queryable<T>().FirstAsync(whereExpression);
@@ -216,7 +218,7 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="entity"></param>
         /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
@@ -228,7 +230,7 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="entity"></param>
         /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
@@ -240,7 +242,7 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="entitys"></param>
         /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件 lambda 判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual int Update(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
@@ -252,7 +254,7 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="entitys"></param>
         /// <param name="updateColumns">要更新的字段x=>new {x.a,x.b}</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(List<T> entitys, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
@@ -265,7 +267,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="entity"></param>
         /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
         /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual int Update(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where)
         {
@@ -278,7 +280,7 @@ namespace Easy.SqlSugar.Core
         /// <param name="entity"></param>
         /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
         /// <param name="ignoreColumns">忽略的列x=>new {x.a,x.b}</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(T entity, Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> ignoreColumns, Expression<Func<T, object>> where)
         {
@@ -289,7 +291,7 @@ namespace Easy.SqlSugar.Core
         /// 无实体更新
         /// </summary>
         /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual int Update(Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
@@ -300,7 +302,7 @@ namespace Easy.SqlSugar.Core
         /// 无实体更新
         /// </summary>
         /// <param name="updateColumns">要更新的列x=>new {x.a,x.b}</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(Expression<Func<T, object>> updateColumns, Expression<Func<T, object>> where)
         {
@@ -311,7 +313,7 @@ namespace Easy.SqlSugar.Core
         /// 无实体更新
         /// </summary>
         /// <param name="updateColumns">要更新的列</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual int Update(Dictionary<string, object> updateColumns, Expression<Func<T, object>> where)
         {
@@ -322,7 +324,7 @@ namespace Easy.SqlSugar.Core
         /// 无实体更新
         /// </summary>
         /// <param name="updateColumns">要更新的列</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(Dictionary<string, object> updateColumns, Expression<Func<T, object>> where)
         {
@@ -333,7 +335,7 @@ namespace Easy.SqlSugar.Core
         /// 无实体更新(批量)
         /// </summary>
         /// <param name="updateColumns">要更新的列</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual int Update(List<Dictionary<string, object>> updateColumns, Expression<Func<T, object>> where)
         {
@@ -344,7 +346,7 @@ namespace Easy.SqlSugar.Core
         /// 无实体更新(批量)
         /// </summary>
         /// <param name="updateColumns">要更新的列</param>
-        /// <param name="where">更新条件lamdba判断 x=>x.a==1</param>
+        /// <param name="where">更新条件lambda判断 x=>x.a==1</param>
         /// <returns></returns>
         public virtual async Task<int> UpdateAsync(List<Dictionary<string, object>> updateColumns, Expression<Func<T, object>> where)
         {
@@ -359,7 +361,7 @@ namespace Easy.SqlSugar.Core
         /// 添加或更新
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+        /// <param name="where">条件lambda判断 x=>new {x.Id}存在则修改 不存在则更新</param>
         /// <returns></returns>
         public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> where)
         {
@@ -370,7 +372,7 @@ namespace Easy.SqlSugar.Core
         /// 添加或更新
         /// </summary>
         /// <param name="entitys"></param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+        /// <param name="where">条件lambda判断 x=>new {x.Id}存在则修改 不存在则更新</param>
         /// <returns></returns>
         public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> where)
         {
@@ -381,7 +383,7 @@ namespace Easy.SqlSugar.Core
         /// 添加或更新
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+        /// <param name="where">条件lambda判断 x=>new {x.Id}存在则修改 不存在则更新</param>
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> where)
         {
@@ -392,7 +394,7 @@ namespace Easy.SqlSugar.Core
         /// 添加或更新
         /// </summary>
         /// <param name="entitys"></param>
-        /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+        /// <param name="where">条件lambda判断 x=>new {x.Id}存在则修改 不存在则更新</param>
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> where)
         {
@@ -405,7 +407,7 @@ namespace Easy.SqlSugar.Core
                 /// </summary>
                 /// <param name="entity"></param>
                 /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
-                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <param name="where">条件lambda判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
                 public virtual int InsertOrUpdate(TResult entity, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where)
                 {
@@ -434,7 +436,7 @@ namespace Easy.SqlSugar.Core
                 /// </summary>
                 /// <param name="entitys"></param>
                 /// <param name="updateColumns">要添加或更新的列x=>new {x.a,x.b}</param>
-                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <param name="where">条件lambda判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
                 public virtual int InsertOrUpdate(List<TResult> entitys, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where)
                 {
@@ -449,7 +451,7 @@ namespace Easy.SqlSugar.Core
                 /// </summary>
                 /// <param name="entity"></param>
                 /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
-                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <param name="where">条件lambda判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
                 public virtual async Task<int> InsertOrUpdateAsync(TResult entity, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where)
                 {
@@ -478,7 +480,7 @@ namespace Easy.SqlSugar.Core
                 /// </summary>
                 /// <param name="entitys"></param>
                 /// <param name="updateColumns">(添加是全量)更新的列x=>new {x.a,x.b}</param>
-                /// <param name="where">条件lamdba判断 x=>new {x.Id}存在则修改 不存在则更新</param>
+                /// <param name="where">条件lambda判断 x=>new {x.Id}存在则修改 不存在则更新</param>
                 /// <returns></returns>
                 public virtual async Task<int> InsertOrUpdateAsync(List<TResult> entitys, Expression<Func<TResult, object>> updateColumns, Expression<Func<TResult, object>> where)
                 {

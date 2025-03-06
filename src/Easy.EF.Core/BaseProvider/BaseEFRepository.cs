@@ -3,23 +3,31 @@ using System.Data.Common;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Easy.EF.Core.BiewModels;
+using Easy.EF.Core.Common;
+using Easy.Common.Core;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using System.Linq;
 
 namespace Easy.EF.Core.BaseProvider
 {
     /// <summary>
     /// EF通用仓储
     /// </summary>
-    public class BaseRepository<TDBContext, T> : IBaseRepository<TDBContext, T> where TDBContext : DbContext where T : class
+    public class BaseEFRepository<TDBContext, T> : IBaseEFRepository<TDBContext, T> where TDBContext : DbContext where T : class
     {
+        public TDBContext EFContext { get; private set; }
+
         private readonly TDBContext _context;
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="context"></param>
-        public BaseRepository(TDBContext context)
+        public BaseEFRepository(TDBContext context)
         {
             _context = context;
+            EFContext = _context;
         }
 
         #region 获取单个实体
@@ -31,7 +39,7 @@ namespace Easy.EF.Core.BaseProvider
         /// <returns></returns>
         public virtual T GetSingle(Expression<Func<T, bool>> where)
         {
-            return _context.Set<T>().AsNoTracking().FirstOrDefault(where);
+            return _context.Set<T>().AsNoTracking().First(where);
         }
 
         /// <summary>
@@ -41,7 +49,7 @@ namespace Easy.EF.Core.BaseProvider
         /// <returns></returns>
         public virtual async Task<T> GetSingleAsync(Expression<Func<T, bool>> where)
         {
-            return await _context.Set<T>().AsNoTracking().FirstOrDefaultAsync(where);
+            return await _context.Set<T>().AsNoTracking().FirstAsync(where);
         }
 
         #endregion 获取单个实体
@@ -51,21 +59,21 @@ namespace Easy.EF.Core.BaseProvider
         /// <summary>
         /// 获取列表
         /// </summary>
-        /// <param name="where"></param>
+        /// <param name="whereExpression"></param>
         /// <returns></returns>
-        public virtual List<T> GetList(Expression<Func<T, bool>> where)
+        public virtual List<T> GetList(Expression<Func<T, bool>> whereExpression)
         {
-            return _context.Set<T>().AsNoTracking().Where(where).ToList();
+            return _context.Set<T>().AsNoTracking().Where(whereExpression).ToList();
         }
 
         /// <summary>
         /// 获取列表
         /// </summary>
-        /// <param name="where"></param>
+        /// <param name="whereExpression"></param>
         /// <returns></returns>
-        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> where)
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> whereExpression)
         {
-            return await _context.Set<T>().AsNoTracking().Where(where).ToListAsync();
+            return await _context.Set<T>().AsNoTracking().Where(whereExpression).ToListAsync();
         }
 
         /// <summary>
@@ -165,6 +173,40 @@ namespace Easy.EF.Core.BaseProvider
             return 0;
         }
 
+        private object InsertReturn(T obj)
+        {
+            var entity = _context.Set<T>().Add(obj);
+            _context.SaveChanges();
+            return entity.GetPrimaryKey();
+        }
+
+        private async Task<object> InsertReturnAsync(T obj)
+        {
+            var entity = await _context.Set<T>().AddAsync(obj);
+            await _context.SaveChangesAsync();
+            return entity.GetPrimaryKey();
+        }
+
+        public virtual int InsertReturnIdentity(T insertObj)
+        {
+            return InsertReturn(insertObj).ObjToInt();
+        }
+
+        public virtual async Task<int> InsertReturnIdentityAsync(T insertObj)
+        {
+            return (await InsertReturnAsync(insertObj)).ObjToInt();
+        }
+
+        public virtual long InsertReturnBigIdentity(T insertObj)
+        {
+            return InsertReturn(insertObj).ObjToLong();
+        }
+
+        public virtual async Task<long> InsertReturnBigIdentityAsync(T insertObj)
+        {
+            return (await InsertReturnAsync(insertObj)).ObjToLong();
+        }
+
         #endregion 写入实体数据
 
         #region 更新实体数据
@@ -229,21 +271,132 @@ namespace Easy.EF.Core.BaseProvider
         /// 更新实体指定列
         /// </summary>
         /// <param name="entity">实体</param>
-        /// <param name="property">更新值，用法：f=>new {f.Name,f.Age}</param>
-        /// <param name="isSave"></param>
+        /// <param name="property">更新值，用法：x => new { x.Name, x.CreateTime }</param>
+        /// <param name="isSave">是否保存更改</param>
         /// <returns></returns>
         public virtual bool Update(T entity, Expression<Func<T, object>> property, bool isSave = false)
         {
             _context.Set<T>().Attach(entity);
-            _context.Entry(entity).Property(property).IsModified = true;
+            var properties = GetMemberNames(property);
+            foreach (var memberInfo in properties)
+            {
+                _context.Entry(entity).Property(memberInfo).IsModified = true;
+            }
             if (isSave)
                 return _context.SaveChanges() > 0;
             return false;
         }
 
+        /// <summary>
+        /// 更新实体指定列
+        /// </summary>
+        /// <param name="entity">实体</param>
+        /// <param name="property">更新值，用法：x => new { x.Name, x.CreateTime }</param>
+        /// <param name="isSave">是否保存更改</param>
+        /// <returns></returns>
+        public virtual async Task<bool> UpdateAsync(T entity, Expression<Func<T, object>> property, bool isSave = false)
+        {
+            _context.Set<T>().Attach(entity);
+            var properties = GetMemberNames(property);
+            foreach (var memberInfo in properties)
+            {
+                _context.Entry(entity).Property(memberInfo).IsModified = true;
+            }
+            if (isSave)
+                return await _context.SaveChangesAsync() > 0;
+            return false;
+        }
+
+        /// <summary>
+        /// 更新实体指定列 TODO:可以用但是很麻烦 而且易错
+        /// </summary>
+        /// <param name="entity">实体</param>
+        /// <param name="property">更新值，用法：x => new { x.Name, x.CreateTime }</param>
+        /// <param name="whereColumns">根据列值条件更新，用法：x => new { x.Name }</param>
+        /// <param name="isSave">是否保存更改</param>
+        /// <returns></returns>
+        public virtual bool Update(T entity, Expression<Func<T, object>> property, Expression<Func<T, object>> whereColumns, bool isSave = false)
+        {
+            var properties = GetMemberNames(property);
+            var whereProperties = GetMemberNames(whereColumns);
+            /*    ctx.Users.Where(x => x.LastLoginDate < DateTime.Now.AddYears(-2))
+             .Update(x => new User() { IsSoftDeleted = 1 });*/
+            if (!properties.Any() || !whereProperties.Any())
+            {
+                throw new ArgumentException("必须指定更新字段和条件字段");
+            }
+            return true;
+        }
+
+        /*
+                /// <summary>
+                /// 更新实体指定列 TODO:可以用但是很麻烦 而且易错
+                /// </summary>
+                /// <param name="entity">实体</param>
+                /// <param name="property">更新值，用法：x => new { x.Name, x.CreateTime }</param>
+                /// <param name="whereColumns">根据列值条件更新，用法：x => new { x.Name }</param>
+                /// <param name="isSave">是否保存更改</param>
+                /// <returns></returns>
+                public virtual bool Update(T entity, Expression<Func<T, object>> property, Expression<Func<T, object>> whereColumns, bool isSave = false)
+                {
+                    var properties = GetMemberNames(property);
+                    var whereProperties = GetMemberNames(whereColumns);
+
+                    if (!properties.Any() || !whereProperties.Any())
+                    {
+                        throw new ArgumentException("必须指定更新字段和条件字段");
+                    }
+
+                    // 获取表名
+                    string tableName = _context.Model.FindEntityType(typeof(T)).GetTableName();
+
+                    // 构造 SQL 语句，使用 `?` 作为参数占位符（EF Core 自动转换为 @p0, @p1, ...）
+                    string setClause = string.Join(", ", properties.Select(_ => "?"));
+                    string whereClause = string.Join(" AND ", whereProperties.Select(_ => "?"));
+
+                    string sql = $"UPDATE {tableName} SET {string.Join(", ", properties.Select(p => $"{p} = ?"))} WHERE {string.Join(" AND ", whereProperties.Select(p => $"{p} = ?"))}";
+
+                    // 构造参数数组（顺序必须匹配 SQL 语句）
+                    var sqlParams = properties
+                        .Select(p => entity.GetType().GetProperty(p).GetValue(entity) ?? DBNull.Value)
+                        .Concat(whereProperties.Select(p => entity.GetType().GetProperty(p).GetValue(entity) ?? DBNull.Value))
+                        .ToArray();
+
+                    // 执行 SQL
+                    int affectedRows = _context.Database.ExecuteSqlRaw(sql, sqlParams);
+                    return affectedRows > 0;
+                }
+        */
+
+
+        private List<string> GetMemberNames(Expression<Func<T, object>> expression)
+        {
+            var memberNames = new List<string>();
+            if (expression.Body is NewExpression newExpression)
+            {
+                memberNames.AddRange(newExpression.Members.Select(m => m.Name));
+            }
+            else if (expression.Body is MemberInitExpression memberInitExpression)
+            {
+                memberNames.AddRange(memberInitExpression.Bindings.Select(b => b.Member.Name));
+            }
+            else if (expression.Body is UnaryExpression unaryExpression && unaryExpression.Operand is MemberExpression memberExpression)
+            {
+                memberNames.Add(memberExpression.Member.Name);
+            }
+            else if (expression.Body is MemberExpression member)
+            {
+                memberNames.Add(member.Member.Name);
+            }
+            return memberNames;
+        }
+
+
+
         #endregion 更新实体数据
 
         #region 删除数据
+
 
         /// <summary>
         /// 删除数据
@@ -487,7 +640,7 @@ namespace Easy.EF.Core.BaseProvider
                 /// <param name="sql">sql</param>
                 /// <param name="parameters">参数</param>
                 /// <returns></returns>
-                List<TResult> IBaseRepository<TDBContext, T>.SqlQuery<TResult>(string sql, object[]? parameters) where TResult : class
+                List<TResult> IBaseRepository<TDBContext, T>.SqlQuery<TResult>(string sql, object[]? parameters) whereExpression TResult : class
                 {
         #if NET6_0
                     if (parameters == null)
@@ -507,7 +660,7 @@ namespace Easy.EF.Core.BaseProvider
                 /// <param name="sql">sql</param>
                 /// <param name="parameters">参数</param>
                 /// <returns></returns>
-                async Task<List<TResult>> IBaseRepository<TDBContext, T>.SqlQueryAsync<TResult>(string sql, object[]? parameters) where TResult : class
+                async Task<List<TResult>> IBaseRepository<TDBContext, T>.SqlQueryAsync<TResult>(string sql, object[]? parameters) whereExpression TResult : class
                 {
         #if NET6_0
                     if (parameters == null)

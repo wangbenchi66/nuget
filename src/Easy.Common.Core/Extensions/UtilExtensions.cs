@@ -20,6 +20,21 @@
             return reval;
         }
 
+        public static int ObjToLong(this object thisValue)
+        {
+            int reval = 0;
+            if (thisValue == null) return 0;
+            if (thisValue is Enum)
+            {
+                return (int)thisValue;
+            }
+            if (thisValue != null && thisValue != DBNull.Value && int.TryParse(thisValue.ToString(), out reval))
+            {
+                return reval;
+            }
+            return reval;
+        }
+
         public static int ObjToInt(this object thisValue, int errorValue)
         {
             int reval = 0;

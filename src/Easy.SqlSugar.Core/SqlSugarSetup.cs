@@ -98,6 +98,9 @@ namespace Easy.SqlSugar.Core
             {
                 services.TryAddSingleton(type);
             }
+            //注入IBaseSqlSugarRepository和BaseSqlSugarRepository 可以直接使用
+            services.AddSingleton(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
+            services.AddSingleton(typeof(BaseSqlSugarRepository<>));
         }
 
         /// <summary>
@@ -125,6 +128,9 @@ namespace Easy.SqlSugar.Core
             {
                 services.TryAddScoped(type);
             }
+            //注入IBaseSqlSugarRepository和BaseSqlSugarRepository 可以直接使用
+            services.AddScoped(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
+            services.AddScoped(typeof(BaseSqlSugarRepository<>));
         }
 
         private static IEnumerable<Type> GetAssemblyList(string name = "BaseSqlSugarRepository")

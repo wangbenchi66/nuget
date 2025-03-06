@@ -3,6 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Easy.SqlSugar.Core;
 using SqlSugar;
 using WBC66.Autofac.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Easy.EF.Core;
+using static UnitTest.EFTest;
+using Autofac.Core;
+using Easy.EF.Core.BaseProvider;
 
 namespace UnitTest
 {
@@ -20,10 +25,25 @@ namespace UnitTest
             //builder.AddNLogSteup();
             //注入
             //builder.Services.AddSingleton<IUserRepository, UserRepository>();
-            builder.Services.AddRegisterDependencies();
+            builder.Host.AddAutofacHostSetup(builder.Services, options =>
+            {
+                //开启内存缓存拦截器(带有IProxyService接口的类将会被拦截),带有CacheResultAttribute特性的方法将会被缓存
+                //options.AddMemoryCacheResultAop();
+            });
             //SqlSugar
-            var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
-            builder.Services.AddSqlSugarIocSetup(list);
+            //var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
+            //builder.Services.AddSqlSugarIocSetup(list);
+
+
+            EFOptions efOptions = new EFOptions()
+            {
+                DbType = 0,
+                ConnectionString = configuration.GetSection("DBS:0:ConnectionString").Value
+            };
+            builder.Services.AddEFSetup<TestDBContext>(efOptions);
+            //注入IBaseEFRepository,BaseEFRepository
+            builder.Services.AddSingleton(typeof(IBaseEFRepository<,>), typeof(BaseEFRepository<,>));
+            builder.Services.AddSingleton<IUserEFRepository, UserEFRepository>();
 
             //缓存
             // builder.Services.AddMemoryCacheSetup();
@@ -43,6 +63,14 @@ namespace UnitTest
             //app.UseSerilogSetup();
             ServiceProvider = app.Services;
         }
+
+
+        protected static T GetService<T>()
+        {
+            using var scope = ServiceProvider.CreateScope();
+            return scope.ServiceProvider.GetRequiredService<T>();
+        }
+
 
         protected static readonly IServiceProvider ServiceProvider;
     }

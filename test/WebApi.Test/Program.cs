@@ -1,4 +1,5 @@
-﻿using IGeekFan.AspNetCore.Knife4jUI;
+﻿using Easy.Common.Core;
+using IGeekFan.AspNetCore.Knife4jUI;
 using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 using WBC66.Autofac.Core;
@@ -11,6 +12,10 @@ using WebApi.Test.Filter;
 using Microsoft.Extensions.Caching.Memory;
 using Easy.DynamicApi;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Easy.EF.Core.BaseProvider;
+using Easy.EF.Core;
+using WebApi.Test.Apis;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -25,9 +30,7 @@ builder.Services.AddSwaggerGen(s =>
     s.CustomOperationIds(apiDesc =>
     {
         var controllerAction = apiDesc.ActionDescriptor as ControllerActionDescriptor;
-        if (controllerAction == null)
-            return apiDesc.RelativePath;
-        return  controllerAction.ControllerName+"-"+controllerAction.ActionName;
+        return controllerAction.ControllerName + "-" + (controllerAction.ActionName.IsNull() ? controllerAction.MethodInfo.Name : controllerAction.ActionName);
     });
 });
 //Serilog
@@ -55,6 +58,7 @@ builder.Host.AddAutofacHostSetup(builder.Services, options =>
     //options.AddMemoryCacheResultAop();
 });
 //builder.Services.AddRegisterDependencies();
+//注入IBaseSqlSugarRepository,泛型
 
 //sqlsugar+内存缓存
 //builder.Services.AddMemoryCacheSetup();
@@ -85,13 +89,25 @@ foreach (var item in list)
     {
         OnLogExecuting = (sql, pars) =>
         {
-            Console.WriteLine($"----------------{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)item.DbType, sql, pars)}{Environment.NewLine}----------------");
+            Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},DBType:{item.DbType},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)item.DbType, sql, pars)}{Environment.NewLine}{new string('-', 30)}");
         }
     };
 }
 #endif
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSqlSugarScopedSetup(list);
+
+
+//EF
+EFOptions efOptions = new EFOptions()
+{
+    DbType = 0,
+    ConnectionString = configuration.GetSection("DBS:0:ConnectionString").Value
+};
+builder.Services.AddEFSetup<TestDBContext>(efOptions);
+builder.Services.AddSingleton(typeof(IBaseEFRepository<,>), typeof(BaseEFRepository<,>));
+builder.Services.AddSingleton<IUserEFRepository, UserEFRepository>();
+
 
 builder.Services.AddControllers(options =>
 {

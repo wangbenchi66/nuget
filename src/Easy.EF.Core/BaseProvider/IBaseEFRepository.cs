@@ -5,23 +5,25 @@ using Easy.EF.Core.BiewModels;
 
 namespace Easy.EF.Core.BaseProvider
 {
-    public interface IBaseRepository<TDBContext, T> where TDBContext : DbContext where T : class
+    public interface IBaseEFRepository<TDBContext, T> where TDBContext : DbContext where T : class
     {
+        TDBContext EFContext { get; }
+
         #region 获取单个实体
 
         /// <summary>
         /// 获取单个实体
         /// </summary>
-        /// <param name="where"></param>
+        /// <param name="whereExpression"></param>
         /// <returns></returns>
-        T GetSingle(Expression<Func<T, bool>> where);
+        T GetSingle(Expression<Func<T, bool>> whereExpression);
 
         /// <summary>
         /// 获取单个实体
         /// </summary>
-        /// <param name="where"></param>
+        /// <param name="whereExpression"></param>
         /// <returns></returns>
-        Task<T> GetSingleAsync(Expression<Func<T, bool>> where);
+        Task<T> GetSingleAsync(Expression<Func<T, bool>> whereExpression);
 
         #endregion 获取单个实体
 
@@ -94,6 +96,15 @@ namespace Easy.EF.Core.BaseProvider
         /// <returns></returns>
         Task<int> InsertAsync(List<T> entity, bool isSave = false);
 
+        int InsertReturnIdentity(T insertObj);
+
+        Task<int> InsertReturnIdentityAsync(T insertObj);
+
+        long InsertReturnBigIdentity(T insertObj);
+
+        Task<long> InsertReturnBigIdentityAsync(T insertObj);
+
+
         #endregion 写入实体数据
 
         #region 更新实体数据
@@ -129,6 +140,34 @@ namespace Easy.EF.Core.BaseProvider
         /// <param name="isSave">保存更改</param>
         /// <returns></returns>
         Task<bool> UpdateAsync(T entity, bool isSave = false);
+
+        /// <summary>
+        /// 更新实体指定列
+        /// </summary>
+        /// <param name="entity">实体</param>
+        /// <param name="property">更新值，用法：x => new { x.Name, x.CreateTime }</param>
+        /// <param name="isSave">是否保存更改</param>
+        /// <returns></returns>
+        bool Update(T entity, Expression<Func<T, object>> property, bool isSave = false);
+
+        /// <summary>
+        /// 更新实体指定列
+        /// </summary>
+        /// <param name="entity">实体</param>
+        /// <param name="property">更新值，用法：x => new { x.Name, x.CreateTime }</param>
+        /// <param name="isSave">是否保存更改</param>
+        /// <returns></returns>
+        Task<bool> UpdateAsync(T entity, Expression<Func<T, object>> property, bool isSave = false);
+
+        /// <summary>
+        /// 更新实体指定列
+        /// </summary>
+        /// <param name="entity">实体</param>
+        /// <param name="property">更新值，用法：x => new { x.Name, x.CreateTime }</param>
+        /// <param name="whereColumns">根据列值条件更新，用法：x => new { x.Name }</param>
+        /// <param name="isSave">是否保存更改</param>
+        /// <returns></returns>
+        bool Update(T entity, Expression<Func<T, object>> property, Expression<Func<T, object>> whereColumns, bool isSave = false);
 
         #endregion 更新实体数据
 
@@ -271,7 +310,7 @@ namespace Easy.EF.Core.BaseProvider
         /// <param name="sql">sql</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        List<TResult> SqlQuery<TResult>(string sql, DbParameter[]? parameters) where TResult : class;
+        List<TResult> SqlQuery<TResult>(string sql, DbParameter[]? parameters) whereExpression TResult : class;
 
         /// <summary>
         /// 执行sql语句并返回到指定实体中
