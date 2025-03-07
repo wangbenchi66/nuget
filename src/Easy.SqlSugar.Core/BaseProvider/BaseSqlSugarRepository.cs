@@ -34,7 +34,7 @@ namespace Easy.SqlSugar.Core
             if (sqlSugarDb == null)
                 return;
             SqlSugarTenant = sqlSugarDb.AsTenant();//用来处理事务
-            base.Context = sqlSugarDb.AsTenant().GetConnectionWithAttr<T>();//获取子Db
+            base.Context = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();//获取子Db  线程安全
             SqlSugarDbContext = Context;
             SqlSugarDbContextAdo = Context.Ado;
         }

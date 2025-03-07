@@ -119,7 +119,7 @@ namespace Easy.SqlSugar.Core
             AppService.Services = services;
             services.AddScoped<ISqlSugarClient>(s =>
             {
-                return new SqlSugarClient(configs);
+                return new SqlSugarScope(configs);
             });
             /*services.AddScoped(typeof(BaseSqlSugarRepository<>));
             services.AddScoped(typeof(SimpleClient<>));*/
