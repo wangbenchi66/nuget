@@ -15,6 +15,12 @@ namespace Easy.SqlSugar.Core
         /// <summary>
         /// db上下文
         /// </summary>
+        /// <remarks>
+        /// 如果遇到线程安全问题 参考 下边三个链接内容，已经尽力解决线程安全问题了，如果还是出现问题可以使用db.CopyNew()方法重新创建一个新的实例 保证线程安全
+        /// https://www.donet5.com/Home/Doc?typeId=1231  
+        /// https://www.donet5.com/Home/Doc?typeId=1224
+        /// https://www.donet5.com/Home/Doc?typeId=2349
+        /// </remarks>
         public ISqlSugarClient SqlSugarDbContext { get; private set; }
 
         /// <summary>
@@ -27,16 +33,28 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         public ITenant SqlSugarTenant { get; private set; }
 
-        public BaseSqlSugarRepository(ISqlSugarClient sqlSugarDb = null)
+        /// <summary>
+        /// sqlsugar仓储
+        /// </summary>
+        /// <remarks>
+        /// 如果遇到线程安全问题 参考 下边三个链接内容，已经尽力解决线程安全问题了，如果还是出现问题可以使用db.CopyNew()方法重新创建一个新的实例 保证线程安全
+        /// https://www.donet5.com/Home/Doc?typeId=1231  
+        /// https://www.donet5.com/Home/Doc?typeId=1224
+        /// https://www.donet5.com/Home/Doc?typeId=2349
+        /// </remarks>
+        public BaseSqlSugarRepository()
         {
-            if (sqlSugarDb == null)
-                sqlSugarDb = AppService.Services.BuildServiceProvider().GetService<ISqlSugarClient>();
-            if (sqlSugarDb == null)
-                return;
-            SqlSugarTenant = sqlSugarDb.AsTenant();//用来处理事务
-            base.Context = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();//获取子Db  线程安全
-            SqlSugarDbContext = Context;
-            SqlSugarDbContextAdo = Context.Ado;
+            ISqlSugarClient sqlSugarDb = null;
+            using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
+            {
+                sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+            }
+            var db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
+            Console.WriteLine(db.ContextID);
+            SqlSugarDbContext = db;
+            SqlSugarDbContextAdo = SqlSugarDbContext.Ado;
+            SqlSugarTenant = SqlSugarDbContext.AsTenant(); // 用来处理事务
+            base.Context = SqlSugarDbContext;
         }
 
         #region 获取单个实体

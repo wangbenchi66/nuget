@@ -11,7 +11,7 @@ namespace Easy.SqlSugar.Core
     /// SqlSugar通用仓储(Ioc模式)
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BaseSqlSugarIocRepository<T> : SimpleClient<T> where T : class, new()
+    public abstract class BaseSqlSugarIocRepository<T> : SimpleClient<T>, IBaseSqlSugarRepository<T> where T : class, new()
     {
         #region 数据库连接对象
 
@@ -28,8 +28,8 @@ namespace Easy.SqlSugar.Core
             get
             {
                 //var serviceProvider = AppService.Services.BuildServiceProvider().GetService<IHttpContextAccessor>().HttpContext.RequestServices.GetService<ISqlSugarClient>();
-                var serviceProvider = AppService.Services.BuildServiceProvider().GetRequiredService<ISqlSugarClient>();
-                return serviceProvider;
+                // var serviceProvider = AppService.Services.BuildServiceProvider().GetRequiredService<ISqlSugarClient>();
+                // return serviceProvider;
 
                 var configId = typeof(T).GetCustomAttribute<TenantAttribute>()?.configId ?? SqlSugarContext.Options.Configs[0].ConfigId;
                 return DbScoped.SugarScope.GetConnection(configId);
@@ -49,14 +49,6 @@ namespace Easy.SqlSugar.Core
         #endregion 数据库连接对象
 
         #region 获取单个实体
-        public override T GetSingle(Expression<Func<T, bool>> whereExpression)
-        {
-            return SqlSugarDbContext.Queryable<T>().First(whereExpression);
-        }
-        public override Task<T> GetSingleAsync(Expression<Func<T, bool>> whereExpression)
-        {
-            return SqlSugarDbContext.Queryable<T>().FirstAsync(whereExpression);
-        }
 
         #endregion 获取单个实体
 
@@ -90,6 +82,11 @@ namespace Easy.SqlSugar.Core
         #endregion 获取列表
 
         #region 写入实体数据
+
+        public virtual async Task<bool> UpdateAsync(T updateObj)
+        {
+            return await SqlSugarDbContext.Updateable(updateObj).ExecuteCommandHasChangeAsync();
+        }
 
         /// <summary>
         /// 写入实体数据

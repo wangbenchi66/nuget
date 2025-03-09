@@ -21,7 +21,8 @@
         /// <returns></returns>
         public object GetUser()
         {
-            return _userRepository.GetUserId();
+            //return _userRepository.GetUserId();
+            return "ok";
         }
     }
 }

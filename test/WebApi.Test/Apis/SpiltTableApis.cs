@@ -27,6 +27,7 @@ namespace WebApi.Test.Apis
             _spiltTableRepository.SqlSugarDbContext.Insertable(entity).SplitTable().ExecuteReturnSnowflakeId();
             return "ok";
         }
+
         /// <summary>
         /// 获取数据
         /// </summary>
@@ -42,9 +43,6 @@ namespace WebApi.Test.Apis
 
     public class SpiltTableRepository : BaseSqlSugarRepository<SpiltTable>, IScoped
     {
-        public SpiltTableRepository(ISqlSugarClient db) : base(db)
-        {
-        }
     }
 
     [SplitTable(SplitType.Year)]

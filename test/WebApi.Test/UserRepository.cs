@@ -34,23 +34,22 @@ namespace WebApi.Test
     /*public class UserRepository : BaseSqlSugarIocRepository<User>, ISingleton
     {
     }*/
+
     public class UserRepository : BaseSqlSugarRepository<User>, IUserRepository
     {
-        //public UserRepository(ISqlSugarClient db) : base(db)
-        //{
-        //}
-        /// <summary>
-        /// 获取userid
-        /// </summary>
-        /// <returns></returns>
-        public UserDto GetUserId()
+        /*private readonly ISqlSugarClient _sugarClient;
+
+        public UserRepository(ISqlSugarClient sqlSugarClient)
         {
-            return base.SqlSugarDbContext.Queryable<User>().Select(x => new UserDto() { a = x.Id }, true).First();
+            _sugarClient = sqlSugarClient;
         }
 
-        /*public override int Update(User entity)
+        public async Task<bool> UpdateAsync(User updateObj)
         {
-            return base.SqlSugarDbContext.Updateable(entity).RemoveDataCache().ExecuteCommand();
+            //return await SqlSugarDbContext.CopyNew().Updateable(updateObj).ExecuteCommandHasChangeAsync();
+            var db = _sugarClient;
+            Console.WriteLine(db.ContextID);
+            return await db.Updateable(updateObj).ExecuteCommandHasChangeAsync();
         }*/
     }
 
@@ -59,7 +58,7 @@ namespace WebApi.Test
     /// </summary>
     public interface IUserRepository : IBaseSqlSugarRepository<User>
     {
-        UserDto GetUserId();
+        //Task<bool> UpdateAsync(User updateObj);
     }
 
     public class UserDto
@@ -72,9 +71,6 @@ namespace WebApi.Test
 
     public class CategoryRepository : BaseSqlSugarRepository<Category>, ICategoryRepository
     {
-        public CategoryRepository(ISqlSugarClient db) : base(db)
-        {
-        }
     }
 
     public interface ICategoryRepository : IBaseSqlSugarRepository<Category>

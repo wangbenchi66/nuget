@@ -89,7 +89,7 @@ namespace Easy.SqlSugar.Core
             AppService.Services = services;
             services.AddSingleton<ISqlSugarClient>(s =>
             {
-                return new SqlSugarClient(configs);
+                return new SqlSugarScope(configs);
             });
             /*services.AddSingleton(typeof(BaseSqlSugarRepository<>));
             services.AddSingleton(typeof(SimpleClient<>));*/
@@ -121,8 +121,6 @@ namespace Easy.SqlSugar.Core
             {
                 return new SqlSugarScope(configs);
             });
-            /*services.AddScoped(typeof(BaseSqlSugarRepository<>));
-            services.AddScoped(typeof(SimpleClient<>));*/
             var bseSqlSugarRepositorytypes = GetAssemblyList();
             foreach (var type in bseSqlSugarRepositorytypes)
             {

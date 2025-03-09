@@ -27,8 +27,9 @@ namespace WBC66.Autofac.Core
             host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
             host.ConfigureContainer<ContainerBuilder>((context, builder) =>
             {
+                //builder.Populate(services); // 将 IServiceCollection 中的服务填充到 Autofac 容器中
                 builder.AddAutofacModule();
-                //自定义模块必须在批量注入之后
+                // 自定义模块必须在批量注入之后
                 customizeModule?.Invoke(builder);
             });
             services.AddRegisterDependencies();
@@ -43,22 +44,41 @@ namespace WBC66.Autofac.Core
         /// <returns></returns>
         private static void AddAutofacModule(this ContainerBuilder builder)
         {
-
-            //var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             var assemblies = GetAllAssemblies();
 
-            builder.RegisterAssemblyTypes(assemblies.ToArray())//程序集内所有具象类 
-            .Where(c => c.Name.ToLower().EndsWith("repository") || c.Name.ToLower().EndsWith("service") || c.Name.ToLower().EndsWith("dao"))
-            .PublicOnly()//只要public访问权限的
-            .Where(cc => cc.IsClass)//只要class型（主要为了排除值和interface类型） 
-            .InstancePerLifetimeScope();
+            // 注册仓储层，使用 InstancePerLifetimeScope 生命周期
+            builder.RegisterAssemblyTypes(assemblies.ToArray())
+                .Where(c => c.Name.ToLower().EndsWith("repository") || c.Name.ToLower().EndsWith("dao"))
+                .PublicOnly()
+                .Where(cc => cc.IsClass)
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces()
+                .PreserveExistingDefaults(); // 保留现有的默认值，避免重复注入
 
+            // 注册服务层，使用单例生命周期
+            builder.RegisterAssemblyTypes(assemblies.ToArray())
+                .Where(c => c.Name.ToLower().EndsWith("service"))
+                .PublicOnly()
+                .Where(cc => cc.IsClass)
+                .SingleInstance()
+                .AsImplementedInterfaces()
+                .PreserveExistingDefaults(); // 保留现有的默认值，避免重复注入
 
-            builder.RegisterAssemblyTypes(assemblies.ToArray())//程序集内所有具象类 
-           .Where(c => c.Name.ToLower().EndsWith("repository") || c.Name.ToLower().EndsWith("service") || c.Name.ToLower().EndsWith("dao"))
-           .PublicOnly()//只要public访问权限的
-           .InstancePerLifetimeScope()
-           .AsImplementedInterfaces();
+            // 注册没有接口的仓储层，使用 InstancePerLifetimeScope 生命周期
+            builder.RegisterAssemblyTypes(assemblies.ToArray())
+                .Where(c => c.Name.ToLower().EndsWith("repository") || c.Name.ToLower().EndsWith("dao"))
+                .PublicOnly()
+                .Where(cc => cc.IsClass && !cc.GetInterfaces().Any())
+                .InstancePerLifetimeScope()
+                .PreserveExistingDefaults(); // 保留现有的默认值，避免重复注入
+
+            // 注册没有接口的服务层，使用单例生命周期
+            builder.RegisterAssemblyTypes(assemblies.ToArray())
+                .Where(c => c.Name.ToLower().EndsWith("service"))
+                .PublicOnly()
+                .Where(cc => cc.IsClass && !cc.GetInterfaces().Any())
+                .SingleInstance()
+                .PreserveExistingDefaults(); // 保留现有的默认值，避免重复注入
         }
 
 
@@ -69,7 +89,6 @@ namespace WBC66.Autofac.Core
         /// <returns></returns>
         public static void AddRegisterDependencies(this IServiceCollection services)
         {
-            //var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             var assemblies = GetAllAssemblies();
             foreach (var assembly in assemblies)
             {
@@ -87,12 +106,18 @@ namespace WBC66.Autofac.Core
                     {
                         foreach (var @interface in interfaces)
                         {
-                            services.AddTransient(@interface, type);
+                            if (!services.Any(s => s.ServiceType == @interface))
+                            {
+                                services.AddTransient(@interface, type);
+                            }
                         }
                     }
                     else
                     {
-                        services.AddTransient(type);
+                        if (!services.Any(s => s.ServiceType == type))
+                        {
+                            services.AddTransient(type);
+                        }
                     }
                 }
                 foreach (var type in singletonTypes)
@@ -102,12 +127,18 @@ namespace WBC66.Autofac.Core
                     {
                         foreach (var @interface in interfaces)
                         {
-                            services.AddSingleton(@interface, type);
+                            if (!services.Any(s => s.ServiceType == @interface))
+                            {
+                                services.AddSingleton(@interface, type);
+                            }
                         }
                     }
                     else
                     {
-                        services.AddSingleton(type);
+                        if (!services.Any(s => s.ServiceType == type))
+                        {
+                            services.AddSingleton(type);
+                        }
                     }
                 }
                 foreach (var type in scopedTypes)
@@ -117,12 +148,18 @@ namespace WBC66.Autofac.Core
                     {
                         foreach (var @interface in interfaces)
                         {
-                            services.AddScoped(@interface, type);
+                            if (!services.Any(s => s.ServiceType == @interface))
+                            {
+                                services.AddScoped(@interface, type);
+                            }
                         }
                     }
                     else
                     {
-                        services.AddScoped(type);
+                        if (!services.Any(s => s.ServiceType == type))
+                        {
+                            services.AddScoped(type);
+                        }
                     }
                 }
             }

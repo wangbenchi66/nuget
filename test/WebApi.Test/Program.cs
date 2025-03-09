@@ -16,6 +16,7 @@ using Easy.EF.Core.BaseProvider;
 using Easy.EF.Core;
 using WebApi.Test.Apis;
 using Microsoft.EntityFrameworkCore;
+using SqlSugar.IOC;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -30,6 +31,8 @@ builder.Services.AddSwaggerGen(s =>
     s.CustomOperationIds(apiDesc =>
     {
         var controllerAction = apiDesc.ActionDescriptor as ControllerActionDescriptor;
+        if (controllerAction == null)
+            return apiDesc.RelativePath;
         return controllerAction.ControllerName + "-" + (controllerAction.ActionName.IsNull() ? controllerAction.MethodInfo.Name : controllerAction.ActionName);
     });
 });
@@ -49,7 +52,7 @@ builder.Host.AddSerilogHost(configuration);
 //builder.Services.AddSingleton<IUserService, UserService>();
 
 //开启内存缓存
-builder.Services.AddMemoryCacheSetup();
+//builder.Services.AddMemoryCacheSetup();
 
 //使用autofac(内部会自动批量注入Service、Repository、Dao结尾的类  所有继承ITransient、ISingleton、IScoped接口的类注入到容器中)
 builder.Host.AddAutofacHostSetup(builder.Services, options =>
@@ -57,7 +60,7 @@ builder.Host.AddAutofacHostSetup(builder.Services, options =>
     //开启内存缓存拦截器(带有IProxyService接口的类将会被拦截),带有CacheResultAttribute特性的方法将会被缓存
     //options.AddMemoryCacheResultAop();
 });
-//builder.Services.AddRegisterDependencies();
+builder.Services.AddRegisterDependencies();
 //注入IBaseSqlSugarRepository,泛型
 
 //sqlsugar+内存缓存
@@ -90,14 +93,20 @@ foreach (var item in list)
         OnLogExecuting = (sql, pars) =>
         {
             Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},DBType:{item.DbType},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)item.DbType, sql, pars)}{Environment.NewLine}{new string('-', 30)}");
+        },
+        OnError = (exp) =>
+        {
+            Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},DBType:{item.DbType},Error:{Environment.NewLine}{exp.Message}{Environment.NewLine}{new string('-', 30)}");
         }
     };
 }
 #endif
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSqlSugarScopedSetup(list);
+/*var listIoc = configuration.GetSection("DBS").Get<List<IocConfig>>();
+builder.Services.AddSqlSugarIocSetup(listIoc);*/
 
-
+/*
 //EF
 EFOptions efOptions = new EFOptions()
 {
@@ -106,7 +115,7 @@ EFOptions efOptions = new EFOptions()
 };
 builder.Services.AddEFSetup<TestDBContext>(efOptions);
 builder.Services.AddSingleton(typeof(IBaseEFRepository<,>), typeof(BaseEFRepository<,>));
-builder.Services.AddSingleton<IUserEFRepository, UserEFRepository>();
+builder.Services.AddSingleton<IUserEFRepository, UserEFRepository>();*/
 
 
 builder.Services.AddControllers(options =>
@@ -114,9 +123,9 @@ builder.Services.AddControllers(options =>
     //添加自定义的模型验证过滤器
     options.Filters.Add<ValidateModelAttribute>();
     //添加自定义的缓存过滤器
-    options.Filters.Add<CacheResultFilter>();
+    //options.Filters.Add<CacheResultFilter>();
     //添加幂等性过滤器
-    options.Filters.Add<HttpIdempotenceFilter>();
+    //options.Filters.Add<HttpIdempotenceFilter>();
 });
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -140,8 +149,8 @@ app.UseKnife4UI(c =>
 });
 app.MapControllers();
 //app.UseMiddleware<LogMiddleware>();//添加日志中间件
-app.UseMiddleware<ExceptionMiddleware>();//添加异常处理中间件
-app.UseMiddleware<CurrentLimitingMiddleware>(1, 1);//添加限流中间件 1个线程 1个并发
+//app.UseMiddleware<ExceptionMiddleware>();//添加异常处理中间件
+//app.UseMiddleware<CurrentLimitingMiddleware>(1, 1);//添加限流中间件 1个线程 1个并发
 //app.UseMiddleware<IdempotenceMiddleware>();//添加幂等性中间件
 
 app.Run();
