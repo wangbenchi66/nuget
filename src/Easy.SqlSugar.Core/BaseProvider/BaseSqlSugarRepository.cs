@@ -21,17 +21,33 @@ namespace Easy.SqlSugar.Core
         /// https://www.donet5.com/Home/Doc?typeId=1224
         /// https://www.donet5.com/Home/Doc?typeId=2349
         /// </remarks>
-        public ISqlSugarClient SqlSugarDbContext { get; private set; }
+        public ISqlSugarClient SqlSugarDbContext
+        {
+            get
+            {
+                //var db = new SqlSugarScope(Config.SqlSugarConfigs);
+                //var client = db.GetConnectionScopeWithAttr<T>();
+                ISqlSugarClient sqlSugarDb = null;
+                using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
+                {
+                    sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+                }
+                var db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
+                return db;
+            }
+        }
+
+        public override ISqlSugarClient Context => SqlSugarDbContext;
 
         /// <summary>
         /// SqlSugarAdo
         /// </summary>
-        public IAdo SqlSugarDbContextAdo { get; private set; }
+        public IAdo SqlSugarDbContextAdo => SqlSugarDbContext.Ado;
 
         /// <summary>
         /// //多租户事务、GetConnection、IsAnyConnection等功能
         /// </summary>
-        public ITenant SqlSugarTenant { get; private set; }
+        public ITenant SqlSugarTenant => SqlSugarDbContext.AsTenant();
 
         /// <summary>
         /// sqlsugar仓储
@@ -42,20 +58,20 @@ namespace Easy.SqlSugar.Core
         /// https://www.donet5.com/Home/Doc?typeId=1224
         /// https://www.donet5.com/Home/Doc?typeId=2349
         /// </remarks>
-        public BaseSqlSugarRepository()
-        {
-            ISqlSugarClient sqlSugarDb = null;
-            using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
-            {
-                sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
-            }
-            var db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
-            Console.WriteLine(db.ContextID);
-            SqlSugarDbContext = db;
-            SqlSugarDbContextAdo = SqlSugarDbContext.Ado;
-            SqlSugarTenant = SqlSugarDbContext.AsTenant(); // 用来处理事务
-            base.Context = SqlSugarDbContext;
-        }
+        //public BaseSqlSugarRepository()
+        //{
+        //    //ISqlSugarClient sqlSugarDb = null;
+        //    //using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
+        //    //{
+        //    //    sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+        //    //}
+        //    //var db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
+        //    var db = new SqlSugarScope(Config.SqlSugarConfigs);
+        //    SqlSugarDbContext = db.GetConnectionScopeWithAttr<T>();
+        //    SqlSugarDbContextAdo = SqlSugarDbContext.Ado;
+        //    SqlSugarTenant = SqlSugarDbContext.AsTenant(); // 用来处理事务
+        //    base.Context = SqlSugarDbContext;
+        //}
 
         #region 获取单个实体
 

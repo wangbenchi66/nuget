@@ -32,7 +32,9 @@ namespace Easy.SqlSugar.Core
                 // return serviceProvider;
 
                 var configId = typeof(T).GetCustomAttribute<TenantAttribute>()?.configId ?? SqlSugarContext.Options.Configs[0].ConfigId;
-                return DbScoped.SugarScope.GetConnection(configId);
+                var db = DbScoped.SugarScope.GetConnection(configId);
+                base.Context = db;
+                return db;
             }
         }
 
