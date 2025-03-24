@@ -11,7 +11,7 @@
 	  <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
 	  <PackageReleaseNotes>基于SqlSugar进行封装使用</PackageReleaseNotes>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Version>2025.3.18.1</Version>
+	  <Version>2025.3.24.1</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
 	  <PackageReadmeFile>./README.md</PackageReadmeFile>
@@ -34,15 +34,15 @@
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8'">
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
-		<PackageReference Include="sqlSugarCore" Version="5.1.4.175" />
+		<PackageReference Include="sqlSugarCore" Version="5.1.4.185" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7'">
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
-		<PackageReference Include="sqlSugarCore" Version="5.1.4.175" />
+		<PackageReference Include="sqlSugarCore" Version="5.1.4.185" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6'">
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
-		<PackageReference Include="sqlSugarCore" Version="5.1.4.175" />
+		<PackageReference Include="sqlSugarCore" Version="5.1.4.185" />
 	</ItemGroup>
 
 </Project>

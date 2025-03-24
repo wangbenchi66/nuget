@@ -12,7 +12,6 @@ namespace WebApi.Test
     /// 用户表
     ///</summary>
     [SugarTable("j_user")] //表别名
-    [Tenant("journal")] //数据库标识 需要与配置文件中的ConfigId对应
     public class User
     {
         /// <summary>

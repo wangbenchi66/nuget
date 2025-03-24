@@ -17,6 +17,7 @@ using Easy.EF.Core;
 using WebApi.Test.Apis;
 using Microsoft.EntityFrameworkCore;
 using SqlSugar.IOC;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -87,22 +88,45 @@ foreach (var item in list)
     //    DataInfoCacheService = cacheService
     //};
     //日志输出
-#if DEBUG
-    item.AopEvents = new AopEvents()
-    {
-        OnLogExecuting = (sql, pars) =>
-        {
-            Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},DBType:{item.DbType},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)item.DbType, sql, pars)}{Environment.NewLine}{new string('-', 30)}");
-        },
-        OnError = (exp) =>
-        {
-            Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},DBType:{item.DbType},Error:{Environment.NewLine}{exp.Message}{Environment.NewLine}{new string('-', 30)}");
-        }
-    };
+    //#if DEBUG
+    //    item.AopEvents = new AopEvents()
+    //    {
+    //        OnLogExecuting = (sql, pars) =>
+    //        {
+    //            Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},DBType:{item.DbType},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)item.DbType, sql, pars)}{Environment.NewLine}{new string('-', 30)}");
+    //        },
+    //        OnError = (exp) =>
+    //        {
+    //            Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},DBType:{item.DbType},Error:{Environment.NewLine}{exp.Message}{Environment.NewLine}{new string('-', 30)}");
+    //        }
+    //    };
+    //#endif
 }
-#endif
+var sqlSugarScope = new SqlSugarScope(list, db =>
+{
+    var configId = db.CurrentConnectionConfig.ConfigId;
+    var dbType = db.CurrentConnectionConfig.DbType;
+    //输出数据执行位置来定位和排查数据
+    var stackTraceList = db.Ado.SqlStackTrace.MyStackTraceList.FindAll(x => x.Line > 0);
+    StringBuilder stringBuilder = new StringBuilder();
+    foreach (var item in stackTraceList)
+    {
+        var fileName = item.FileName.Split('\\')[^3..].Aggregate((x, y) => x + "\\" + y);
+        stringBuilder.Append($"{Environment.NewLine}位置:{fileName},行号:{item.Line}");
+    }
+
+    db.Aop.OnLogExecuting = (sql, p) =>
+    {
+        Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{configId},{stringBuilder.ToString()},Sql:{Environment.NewLine}{UtilMethods.GetSqlString(dbType, sql, p)}{Environment.NewLine}{new string('-', 30)}");
+
+    };
+    db.Aop.OnError = (exp) =>
+    {
+        Console.WriteLine($"{new string('-', 30)}错误{Environment.NewLine}{DateTime.Now},ConfigId:{configId},{stringBuilder.ToString()},Sql:{Environment.NewLine}{exp.Sql}{Environment.NewLine}Error:{exp.Message}{Environment.NewLine}{new string('-', 30)}");
+    };
+});
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSqlSugarScopedSetup(list);
+builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);
 /*var listIoc = configuration.GetSection("DBS").Get<List<IocConfig>>();
 builder.Services.AddSqlSugarIocSetup(listIoc);*/
 

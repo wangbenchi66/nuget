@@ -86,6 +86,35 @@ namespace Easy.SqlSugar.Core
         }
 
         /// <summary>
+        /// SqlSugar服务 Singleton单例
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configs"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void AddSqlSugarSingletonSetup(this IServiceCollection services, SqlSugarScope configs)
+        {
+            if (services == null) { throw new ArgumentNullException(nameof(services)); }
+            if (configs == null)
+                throw new ArgumentNullException("请检查是否配置数据库连接字符串");
+            services.AddHttpContextAccessor();
+            AppService.Services = services;
+            services.AddSingleton<ISqlSugarClient>(s =>
+            {
+                return configs;
+            });
+            /*services.AddSingleton(typeof(BaseSqlSugarRepository<>));
+            services.AddSingleton(typeof(SimpleClient<>));*/
+            var bseSqlSugarRepositorytypes = GetAssemblyList();
+            foreach (var type in bseSqlSugarRepositorytypes)
+            {
+                services.TryAddSingleton(type);
+            }
+            //注入IBaseSqlSugarRepository和BaseSqlSugarRepository 可以直接使用
+            services.AddSingleton(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
+            services.AddSingleton(typeof(BaseSqlSugarRepository<>));
+        }
+
+        /// <summary>
         /// SqlSugar服务 Scoped作用域
         /// 所有依赖BaseSqlSugarRepository的类会自动注入
         /// </summary>

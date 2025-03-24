@@ -27,12 +27,22 @@ namespace Easy.SqlSugar.Core
             {
                 //var db = new SqlSugarScope(Config.SqlSugarConfigs);
                 //var client = db.GetConnectionScopeWithAttr<T>();
-                ISqlSugarClient sqlSugarDb = null;
-                using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
+                ISqlSugarClient sqlSugarDb = AppService.Services.BuildServiceProvider().GetRequiredService<ISqlSugarClient>();
+                //using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
+                //{
+                //    sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+                //}
+                //如果T上没有Tenant特性标记则使用默认的ConfigId
+                SqlSugarScopeProvider db = null;
+                if (typeof(T).GetCustomAttributes(typeof(TenantAttribute), false).Length == 0)
                 {
-                    sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+                    db = sqlSugarDb.AsTenant().GetConnectionScope(sqlSugarDb.CurrentConnectionConfig.ConfigId);
                 }
-                var db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
+                else
+                {
+                    db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
+                }
+                //db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
                 return db;
             }
         }
