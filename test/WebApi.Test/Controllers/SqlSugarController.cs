@@ -274,7 +274,7 @@ namespace WebApi.Test.Controllers
             var obj = _userRepository.GetSingle(p => p.Id == 99999);
             var user = new User() { Id = 99999, Name = "admin2" };
             //return _userRepository.SqlSugarDbContext.Insertable<User>(user).RemoveDataCache().ExecuteCommand();
-            return _userRepository.SqlSugarDbContext.Updateable<User>(user).RemoveDataCache().ExecuteCommand();
+            return _userRepository.AsUpdateable(user).RemoveDataCache().ExecuteCommand();
         }
 
 

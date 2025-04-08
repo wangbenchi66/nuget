@@ -18,6 +18,7 @@ using WebApi.Test.Apis;
 using Microsoft.EntityFrameworkCore;
 using SqlSugar.IOC;
 using System.Text;
+using Autofac;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -87,42 +88,19 @@ foreach (var item in list)
     //    //如果开启缓存需要重写BaseSqlSugarRepository中的查询方法才能生效,或者使用db上下文查询中加入WithCache()
     //    DataInfoCacheService = cacheService
     //};
-    //日志输出
-    //#if DEBUG
-    //    item.AopEvents = new AopEvents()
-    //    {
-    //        OnLogExecuting = (sql, pars) =>
-    //        {
-    //            Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},DBType:{item.DbType},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)item.DbType, sql, pars)}{Environment.NewLine}{new string('-', 30)}");
-    //        },
-    //        OnError = (exp) =>
-    //        {
-    //            Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{item.ConfigId},DBType:{item.DbType},Error:{Environment.NewLine}{exp.Message}{Environment.NewLine}{new string('-', 30)}");
-    //        }
-    //    };
-    //#endif
 }
 var sqlSugarScope = new SqlSugarScope(list, db =>
 {
     var configId = db.CurrentConnectionConfig.ConfigId;
     var dbType = db.CurrentConnectionConfig.DbType;
-    //输出数据执行位置来定位和排查数据
-    var stackTraceList = db.Ado.SqlStackTrace.MyStackTraceList.FindAll(x => x.Line > 0);
-    StringBuilder stringBuilder = new StringBuilder();
-    foreach (var item in stackTraceList)
-    {
-        var fileName = item.FileName.Split('\\')[^3..].Aggregate((x, y) => x + "\\" + y);
-        stringBuilder.Append($"{Environment.NewLine}位置:{fileName},行号:{item.Line}");
-    }
-
+    var sqlFileInfo = db.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
     db.Aop.OnLogExecuting = (sql, p) =>
     {
-        Console.WriteLine($"{new string('-', 30)}{Environment.NewLine}{DateTime.Now},ConfigId:{configId},{stringBuilder.ToString()},Sql:{Environment.NewLine}{UtilMethods.GetSqlString(dbType, sql, p)}{Environment.NewLine}{new string('-', 30)}");
-
+        Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
     };
-    db.Aop.OnError = (exp) =>
+    db.Aop.OnError = (SqlSugarException exp) =>
     {
-        Console.WriteLine($"{new string('-', 30)}错误{Environment.NewLine}{DateTime.Now},ConfigId:{configId},{stringBuilder.ToString()},Sql:{Environment.NewLine}{exp.Sql}{Environment.NewLine}Error:{exp.Message}{Environment.NewLine}{new string('-', 30)}");
+        Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));
     };
 });
 builder.Services.AddHttpContextAccessor();
@@ -140,7 +118,7 @@ EFOptions efOptions = new EFOptions()
 builder.Services.AddEFSetup<TestDBContext>(efOptions);
 builder.Services.AddSingleton(typeof(IBaseEFRepository<,>), typeof(BaseEFRepository<,>));
 builder.Services.AddSingleton<IUserEFRepository, UserEFRepository>();*/
-
+//builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddControllers(options =>
 {

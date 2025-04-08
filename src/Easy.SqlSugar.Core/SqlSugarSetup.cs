@@ -62,27 +62,16 @@ namespace Easy.SqlSugar.Core
         /// <param name="services"></param>
         /// <param name="configs"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public static void AddSqlSugarSingletonSetup(this IServiceCollection services, List<ConnectionConfig> configs)
+        public static void AddSqlSugarSingletonSetup(this IServiceCollection services, SqlSugarScope configs)
         {
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
                 throw new ArgumentNullException("请检查是否配置数据库连接字符串");
-            services.AddHttpContextAccessor();
-            AppService.Services = services;
             services.AddSingleton<ISqlSugarClient>(s =>
             {
-                return new SqlSugarScope(configs);
+                return configs;
             });
-            /*services.AddSingleton(typeof(BaseSqlSugarRepository<>));
-            services.AddSingleton(typeof(SimpleClient<>));*/
-            var bseSqlSugarRepositorytypes = GetAssemblyList();
-            foreach (var type in bseSqlSugarRepositorytypes)
-            {
-                services.TryAddSingleton(type);
-            }
-            //注入IBaseSqlSugarRepository和BaseSqlSugarRepository 可以直接使用
-            services.AddSingleton(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
-            services.AddSingleton(typeof(BaseSqlSugarRepository<>));
+            AddService(services, 1);
         }
 
         /// <summary>
@@ -91,56 +80,16 @@ namespace Easy.SqlSugar.Core
         /// <param name="services"></param>
         /// <param name="configs"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public static void AddSqlSugarSingletonSetup(this IServiceCollection services, SqlSugarScope configs)
+        public static void AddSqlSugarSingletonSetup(this IServiceCollection services, SqlSugarClient configs)
         {
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
                 throw new ArgumentNullException("请检查是否配置数据库连接字符串");
-            services.AddHttpContextAccessor();
-            AppService.Services = services;
             services.AddSingleton<ISqlSugarClient>(s =>
             {
                 return configs;
             });
-            /*services.AddSingleton(typeof(BaseSqlSugarRepository<>));
-            services.AddSingleton(typeof(SimpleClient<>));*/
-            var bseSqlSugarRepositorytypes = GetAssemblyList();
-            foreach (var type in bseSqlSugarRepositorytypes)
-            {
-                services.TryAddSingleton(type);
-            }
-            //注入IBaseSqlSugarRepository和BaseSqlSugarRepository 可以直接使用
-            services.AddSingleton(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
-            services.AddSingleton(typeof(BaseSqlSugarRepository<>));
-        }
-
-        /// <summary>
-        /// SqlSugar服务 Scoped作用域
-        /// 所有依赖BaseSqlSugarRepository的类会自动注入
-        /// </summary>
-        /// <param name="services"></param>
-        /// <param name="configs"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static void AddSqlSugarScopedSetup(this IServiceCollection services, List<ConnectionConfig> configs)
-        {
-            if (services == null) { throw new ArgumentNullException(nameof(services)); }
-            if (configs == null)
-                throw new ArgumentNullException("请检查是否配置数据库连接字符串");
-            services.AddHttpContextAccessor();
-            AppService.Services = services;
-            Config.SqlSugarConfigs = configs;
-            services.AddScoped<ISqlSugarClient>(s =>
-            {
-                return new SqlSugarScope(configs);
-            });
-            //注入IBaseSqlSugarRepository和BaseSqlSugarRepository 可以直接使用
-            services.AddScoped(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
-            services.AddScoped(typeof(BaseSqlSugarRepository<>));
-            var bseSqlSugarRepositorytypes = GetAssemblyList();
-            foreach (var type in bseSqlSugarRepositorytypes)
-            {
-                services.TryAddScoped(type);
-            }
+            AddService(services, 1);
         }
 
         /// <summary>
@@ -155,20 +104,63 @@ namespace Easy.SqlSugar.Core
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
                 throw new ArgumentNullException("请检查是否配置数据库连接字符串");
-            services.AddHttpContextAccessor();
-            AppService.Services = services;
             services.AddScoped<ISqlSugarClient>(s =>
             {
                 return configs;
             });
-            var bseSqlSugarRepositorytypes = GetAssemblyList();
-            foreach (var type in bseSqlSugarRepositorytypes)
+            AddService(services, 2);
+        }
+
+        /// <summary>
+        /// SqlSugar服务 Scoped作用域
+        /// 所有依赖BaseSqlSugarRepository的类会自动注入
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configs"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <returns></returns>
+        public static void AddSqlSugarScopedSetup(this IServiceCollection services, SqlSugarClient configs)
+        {
+            if (services == null) { throw new ArgumentNullException(nameof(services)); }
+            if (configs == null)
+                throw new ArgumentNullException("请检查是否配置数据库连接字符串");
+            services.AddScoped<ISqlSugarClient>(s =>
             {
-                services.TryAddScoped(type);
+                return configs;
+            });
+            AddService(services, 2);
+        }
+        /// <summary>
+        /// 服务注入
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="lifecycleType">1:Singleton 2:Scoped</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <remarks>默认Singleton</remarks>
+        /// <returns></returns>
+        private static void AddService(IServiceCollection services, int lifecycleType = 1)
+        {
+            services.AddHttpContextAccessor();
+            AppService.Services = services;
+            var bseSqlSugarRepositorytypes = GetAssemblyList();
+            if (lifecycleType == 1)
+            {
+                foreach (var type in bseSqlSugarRepositorytypes)
+                {
+                    services.TryAddSingleton(type);
+                }
+                services.AddSingleton(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
+                services.AddSingleton(typeof(BaseSqlSugarRepository<>));
             }
-            //注入IBaseSqlSugarRepository和BaseSqlSugarRepository 可以直接使用
-            services.AddScoped(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
-            services.AddScoped(typeof(BaseSqlSugarRepository<>));
+            else if (lifecycleType == 2)
+            {
+                foreach (var type in bseSqlSugarRepositorytypes)
+                {
+                    services.TryAddScoped(type);
+                }
+                services.AddScoped(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
+                services.AddScoped(typeof(BaseSqlSugarRepository<>));
+            }
         }
 
         private static IEnumerable<Type> GetAssemblyList(string name = "BaseSqlSugarRepository")

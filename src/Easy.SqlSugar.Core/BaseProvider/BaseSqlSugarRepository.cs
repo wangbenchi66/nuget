@@ -11,6 +11,29 @@ namespace Easy.SqlSugar.Core
     /// <typeparam name="T"></typeparam>
     public class BaseSqlSugarRepository<T> : SimpleClient<T>, IBaseSqlSugarRepository<T> where T : class, new()
     {
+        private ISqlSugarClient GetSqlSugarClient()
+        {
+            //var db = new SqlSugarScope(Config.SqlSugarConfigs);
+            //var client = db.GetConnectionScopeWithAttr<T>();
+            //ISqlSugarClient sqlSugarDb = null;
+            ISqlSugarClient sqlSugarDb = AppService.Services.BuildServiceProvider().GetRequiredService<ISqlSugarClient>();
+            //using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
+            //{
+            //    sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+            //}
+            //如果T上没有Tenant特性标记则使用默认的ConfigId
+            SqlSugarScopeProvider db = null;
+            if (typeof(T).GetCustomAttributes(typeof(TenantAttribute), false).Length == 0)
+            {
+                db = sqlSugarDb.AsTenant().GetConnectionScope(sqlSugarDb.CurrentConnectionConfig.ConfigId);
+            }
+            else
+            {
+                db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
+            }
+            //db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
+            return db;
+        }
 
         /// <summary>
         /// db上下文
@@ -25,25 +48,7 @@ namespace Easy.SqlSugar.Core
         {
             get
             {
-                //var db = new SqlSugarScope(Config.SqlSugarConfigs);
-                //var client = db.GetConnectionScopeWithAttr<T>();
-                ISqlSugarClient sqlSugarDb = AppService.Services.BuildServiceProvider().GetRequiredService<ISqlSugarClient>();
-                //using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
-                //{
-                //    sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
-                //}
-                //如果T上没有Tenant特性标记则使用默认的ConfigId
-                SqlSugarScopeProvider db = null;
-                if (typeof(T).GetCustomAttributes(typeof(TenantAttribute), false).Length == 0)
-                {
-                    db = sqlSugarDb.AsTenant().GetConnectionScope(sqlSugarDb.CurrentConnectionConfig.ConfigId);
-                }
-                else
-                {
-                    db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
-                }
-                //db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
-                return db;
+                return GetSqlSugarClient();
             }
         }
 
@@ -58,30 +63,6 @@ namespace Easy.SqlSugar.Core
         /// //多租户事务、GetConnection、IsAnyConnection等功能
         /// </summary>
         public ITenant SqlSugarTenant => SqlSugarDbContext.AsTenant();
-
-        /// <summary>
-        /// sqlsugar仓储
-        /// </summary>
-        /// <remarks>
-        /// 如果遇到线程安全问题 参考 下边三个链接内容，已经尽力解决线程安全问题了，如果还是出现问题可以使用db.CopyNew()方法重新创建一个新的实例 保证线程安全
-        /// https://www.donet5.com/Home/Doc?typeId=1231  
-        /// https://www.donet5.com/Home/Doc?typeId=1224
-        /// https://www.donet5.com/Home/Doc?typeId=2349
-        /// </remarks>
-        //public BaseSqlSugarRepository()
-        //{
-        //    //ISqlSugarClient sqlSugarDb = null;
-        //    //using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
-        //    //{
-        //    //    sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
-        //    //}
-        //    //var db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
-        //    var db = new SqlSugarScope(Config.SqlSugarConfigs);
-        //    SqlSugarDbContext = db.GetConnectionScopeWithAttr<T>();
-        //    SqlSugarDbContextAdo = SqlSugarDbContext.Ado;
-        //    SqlSugarTenant = SqlSugarDbContext.AsTenant(); // 用来处理事务
-        //    base.Context = SqlSugarDbContext;
-        //}
 
         #region 获取单个实体
 
