@@ -2,7 +2,7 @@
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="Easy.SqlSugar.Core" Version="2025.02.20.2" />
+<PackageReference Include="Easy.SqlSugar.Core" Version="2025.04.11.1" />
 ```
 ### 3.1.1 SqlSugar配置文件
 ``` json
@@ -91,26 +91,22 @@ builder.Services.AddSqlSugarIocSetup(configuration.GetSection("DBS").Get<List<Io
 #### 3.2.2 使用普通模式的配置
 ``` csharp
 //使用SqlSugar
-var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
-foreach (var item in list)
+var configs = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
+ var sqlSugarScope = new SqlSugarScope(configs, db =>
 {
-    //调试模式日志输出
-#if DEBUG
-    item.AopEvents = new AopEvents()
-    {
-        OnLogExecuting = (sql, pars) =>
-        {
-            Console.WriteLine($"{DateTime.Now},ConfigId:{item.ConfigId},Sql:{UtilMethods.GetSqlString(DbType.MySql, sql, pars)}");
-        }
-    };
+                var configId = db.CurrentConnectionConfig.ConfigId;
+                var dbType = db.CurrentConnectionConfig.DbType;
+                string sqlFileInfo = db.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();//获取文件执行信息
+                db.Aop.OnLogExecuting = (sql, p) => Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));//打印sql执行语句
+                db.Aop.OnError = (exp) => Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));//打印sql执行异常
 }
 #endif
 //这里有两个,一个是单例一个是作用域 推荐作用域
 //作用域
-builder.Services.AddSqlSugarScopedSetup(list);
+builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);
 
 //单例
-builder.Services.AddSqlSugarSingletonSetup(list);
+builder.Services.AddSqlSugarSingletonSetup(sqlSugarScope);
 
 //注入3.2.1.1中的仓储(如果使用其他方式注入，可以忽略这里)
 builder.Services.AddSingleton<IUserRepository, UserRepository>();

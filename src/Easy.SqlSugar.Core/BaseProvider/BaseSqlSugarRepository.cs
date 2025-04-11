@@ -23,7 +23,7 @@ namespace Easy.SqlSugar.Core
             //}
             //如果T上没有Tenant特性标记则使用默认的ConfigId
             SqlSugarScopeProvider db = null;
-            if (typeof(T).GetCustomAttributes(typeof(TenantAttribute), false).Length == 0)
+            if (typeof(T).GetCustomAttributes(typeof(TenantAttribute), true).Length == 0)
             {
                 db = sqlSugarDb.AsTenant().GetConnectionScope(sqlSugarDb.CurrentConnectionConfig.ConfigId);
             }
