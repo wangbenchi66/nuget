@@ -19,6 +19,8 @@ using Microsoft.EntityFrameworkCore;
 using SqlSugar.IOC;
 using System.Text;
 using Autofac;
+using Scalar.AspNetCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -128,7 +130,12 @@ builder.Services.AddControllers(options =>
     //options.Filters.Add<CacheResultFilter>();
     //添加幂等性过滤器
     //options.Filters.Add<HttpIdempotenceFilter>();
-});
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = null; // 保留原始属性名
+    options.JsonSerializerOptions.WriteIndented = true; // 格式化输出
+}
+    );
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     //禁用默认的模型验证过滤器,否则无法返回自定义的错误信息
@@ -148,6 +155,22 @@ app.UseKnife4UI(c =>
 {
     c.SwaggerEndpoint("../api/swagger/v1/swagger.json", "api");
     c.RoutePrefix = "k4j";
+});
+//app.MapScalarApiReference(options =>
+//{
+//    //options.WithOpenApiRoutePattern("/swagger/{documentName}.json");
+//    // or
+//    options.OpenApiRoutePattern = "api/swagger/{documentName}/swagger.json";
+//});
+var documents = new[]
+{
+    new ScalarDocument("v1", "nuget包", "api/swagger/v1/swagger.json"),
+    //new ScalarDocument("v2", "API", "http://k8s.api.com/api/swagger/v1/swagger.json"),
+};
+app.MapScalarApiReference("/scalar", options =>
+{
+    options.AddDocuments(documents);
+    options.DefaultHttpClient = new(ScalarTarget.Node, ScalarClient.Axios);
 });
 app.MapControllers();
 //app.UseMiddleware<LogMiddleware>();//添加日志中间件

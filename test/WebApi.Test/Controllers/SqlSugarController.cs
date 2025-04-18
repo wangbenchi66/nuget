@@ -251,12 +251,12 @@ namespace WebApi.Test.Controllers
                 }*/
 
         [HttpGet("Repository")]
-        public object Repository()
+        public IActionResult Repository()
         {
             //查询单个
             var obj = _userRepository.GetSingle(p => p.Id == 1);
             _logger.LogInformation("查询单个结果：{@obj}", obj);
-            return "ok";
+            return Ok(obj);
         }
 
         [HttpGet("Cache")]
