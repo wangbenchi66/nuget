@@ -21,6 +21,7 @@ using System.Text;
 using Autofac;
 using Scalar.AspNetCore;
 using Microsoft.Extensions.Options;
+using Easy.SqlSugar.Core.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -90,6 +91,7 @@ foreach (var item in list)
     //    //如果开启缓存需要重写BaseSqlSugarRepository中的查询方法才能生效,或者使用db上下文查询中加入WithCache()
     //    DataInfoCacheService = cacheService
     //};
+    item.ConnectionString = item.ConnectionString.CheckTrustServerCertificate(item.DbType).CheckEncrypt(item.DbType);
 }
 var sqlSugarScope = new SqlSugarScope(list, db =>
 {

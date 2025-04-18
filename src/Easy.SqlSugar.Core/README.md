@@ -2,7 +2,7 @@
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="Easy.SqlSugar.Core" Version="2025.04.11.1" />
+<PackageReference Include="Easy.SqlSugar.Core" Version="2025.04.18.1" />
 ```
 ### 3.1.1 SqlSugar配置文件
 ``` json
@@ -229,11 +229,15 @@ foreach (var item in list)
 //所有操作都有异步方法，增加Async即可
 
 //直接使用DbContext上下文
+_userRepository.AsQueryable()
+_userRepository.AsInsertable()
+_userRepository.AsUpdateable()
+_userRepository.AsDeleteable()
 _userRepository.SqlSugarDbContext
 //使用上下文Ado
 _userRepository.SqlSugarDbContextAdo
 ```
-### 3.4.1 Ioc仓储模式
+### 3.4.1 框架仓储模式
 ``` csharp
 //查询单个
 var obj = _userRepository.GetSingle(p => p.Id == 1);
@@ -381,5 +385,501 @@ try
 catch (Exception)
 {
     tran.RollbackTran();
+}
+```
+#### 3.4.2 官方仓储方法
+``` csharp
+//查询
+var data1 = base.GetById(1);//根据id查询
+var data2 = base.GetList();//查询所有 (FindList)
+var data3 = base.GetList(it => it.Id == 1); //TOP1条件
+var data4 = base.GetSingle(it => it.Id == 1);//查询单条记录，结果集不能超过1，不然会提示错误
+var  data= base.GetFirst(it => it.Id == 1);//查询第一条记录
+var p = new PageModel() { PageIndex = 1, PageSize = 2 };
+var data5 = base.GetPageList(it => it.Name == "xx", p);
+Console.Write(p.PageCount);
+var data6 = base.GetPageList(it => it.Name == "xx", p, it => it.Name, OrderByType.Asc);
+Console.Write(p.PageCount);
+List<IConditionalModel> conModels = new List<IConditionalModel>();
+conModels.Add(new ConditionalModel(){FieldName="id",ConditionalType=ConditionalType.Equal,FieldValue="1"});//id=1
+var data7 = base.GetPageList(conModels, p, it => it.Name, OrderByType.Asc);
+var data8 = base.AsQueryable().Where(x => x.Id == 1).ToList();//使用Queryable
+ 
+//插入
+base.Insert(insertObj);//单条插入
+base.InsertRange(InsertObjs);//批量插入
+var id = base.InsertReturnIdentity(insertObj);//插入返回自增
+var SnowflakeId=base.InsertReturnSnowflakeId(insertObj);//插入返回雪花ID
+base.AsInsertable(insertObj).ExecuteCommand();//复杂功能使用Insertable
+ 
+ 
+//删除
+base.Delete(T);//实体删除 需要有主键
+base.Delete(List<T>);//集合删除 需要有主键
+base.DeleteById(1);
+base.DeleteByIds(new object [] { 1, 2 }); //数组带是 ids方法 ，封装传 object [] 类型
+//技巧 int [] 转换成 object[]  写法：ids.Cast<object>().ToArray()
+base.Delete(it => it.Id == 1);
+base.AsDeleteable().Where(it => it.Id == 1).ExecuteCommand();//复杂功能用Deleteable
+ 
+//实体方式更新更新
+base.Update(insertObj); //单条更新
+base.UpdateRange(InsertObjs);//批量更新
+base.AsUpdateable(insertObj)//复杂功能用 Updateable 
+   .UpdateColumns(it=>new { it.Name })
+   .ExecuteCommand();
+ 
+//表达式方式更新
+base.Update(it =>new Order(){Name="a" /*可以多列*/ },it =>it.Id==1); //只更新name 并且id=1
+base.UpdateSetColumnsTrue(it=>new Order(){ Name ="a"}, it=>it.Id==1);//更新name+过滤事件赋值字段 
+base.AsUpdateable()//复杂功能用 Updateable 
+   .SetColumns(it=>new  Order{  Name="a" })
+   .Where(it=>it.Id==1).ExecuteCommand();
+ 
+ 
+//高级操作
+base.Context //获取db对象
+base.AsSugarClient // 获取完整的db对象
+base.AsTenant  // 获取多库相关操作
+ 
+//如果Context是子Db
+base.Context.Root//可以用Root拿主Db
+base.Context.Root.AsTenant()//拿到租户对象
+ 
+ 
+//切换仓储 （可以注入多个仓储取代，这样就不用切换了）
+base.ChangeRepository<Repository<OrderItem>>() //多租户用法有区别：https://www.donet5.com/Home/Doc?typeId=2405
+base.Change<OrderItem>()//只支持自带方法和单库
+```
+
+#### 4.扩展方法
+``` csharp
+//获取数据库类型
+var dbType= DataBaseTypeExtensions.GetDatabaseType(conn);
+
+//检测TrustServerCertificate,没有则添加TrustServerCertificate=true
+conn=conn.CheckTrustServerCertificate(dbType);
+//检测Encrypt,没有则添加Encrypt=true
+conn=conn.CheckEncrypt(dbType);
+
+//获取sql执行文件信息(会过滤行号为0的记录，如果文件层级大于3,则只显示最后3级目录)
+// 返回的文件信息格式为：
+// 位置:文件名,行号:行号
+var sqlFileInfo = db.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();//获取文件执行信息
+
+//获取db.Aop.OnLogExecuting日志打印的sql语句,sqlFileInfo可为空
+var infoSql= UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo);
+
+//获取db.Aop.OnError错误日志打印的错误sql语句,sqlFileInfo可为空
+var errorSql= UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo);
+
+//示例
+var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
+foreach (var item in list)
+{
+    item.ConnectionString = item.ConnectionString.CheckTrustServerCertificate(item.DbType).CheckEncrypt(item.DbType);
+}
+var sqlsugarSope = new SqlSugarScope(list, db =>
+{
+//仅开发模式打印sql语句
+#if DEBUG
+    foreach (var item in list)
+    {
+        var configId = item.ConfigId;
+        var dbType = item.DbType;
+        string sqlFileInfo = db.GetConnection(configId).Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
+        db.GetConnection(configId).Aop.OnLogExecuting = (sql, p) => Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
+        db.GetConnection(configId).Aop.OnError = (exp) => Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));
+    }
+#endif
+});
+```
+
+#### 5.数据库缓存类(使用方法请参考3.2.3 开启内存缓存)
+##### 5.1 内存缓存
+``` csharp
+using System.Collections;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using Microsoft.Extensions.Caching.Memory;
+using SqlSugar;
+
+namespace Easy.SqlSugar.Core.Cache
+{
+    /// <summary>
+    /// Net Core自带内存缓存，在Startup.cs里增加services.AddMemoryCache();
+    /// </summary>
+    public class MemoryCacheService : ICacheService
+    {
+        private MemoryCacheHelper cache = new MemoryCacheHelper();
+
+        public void Add<V>(string key, V value)
+        {
+            cache.Set(key, value);
+        }
+
+        public void Add<V>(string key, V value, int cacheDurationInSeconds)
+        {
+            cache.Set(key, value, cacheDurationInSeconds);
+        }
+
+        public bool ContainsKey<V>(string key)
+        {
+            return cache.Exists(key);
+        }
+
+        public V Get<V>(string key)
+        {
+            return cache.Get<V>(key);
+        }
+
+        public IEnumerable<string> GetAllKey<V>()
+        {
+            return cache.GetCacheKeys();
+        }
+
+        public V GetOrCreate<V>(string cacheKey, Func<V> create, int cacheDurationInSeconds = int.MaxValue)
+        {
+            if (cache.Exists(cacheKey))
+            {
+                return cache.Get<V>(cacheKey);
+            }
+            else
+            {
+                var result = create();
+                cache.Set(cacheKey, result, cacheDurationInSeconds);
+                return result;
+            }
+        }
+
+        public void Remove<V>(string key)
+        {
+            cache.Remove(key);
+        }
+    }
+
+    public class MemoryCacheHelper
+    {
+        private static readonly MemoryCache Cache = new MemoryCache(new MemoryCacheOptions());
+
+        /// <summary>
+        /// 验证缓存项是否存在
+        /// </summary>
+        /// <param name="key">缓存Key</param>
+        /// <returns></returns>
+        public bool Exists(string key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            return Cache.TryGetValue(key, out _);
+        }
+
+        /// <summary>
+        /// 添加缓存
+        /// </summary>
+        /// <param name="key">缓存Key</param>
+        /// <param name="value">缓存Value</param>
+        /// <param name="expiresSliding">滑动过期时长（如果在过期时间内有操作，则以当前时间点延长过期时间）</param>
+        /// <param name="expiressAbsoulte">绝对过期时长</param>
+        /// <returns></returns>
+        public bool Set(string key, object value, TimeSpan expiresSliding, TimeSpan expiressAbsoulte)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            Cache.Set(key, value,
+                new MemoryCacheEntryOptions().SetSlidingExpiration(expiresSliding)
+                    .SetAbsoluteExpiration(expiressAbsoulte));
+            return Exists(key);
+        }
+
+        /// <summary>
+        /// 添加缓存
+        /// </summary>
+        /// <param name="key">缓存Key</param>
+        /// <param name="value">缓存Value</param>
+        /// <param name="expiresIn">缓存时长</param>
+        /// <param name="isSliding">是否滑动过期（如果在过期时间内有操作，则以当前时间点延长过期时间）</param>
+        /// <returns></returns>
+        public bool Set(string key, object value, TimeSpan expiresIn, bool isSliding = false)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            Cache.Set(key, value,
+                isSliding
+                    ? new MemoryCacheEntryOptions().SetSlidingExpiration(expiresIn)
+                    : new MemoryCacheEntryOptions().SetAbsoluteExpiration(expiresIn));
+
+            return Exists(key);
+        }
+
+        /// <summary>
+        /// 添加缓存
+        /// </summary>
+        /// <param name="key">缓存Key</param>
+        /// <param name="value">缓存Value</param>
+        /// <returns></returns>
+        public void Set(string key, object value)
+        {
+            Set(key, value, TimeSpan.FromDays(1));
+        }
+
+        /// <summary>
+        /// 添加缓存
+        /// </summary>
+        /// <param name="key">缓存Key</param>
+        /// <param name="value">缓存Value</param>
+        /// <param name="ts"></param>
+        /// <returns></returns>
+        public void Set(string key, object value, TimeSpan ts)
+        {
+            Set(key, value, ts, false);
+        }
+
+        /// <summary>
+        /// 添加缓存
+        /// </summary>
+        /// <param name="key">缓存Key</param>
+        /// <param name="value">缓存Value</param>
+        /// <param name="ts"></param>
+        /// <returns></returns>
+        public void Set(string key, object value, int seconds)
+        {
+            var ts = TimeSpan.FromSeconds(seconds);
+            Set(key, value, ts, false);
+        }
+
+        #region 删除缓存
+
+        /// <summary>
+        /// 删除缓存
+        /// </summary>
+        /// <param name="key">缓存Key</param>
+        /// <returns></returns>
+        public void Remove(string key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            Cache.Remove(key);
+        }
+
+        /// <summary>
+        /// 批量删除缓存
+        /// </summary>
+        /// <returns></returns>
+        public void RemoveAll(IEnumerable<string> keys)
+        {
+            if (keys == null)
+                throw new ArgumentNullException(nameof(keys));
+
+            keys.ToList().ForEach(item => Cache.Remove(item));
+        }
+
+        #endregion 删除缓存
+
+        #region 获取缓存
+
+        /// <summary>
+        /// 获取缓存
+        /// </summary>
+        /// <param name="key">缓存Key</param>
+        /// <returns></returns>
+        public TResult Get<TResult>(string key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
+            return Cache.Get<TResult>(key);
+        }
+
+        /// <summary>
+        /// 获取缓存
+        /// </summary>
+        /// <param name="key">缓存Key</param>
+        /// <returns></returns>
+        public object Get(string key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
+            return Cache.Get(key);
+        }
+
+        /// <summary>
+        /// 获取缓存集合
+        /// </summary>
+        /// <param name="keys">缓存Key集合</param>
+        /// <returns></returns>
+        public IDictionary<string, object> GetAll(IEnumerable<string> keys)
+        {
+            if (keys == null)
+                throw new ArgumentNullException(nameof(keys));
+
+            var dict = new Dictionary<string, object>();
+            keys.ToList().ForEach(item => dict.Add(item, Cache.Get(item)));
+            return dict;
+        }
+
+        #endregion 获取缓存
+
+        /// <summary>
+        /// 删除所有缓存
+        /// </summary>
+        public void RemoveCacheAll()
+        {
+            var l = GetCacheKeys();
+            foreach (var s in l)
+            {
+                Remove(s);
+            }
+        }
+
+        /// <summary>
+        /// 删除匹配到的缓存
+        /// </summary>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        public void RemoveCacheRegex(string pattern)
+        {
+            IList<string> l = SearchCacheRegex(pattern);
+            foreach (var s in l)
+            {
+                Remove(s);
+            }
+        }
+
+        /// <summary>
+        /// 搜索 匹配到的缓存
+        /// </summary>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        public IList<string> SearchCacheRegex(string pattern)
+        {
+            var cacheKeys = GetCacheKeys();
+            var l = cacheKeys.Where(k => Regex.IsMatch(k, pattern)).ToList();
+            return l.AsReadOnly();
+        }
+
+        /// <summary>
+        /// 获取所有缓存键
+        /// </summary>
+        /// <returns></returns>
+        public List<string> GetCacheKeys()
+        {
+            //Microsoft.Extensions.Caching.Memory版本修改后里边的名称发生了变更
+            var netVersion = Assembly.Load("Microsoft.Extensions.Caching.Memory").GetName().Version.Major;
+            if (netVersion <= 5)
+            {
+                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                var entries = Cache.GetType().GetField("_entries", flags).GetValue(Cache);
+                var cacheItems = entries as IDictionary;
+                var keys = new List<string>();
+                if (cacheItems == null) return keys;
+                foreach (DictionaryEntry cacheItem in cacheItems)
+                {
+                    keys.Add(cacheItem.Key.ToString());
+                }
+                return keys;
+            }
+            else
+            {
+                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                var coherentState = Cache.GetType().GetField("_coherentState", flags).GetValue(Cache);
+                var entries = coherentState.GetType().GetField("_stringEntries", flags).GetValue(coherentState);
+                var cacheItems = entries as IDictionary;
+                var keys = new List<string>();
+                if (cacheItems == null) return keys;
+                foreach (DictionaryEntry cacheItem in cacheItems)
+                {
+                    keys.Add(cacheItem.Key.ToString());
+                }
+                return keys;
+            }
+        }
+    }
+}
+```
+##### 5.2 Redis缓存
+``` csharp
+using CSRedis;
+using SqlSugar;
+
+namespace Easy.SqlSugar.Core.Cache
+{
+    /// <summary>
+    /// csredis 缓存
+    /// </summary>
+    public class CsRedisCacheService : ICacheService
+    {
+        public CsRedisCacheService(CSRedisClient client)
+        {
+            RedisHelper.Initialization(client);
+        }
+
+        //注意:SugarRedis 不要扔到构造函数里面， 一定要单例模式  
+
+        public void Add<V>(string key, V value)
+        {
+            RedisHelper.Set(key, value);
+        }
+
+        public void Add<V>(string key, V value, int cacheDurationInSeconds)
+        {
+            RedisHelper.Set(key, value, cacheDurationInSeconds);
+        }
+
+        public bool ContainsKey<V>(string key)
+        {
+            return RedisHelper.Exists(key);
+        }
+
+        public V Get<V>(string key)
+        {
+            return RedisHelper.Get<V>(key);
+        }
+
+        public IEnumerable<string> GetAllKey<V>()
+        {
+            //获取redisHelper配置的prefix
+            string prefix = RedisHelper.Prefix;
+            if (string.IsNullOrWhiteSpace(prefix))
+                return RedisHelper.Keys("SqlSugarDataCache.*");
+            else
+                return RedisHelper.Keys($"{prefix}SqlSugarDataCache.*");
+        }
+
+        public V GetOrCreate<V>(string cacheKey, Func<V> create, int cacheDurationInSeconds = int.MaxValue)
+        {
+            if (this.ContainsKey<V>(cacheKey))
+            {
+                var result = this.Get<V>(cacheKey);
+                if (result == null)
+                {
+                    return create();
+                }
+                else
+                {
+                    return result;
+                }
+            }
+            else
+            {
+                var result = create();
+                this.Add(cacheKey, result, cacheDurationInSeconds);
+                return result;
+            }
+        }
+
+        public void Remove<V>(string key)
+        {
+            string prefix = RedisHelper.Prefix;
+            RedisHelper.Del($"{key.Replace(prefix, "")}");
+        }
+    }
 }
 ```
