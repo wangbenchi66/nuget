@@ -1,4 +1,5 @@
 namespace Easy.Common.Core;
+
 public static class DateTimeExtensions
 {
 
@@ -150,7 +151,6 @@ public static class DateTimeExtensions
     }
 
     #endregion 计算时间戳剩余多久时间
-
 
     #region 获取现在是星期几
 

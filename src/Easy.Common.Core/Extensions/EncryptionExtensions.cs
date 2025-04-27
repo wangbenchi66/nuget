@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.IO.Compression;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Easy.Common.Core;
 
@@ -44,6 +40,7 @@ public static class EncryptionExtensions
             }
         }
     }
+
     /// <summary>
     /// Base64Url编码
     /// </summary>
@@ -53,6 +50,7 @@ public static class EncryptionExtensions
     {
         return base64.Replace('+', '-').Replace('/', '_').Replace("=", "");
     }
+
     /// <summary>
     /// 解密并还原
     /// </summary>
@@ -84,6 +82,7 @@ public static class EncryptionExtensions
             }
         }
     }
+
     /// <summary>
     /// 压缩
     /// </summary>
@@ -103,6 +102,7 @@ public static class EncryptionExtensions
             return ms.ToArray();
         }
     }
+
     /// <summary>
     /// 解压
     /// </summary>
