@@ -1,7 +1,5 @@
-using System.Data.Common;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Easy.EF.Core.BiewModels;
 
 namespace Easy.EF.Core.BaseProvider
 {

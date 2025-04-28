@@ -5,14 +5,14 @@ namespace Easy.Common.Core;
 /// <summary>
 /// 字典工具类
 /// </summary>
-public class DictionaryExtensions
+public static class DictionaryExtensions
 {
     /// <summary>
     /// 对象转换成字典
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public IDictionary<string, object> ToDictonary(object value)
+    public static IDictionary<string, object> ToDictonary(object value)
     {
         IDictionary<string, object> valuePairs = new Dictionary<string, object>();
         // 1、获取反射类型

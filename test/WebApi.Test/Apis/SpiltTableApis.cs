@@ -1,7 +1,6 @@
 ﻿using Easy.Common.Core.Extensions;
 using Easy.SqlSugar.Core;
 using SqlSugar;
-using SqlSugar.SplitTableExtensions;
 using WBC66.Autofac.Core;
 
 namespace WebApi.Test.Apis
@@ -23,7 +22,7 @@ namespace WebApi.Test.Apis
 
         public object CreteData()
         {
-            var entity = new SpiltTable() { Name = "test", CreateTime = "2023-02-1".ToDateTime().Value };
+            var entity = new SpiltTable() { Name = "test", CreateTime = "2023-02-1".ToDate() };
             _spiltTableRepository.SqlSugarDbContext.Insertable(entity).SplitTable().ExecuteReturnSnowflakeId();
             return "ok";
         }

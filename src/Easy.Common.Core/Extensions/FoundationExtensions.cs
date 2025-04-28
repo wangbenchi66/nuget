@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -372,16 +374,6 @@ public static class FoundationExtensions
         return str == null || str == "" || string.IsNullOrWhiteSpace(str);
     }
 
-    public static bool IsNull(this object str)
-    {
-        return str == null || str.ToString() == "" || string.IsNullOrWhiteSpace(str.ToString());
-    }
-
-    public static bool IsNull(this List<object> str)
-    {
-        return str == null || str.Count == 0;
-    }
-
     /// <summary>
     /// 判断泛型集合是否为null或空
     /// </summary>
@@ -406,6 +398,77 @@ public static class FoundationExtensions
     {
         if (list == null || list.Count == 0) return true;
         return false;
+    }
+
+    /// <summary>
+    /// 检查对象是否为null或空
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static bool IsNull(this object obj)
+    {
+        if (obj == null)
+            return true;
+
+        Type type = obj.GetType();
+
+        // 判断字符串
+        if (obj is string str)
+            return string.IsNullOrWhiteSpace(str);
+
+        // 判断集合/数组
+        if (obj is IEnumerable enumerable)
+        {
+            return !enumerable.Cast<object>().Any();
+        }
+
+        // 判断可空值类型 (Nullable<T>)
+        if (Nullable.GetUnderlyingType(type) != null)
+        {
+            return obj.Equals(Activator.CreateInstance(type));
+        }
+
+        // 判断 Guid.Empty
+        if (obj is Guid guid)
+            return guid == Guid.Empty;
+
+        // 判断 DateTime.MinValue
+        if (obj is DateTime dateTime)
+            return dateTime == DateTime.MinValue;
+
+        // 基础值类型（int, double, float, bool 等），默认非空
+        if (type.IsValueType)
+            return false;
+
+        // 对于普通对象，检查所有可读属性是否全部为null
+        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                              .Where(p => p.CanRead)
+                              .ToList();
+
+        if (properties.Count == 0)
+            return false; // 没有属性的对象，认为非空
+
+        foreach (var property in properties)
+        {
+            var value = property.GetValue(obj);
+            if (value != null)
+                return false; // 只要有一个属性非空，就认为对象非空
+        }
+
+        return true; // 所有属性都为null，判定为空
+    }
+
+    /// <summary>
+    /// 深度检查对象属性是否全为空（仅当需要极致判空时用）
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static bool DeepIsNull(this object obj)
+    {
+        if (obj == null) return true;
+
+        var properties = obj.GetType().GetProperties();
+        return properties.Length == 0 || properties.All(p => p.GetValue(obj) == null);
     }
 
     #endregion 空值判断

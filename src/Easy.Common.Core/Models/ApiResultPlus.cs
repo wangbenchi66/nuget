@@ -1,48 +1,46 @@
 namespace Easy.Common.Core;
+
 /// <summary>
 /// 错误信息
 /// </summary>
 public class ErrorInfo
 {
     /// <summary>
-    /// 默认构造函数
-    /// </summary>
-    public ErrorInfo()
-    {
-
-    }
-    /// <summary>
-    /// 构造函数，初始化错误信息
-    /// </summary>
-    /// <param name="code"></param>
-    /// <param name="msg"></param>
-    public ErrorInfo(int code, object msg)
-    {
-        Code = code;
-        Msg = msg;
-    }
-    /// <summary>
     /// 错误代码
     /// </summary>
     public int Code { get; set; }
+
     /// <summary>
-    /// 错误信息
+    /// 错误消息
     /// </summary>
-    public object Msg { get; set; }
+    public string Msg { get; set; }
+
+    /// <summary>
+    /// 错误值
+    /// </summary>
+    public object Data { get; set; }
+
+    public static ErrorInfo Error(string msg, object data = null, int code = -1)
+    {
+        return new ErrorInfo
+        {
+            Code = code,
+            Msg = msg,
+            Data = data
+        };
+    }
 }
+
 /// <summary>
 /// 自定义返回结果
 /// </summary>
 public readonly struct ApiResultPlus<TSuccess, TError>
 {
     /// <summary>
-    /// 追踪ID，生成新的GUID
-    /// </summary>
-    public Guid RequestId => Guid.NewGuid();
-    /// <summary>
     /// 是否成功
     /// </summary>
     public bool IsSuccess { get; }
+
     private readonly TSuccess? _success;
     private readonly TError? _error;
 
@@ -50,6 +48,7 @@ public readonly struct ApiResultPlus<TSuccess, TError>
     /// 成功数据
     /// </summary>
     public TSuccess? Data => _success;
+
     /// <summary>
     /// 错误数据
     /// </summary>

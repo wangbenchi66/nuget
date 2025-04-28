@@ -1,13 +1,7 @@
 ﻿using System.Data;
-using System.Data.Common;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Easy.EF.Core.BiewModels;
 using Easy.EF.Core.Common;
-using Easy.Common.Core;
-using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
-using System.Linq;
 
 namespace Easy.EF.Core.BaseProvider
 {
@@ -189,22 +183,22 @@ namespace Easy.EF.Core.BaseProvider
 
         public virtual int InsertReturnIdentity(T insertObj)
         {
-            return InsertReturn(insertObj).ObjToInt();
+            return InsertReturn(insertObj).ToInt();
         }
 
         public virtual async Task<int> InsertReturnIdentityAsync(T insertObj)
         {
-            return (await InsertReturnAsync(insertObj)).ObjToInt();
+            return (await InsertReturnAsync(insertObj)).ToInt();
         }
 
         public virtual long InsertReturnBigIdentity(T insertObj)
         {
-            return InsertReturn(insertObj).ObjToLong();
+            return InsertReturn(insertObj).ToLong();
         }
 
         public virtual async Task<long> InsertReturnBigIdentityAsync(T insertObj)
         {
-            return (await InsertReturnAsync(insertObj)).ObjToLong();
+            return (await InsertReturnAsync(insertObj)).ToLong();
         }
 
         #endregion 写入实体数据

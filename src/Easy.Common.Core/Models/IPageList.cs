@@ -1,38 +1,38 @@
-﻿namespace Easy.EF.Core.BiewModels
+﻿namespace Easy.Common.Core
 {
     /// <summary>
-    /// 定义分页列表接口，继承自 <see cref="IList{T}"/>。
+    /// 分页列表接口，扩展了 IList[T>，用于表示分页结果。
     /// </summary>
-    /// <typeparam name="T">列表中元素的类型。</typeparam>
+    /// <typeparam name="T">分页数据的类型</typeparam>
     public interface IPageList<T> : IList<T>
     {
         /// <summary>
-        /// 获取当前页的索引。
+        /// 当前页的页码（从1开始）。
         /// </summary>
         int PageIndex { get; }
 
         /// <summary>
-        /// 获取每页的大小。
+        /// 每页显示的记录数。
         /// </summary>
         int PageSize { get; }
 
         /// <summary>
-        /// 获取总记录数。
+        /// 当前分页结果中的总记录数。
         /// </summary>
         int TotalCount { get; }
 
         /// <summary>
-        /// 获取总页数。
+        /// 总页数，根据总记录数和每页记录数计算得出。
         /// </summary>
         int TotalPages { get; }
 
         /// <summary>
-        /// 获取一个值，该值指示是否有上一页。
+        /// 是否存在上一页。
         /// </summary>
         bool HasPreviousPage { get; }
 
         /// <summary>
-        /// 获取一个值，该值指示是否有下一页。
+        /// 是否存在下一页。
         /// </summary>
         bool HasNextPage { get; }
     }
