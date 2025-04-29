@@ -200,4 +200,44 @@ public static class DateTimeExtensions
 
     #endregion 获取现在是星期几
 
+    #region 获取10位时间戳
+
+    /// <summary>
+    /// 获取10位时间戳
+    /// </summary>
+    /// <returns> </returns>
+    public static long GetTimeStampByTotalSeconds()
+    {
+        TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        return Convert.ToInt64(ts.TotalSeconds);
+    }
+
+    #endregion 获取10位时间戳
+
+    #region 获取13位时间戳
+
+    /// <summary>
+    /// 获取13位时间戳
+    /// </summary>
+    /// <returns> </returns>
+    public static long GetTimeStampByTotalMilliseconds()
+    {
+        TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        return Convert.ToInt64(ts.TotalMilliseconds);
+    }
+
+    #endregion 获取13位时间戳
+
+    /// <summary>
+    /// 将当前时间转换为时间戳
+    /// </summary>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    public static long ConvertDateTimeToInt(this DateTime time)
+    {
+        DateTime dtStart = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        TimeSpan toNow = time - dtStart;
+        return Convert.ToInt64(toNow.TotalSeconds);
+    }
+
 }

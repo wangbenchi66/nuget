@@ -14,16 +14,16 @@
 	  <Version>2025.4.18.1</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
-	  <PackageReadmeFile>./README.md</PackageReadmeFile>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include=".\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
 		<PackageReference Include="sqlSugarCore" Version="5.1.4.185" />

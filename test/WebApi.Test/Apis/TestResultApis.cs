@@ -22,24 +22,24 @@ namespace WebApi.Test.Apis
         [HttpGet("GetResult")]
         public ApiResult GetResult(int type)
         {
-            var result = new ApiResultPlus<string, ErrorInfo>();
+            var result = new ApiResultPlus<object, ErrorInfo>();
             if (type == 1)
-                result = "成功";
+                result = ApiResult.Ok(null);
             else
                 result = ErrorInfo.Error("错误");
-            var res = result.Match(
-                success =>
-                {
-                    // 处理成功情况
-                    return ApiResult.Ok(success);
-                },
-                error =>
-                {
-                    // 处理错误情况
-                    return ApiResult.Fail(error.Msg, error.Data);
-                }
-            );
-            return res;
+            //var res = result.Match(
+            //    success =>
+            //    {
+            //        // 处理成功情况
+            //        return ApiResult.Ok(success);
+            //    },
+            //    error =>
+            //    {
+            //        // 处理错误情况
+            //        return ApiResult.Fail(error.Msg, error.Data);
+            //    }
+            //);
+            return result.ToApiResult();
         }
 
         #endregion 返回数据FluentResults

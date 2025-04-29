@@ -11,8 +11,9 @@ dotnet add package Easy.Common.Core --version 2025.04.28.2
 ### 1.1 ApiResult
 ```cs 
 //通用结果类ApiResult<T>,默认ApiResult<string>
-ApiResult.Ok("成功");
-ApiResult.Ok("成功", new { Id = 1, Name = "张三" });
+ApiResult.Ok();
+ApiResult.Ok(new { Id = 1, Name = "张三" });
+ApiResult.Ok(new { Id = 1, Name = "张三" },"成功");
 ApiResult.Fail("失败");
 ApiResult.Fail("失败",HttpStatusCode.InternalServerError);
 ApiResult.Fail("失败", new { Id = 1, Name = "张三" });
@@ -46,7 +47,10 @@ public ApiResult GetResult(int type)
     else
         result = ErrorInfo.Error("发生错误");  // 设置失败信息
 
-    // 使用 Match 方法处理成功和失败的结果
+    //使用扩展方法快速转换为 ApiResult
+    return result.ToApiResult();
+
+    // 或使用 Match 方法处理成功和失败的结果
     var res = result.Match(
         success =>
         {

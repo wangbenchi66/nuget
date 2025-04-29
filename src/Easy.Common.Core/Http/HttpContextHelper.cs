@@ -24,7 +24,7 @@
             }
 
             // 如果是复杂类型，序列化为JSON字符串
-            return System.Text.Json.JsonSerializer.Serialize(value);
+            return JsonHelper.ToJson(value);
         }
 
         /// <summary>

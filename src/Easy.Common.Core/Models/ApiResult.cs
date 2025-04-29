@@ -8,23 +8,23 @@ namespace Easy.Common.Core
     public class ApiResult : ApiResult<object>
     {
         /// <summary>
-        /// 成功（无数据）
+        /// 成功
         /// </summary>
-        public static ApiResult Ok(string? message = null)
+        public static ApiResult Ok(object? data = null)
         {
             return new ApiResult
             {
                 StateCode = HttpStatusCode.OK,
                 Success = true,
-                Msg = message ?? "操作成功",
-                Data = null
+                Msg = "操作成功",
+                Data = data
             };
         }
 
         /// <summary>
         /// 成功（有数据）
         /// </summary>
-        public static ApiResult Ok(string? message = null, object? data = null)
+        public static ApiResult Ok(object? data = null, string? message = null)
         {
             return new ApiResult
             {
