@@ -21,6 +21,7 @@
   <ProjectReference Include="..\..\src\WBC66.Cache.Core\WBC66.Cache.Core.csproj" />
   <ProjectReference Include="..\..\src\WBC66.Core\WBC66.Core.csproj" />
   <ProjectReference Include="..\..\src\Easy.SqlSugar.Core\Easy.SqlSugar.Core.csproj" />
+  <ProjectReference Include="..\..\src\WBC66.Serilog.Core\WBC66.Serilog.Core.csproj" />
 </ItemGroup>
 
 </Project>

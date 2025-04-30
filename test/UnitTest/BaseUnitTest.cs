@@ -19,7 +19,7 @@ namespace UnitTest
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             var configuration = builder.Configuration;
             //Serilog
-            //builder.Host.AddSerilogHost(configuration);
+            //builder.Host.AddSerilogHostJson(configuration);
 
             //NLog
             //builder.AddNLogSteup();
