@@ -1,4 +1,8 @@
 ﻿using System.Net;
+using Easy.Common.Core.Attributes;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace Easy.Common.Core
 {
@@ -70,7 +74,7 @@ namespace Easy.Common.Core
     /// <summary>
     /// 通用结果
     /// </summary>
-    public class ApiResult<T>
+    public class ApiResult<T> : IActionResult
     {
         /// <summary>
         /// 状态码
@@ -102,25 +106,28 @@ namespace Easy.Common.Core
         /// </summary>
         public string? ErrorInfo { set; get; }
 
-        /*
-                /// <summary>
-                /// 执行结果
-                /// </summary>
-                /// <param name="context"></param>
-                /// <returns></returns>
-                public Task ExecuteResultAsync(ActionContext context)
+
+        /// <summary>
+        /// 执行结果
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public Task ExecuteResultAsync(ActionContext context)
+        {
+            if (context.ActionDescriptor is ControllerActionDescriptor cad)
+            {
+                var methodInfo = cad.MethodInfo;
+                if (methodInfo.IsDefined(typeof(NoApiResultAttribute), inherit: true))
                 {
-                    //如果有NoApiResultAttribute特性，则直接返回
-                    if (context.ActionDescriptor.EndpointMetadata.Any(m => m.GetType() == typeof(NoApiResultAttribute)))
-                    {
-                        return Task.CompletedTask;
-                    }
-                    HttpResponse response = context.HttpContext.Response;
-                    if (context.HttpContext.Response.ContentType != null)
-                        response.ContentType = context.HttpContext.Response.ContentType;
-                    else
-                        response.ContentType = "application/json;charset=utf-8";
-                    return Task.FromResult(response.WriteAsync(JsonHelper.ToJson(this)));
-                }*/
+                    return Task.CompletedTask;
+                }
+            }
+            var response = context.HttpContext.Response;
+            if (response.ContentType != null)
+                response.ContentType = response.ContentType;
+            else
+                response.ContentType = "application/json;charset=utf-8";
+            return Task.FromResult(response.WriteAsync(JsonHelper.ToJson(this)));
+        }
     }
 }
