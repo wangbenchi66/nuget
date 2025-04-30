@@ -144,7 +144,7 @@ namespace Easy.Common.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static IActionResult ToActionResult<T>(this ApiResult<T> result)
+        public static IActionResult ToIActionResult<T>(this ApiResult<T> result)
         {
             return new ObjectResult(result)
             {
