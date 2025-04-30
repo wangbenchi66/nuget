@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Easy.Common.Core;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using System.Reflection;
 
 namespace WBC66.Cache.Core
 {
@@ -67,26 +69,37 @@ namespace WBC66.Cache.Core
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             // 获取方法上的缓存特性
-            var cacheAttribute = context.ActionDescriptor.EndpointMetadata.OfType<CacheResultAttribute>().FirstOrDefault();
-            if (cacheAttribute == null)
+            if (context.ActionDescriptor is ControllerActionDescriptor cad)
+            {
+                var methodInfo = cad.MethodInfo;
+                var cacheAttribute = methodInfo.GetCustomAttribute<CacheResultAttribute>();
+
+                if (cacheAttribute == null)
+                {
+                    await next();
+                    return;
+                }
+
+                // 使用方法名和参数作为缓存键，确保唯一性
+                var cacheKey = GenerateCacheKey(methodInfo.Name, context.ActionArguments);
+                var cacheDuration = TimeSpan.FromSeconds(cacheAttribute.Duration);
+
+                var cacheEntry = await GetOrAddAsync(cacheKey, async () =>
+                {
+                    // 执行操作并获取结果
+                    var resultContext = await next();
+                    return resultContext.Result;
+                }, cacheDuration);
+
+                // 将缓存结果设置为操作结果
+                context.Result = cacheEntry;
+            }
+            else
             {
                 // 如果没有缓存特性，直接执行下一个操作
                 await next();
-                return;
             }
 
-            // 使用方法名和参数作为缓存键，确保唯一性
-            var cacheKey = GenerateCacheKey(context.ActionDescriptor.DisplayName, context.ActionArguments);
-            var cacheDuration = TimeSpan.FromSeconds(cacheAttribute.Duration);
-            var cacheEntry = await GetOrAddAsync(cacheKey, async () =>
-            {
-                // 执行操作并获取结果
-                var resultContext = await next();
-                return resultContext.Result;
-            }, cacheDuration);
-
-            // 将缓存结果设置为操作结果
-            context.Result = cacheEntry;
         }
 
         /// <summary>
