@@ -1,8 +1,5 @@
 ﻿using System.Net;
-using Easy.Common.Core.Attributes;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace Easy.Common.Core
 {
@@ -11,19 +8,6 @@ namespace Easy.Common.Core
     /// </summary>
     public class ApiResult : ApiResult<object>
     {
-        /// <summary>
-        /// 成功
-        /// </summary>
-        public static ApiResult Ok(object? data = null)
-        {
-            return new ApiResult
-            {
-                StateCode = HttpStatusCode.OK,
-                Success = true,
-                Msg = "操作成功",
-                Data = data
-            };
-        }
 
         /// <summary>
         /// 成功（有数据）
@@ -72,7 +56,7 @@ namespace Easy.Common.Core
     /// <summary>
     /// 通用结果
     /// </summary>
-    public class ApiResult<T> : IActionResult
+    public class ApiResult<T>
     {
         /// <summary>
         /// 状态码
@@ -99,28 +83,74 @@ namespace Easy.Common.Core
         /// </summary>
         public Guid TraceId { get; set; } = Guid.NewGuid();
 
+        /*
+                /// <summary>
+                /// 执行结果
+                /// </summary>
+                /// <param name="context"></param>
+                /// <returns></returns>
+                public Task ExecuteResultAsync(ActionContext context)
+                {
+                    if (context.ActionDescriptor is ControllerActionDescriptor cad)
+                    {
+                        var methodInfo = cad.MethodInfo;
+                        if (methodInfo.IsDefined(typeof(NoApiResultAttribute), inherit: true))
+                        {
+                            return Task.CompletedTask;
+                        }
+                    }
+                    var response = context.HttpContext.Response;
+                    response.ContentType ??= "application/json;charset=utf-8";
+                    return Task.FromResult(response.WriteAsync(JsonHelper.ToJson(this)));
+                }*/
 
         /// <summary>
-        /// 执行结果
+        /// 成功返回（泛型）
         /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task ExecuteResultAsync(ActionContext context)
+        public static ApiResult<T> Ok(T? data, string? message = "操作成功")
         {
-            if (context.ActionDescriptor is ControllerActionDescriptor cad)
+            return new ApiResult<T>
             {
-                var methodInfo = cad.MethodInfo;
-                if (methodInfo.IsDefined(typeof(NoApiResultAttribute), inherit: true))
-                {
-                    return Task.CompletedTask;
-                }
-            }
-            var response = context.HttpContext.Response;
-            if (response.ContentType != null)
-                response.ContentType = response.ContentType;
-            else
-                response.ContentType = "application/json;charset=utf-8";
-            return Task.FromResult(response.WriteAsync(JsonHelper.ToJson(this)));
+                StateCode = HttpStatusCode.OK,
+                Success = true,
+                Msg = message ?? "操作成功",
+                Data = data
+            };
+        }
+
+        /// <summary>
+        /// 失败返回（泛型）
+        /// </summary>
+        public static ApiResult<T> Fail(string message, T? data = default, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        {
+            return new ApiResult<T>
+            {
+                StateCode = statusCode,
+                Success = false,
+                Msg = message ?? "操作失败",
+                Data = data
+            };
+        }
+    }
+
+    /// <summary>
+    /// ApiResult扩展
+    /// </summary>
+    public static class ApiResultExtensions
+    {
+        /// <summary>
+        /// 将ApiResult转换为IActionResult
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static IActionResult ToActionResult<T>(this ApiResult<T> result)
+        {
+            return new ObjectResult(result)
+            {
+                StatusCode = (int)result.StateCode,
+                DeclaredType = typeof(ApiResult<T>)
+            };
         }
     }
 }
