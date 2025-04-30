@@ -42,14 +42,13 @@ namespace Easy.Common.Core
         /// <summary>
         /// 失败（只返回错误信息）
         /// </summary>
-        public static ApiResult Fail(string errorInfo, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        public static ApiResult Fail(string message, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         {
             return new ApiResult
             {
                 StateCode = statusCode,
                 Success = false,
-                Msg = "操作失败",
-                ErrorInfo = errorInfo,
+                Msg = message ?? "操作失败",
                 Data = null
             };
         }
@@ -57,14 +56,13 @@ namespace Easy.Common.Core
         /// <summary>
         /// 失败（带数据返回）
         /// </summary>
-        public static ApiResult Fail(string errorInfo, object? data, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        public static ApiResult Fail(string message, object? data, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         {
             return new ApiResult
             {
                 StateCode = statusCode,
                 Success = false,
-                Msg = "操作失败",
-                ErrorInfo = errorInfo,
+                Msg = message ?? "操作失败",
                 Data = data
             };
         }
@@ -100,11 +98,6 @@ namespace Easy.Common.Core
         /// 唯一码
         /// </summary>
         public Guid TraceId { get; set; } = Guid.NewGuid();
-
-        /// <summary>
-        /// 失败信息
-        /// </summary>
-        public string? ErrorInfo { set; get; }
 
 
         /// <summary>

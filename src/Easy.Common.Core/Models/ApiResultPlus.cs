@@ -5,10 +5,6 @@ namespace Easy.Common.Core;
 /// </summary>
 public class ErrorInfo
 {
-    /// <summary>
-    /// 错误代码
-    /// </summary>
-    public int Code { get; set; }
 
     /// <summary>
     /// 错误消息
@@ -20,11 +16,10 @@ public class ErrorInfo
     /// </summary>
     public object Data { get; set; }
 
-    public static ErrorInfo Error(string msg, object data = null, int code = -1)
+    public static ErrorInfo Error(string msg, object data = null)
     {
         return new ErrorInfo
         {
-            Code = code,
             Msg = msg,
             Data = data
         };
