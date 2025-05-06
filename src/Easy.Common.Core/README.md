@@ -4,8 +4,8 @@
 
 ## 安装
 
-```sh
-dotnet add package Easy.Common.Core --version 2025.04.28.2
+```xml
+<PackageReference Include="Easy.Common.Core" Version="2025.5.6.1" />
 ```
 # 1. 通用结果类
 ### 1.1 ApiResult
@@ -66,6 +66,58 @@ public ApiResult GetResult(int type)
     return res;  // 返回处理后的结果
 }
 ```
+#### 1.2.1 swagger不显示nuget包类注释解决
+```csharp
+//1.增加SchemaFilter
+
+/// <summary>
+/// ApiResult统一返回结构的SchemaFilter
+/// </summary>
+public class ApiResultSchemaFilter : ISchemaFilter
+{
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    {
+        if (!context.Type.Name.StartsWith("ApiResult", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        schema.Description = "统一返回结构";
+
+        foreach (var prop in schema.Properties)
+        {
+            var key = prop.Key.ToLowerInvariant(); // 忽略大小写
+            switch (key)
+            {
+                case "success":
+                    prop.Value.Description = "是否成功";
+                    break;
+
+                case "msg":
+                    prop.Value.Description = "返回消息";
+                    break;
+
+                case "data":
+                    prop.Value.Description = "数据内容";
+                    break;
+
+                case "statecode":
+                    prop.Value.Description = "HTTP状态码";
+                    break;
+
+                case "traceid":
+                    prop.Value.Description = "消息唯一码";
+                    break;
+            }
+        }
+    }
+}
+
+//2.在Swagger中注册SchemaFilter
+services.AddSwaggerGen(c =>
+{
+    c.SchemaFilter<ApiResultSchemaFilter>(); // 注册SchemaFilter
+});
+```
+
 ### 1.3 其他通用类
 ```
 //分页

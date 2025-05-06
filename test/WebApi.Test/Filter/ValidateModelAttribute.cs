@@ -14,7 +14,7 @@ namespace WebApi.Test.Filter
                     .Select(e => e.ErrorMessage)
                     .ToArray();
 
-                context.Result = ApiResult.Fail($"参数错误：{string.Join(',', firstError)}");
+                context.Result = ApiResult.Fail($"参数错误：{string.Join(',', firstError)}").ToIActionResult();
             }
         }
     }

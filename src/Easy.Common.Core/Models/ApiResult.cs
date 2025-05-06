@@ -23,24 +23,24 @@ namespace Easy.Common.Core
             };
         }
 
-        /// <summary>
-        /// 失败（只返回错误信息）
-        /// </summary>
-        public static ApiResult Fail(string message, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
-        {
-            return new ApiResult
-            {
-                StateCode = statusCode,
-                Success = false,
-                Msg = message ?? "操作失败",
-                Data = null
-            };
-        }
+        /* /// <summary>
+         /// 失败（只返回错误信息）
+         /// </summary>
+         public static ApiResult Fail(string message, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+         {
+             return new ApiResult
+             {
+                 StateCode = statusCode,
+                 Success = false,
+                 Msg = message ?? "操作失败",
+                 Data = null
+             };
+         }*/
 
         /// <summary>
-        /// 失败（带数据返回）
+        /// 失败
         /// </summary>
-        public static ApiResult Fail(string message, object? data, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        public static ApiResult Fail(string message, object? data = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         {
             return new ApiResult
             {
@@ -74,7 +74,7 @@ namespace Easy.Common.Core
         public string Msg { get; set; } = "操作成功";
 
         /// <summary>
-        /// 用于结果集返回
+        /// 结果集
         /// </summary>
         public T? Data { set; get; }
 
@@ -149,7 +149,9 @@ namespace Easy.Common.Core
             return new ObjectResult(result)
             {
                 StatusCode = (int)result.StateCode,
-                DeclaredType = typeof(ApiResult<T>)
+                DeclaredType = typeof(ApiResult<T>),
+                ContentTypes = { "application/json" },
+                Value = result
             };
         }
     }
