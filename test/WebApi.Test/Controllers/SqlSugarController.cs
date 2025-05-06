@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Easy.SqlSugar.Core;
 using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 
@@ -11,12 +12,14 @@ namespace WebApi.Test.Controllers
         private readonly IUserRepository _userRepository;
         private readonly ILogger<SqlSugarController> _logger;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IUserService _userService;
 
-        public SqlSugarController(IUserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository)
+        public SqlSugarController(IUserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository, IUserService userService)
         {
             _userRepository = userRepository;
             _logger = logger;
             _categoryRepository = categoryRepository;
+            _userService = userService;
         }
 
 
@@ -25,7 +28,7 @@ namespace WebApi.Test.Controllers
         {
             //所有操作都有异步方法，增加Async即可
             //查询单个
-            var obj = _userRepository.GetSingle(p => p.Id == 1);
+            var obj = _userService.GetSingle(p => p.Id == 1);
             _logger.LogInformation("查询单个结果：{@obj}", obj);
 
             var obj1 = _categoryRepository.GetSingle(p => p.ID == 1);

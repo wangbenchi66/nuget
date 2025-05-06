@@ -2,20 +2,22 @@
 using Easy.SqlSugar.Core.BiewModels;
 using SqlSugar;
 
-namespace Easy.SqlSugar.Core.BaseProvider
+namespace Easy.SqlSugar.Core
 {
     /// <summary>
     /// SqlSugar服务基类
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TRepository"></typeparam>
-    public class BaseSqlSugarService<T, TRepository> : SimpleClient<T> where T : class, new() where TRepository : IBaseSqlSugarRepository<T>
+    public class BaseSqlSugarService<T> : SimpleClient<T>, IBaseSqlSugarService<T> where T : class, new()
     {
+
         private IBaseSqlSugarRepository<T> _repository;
 
-        public BaseSqlSugarService(TRepository repository)
+        public BaseSqlSugarService()
         {
-            _repository = repository;
+            _repository = new BaseSqlSugarRepository<T>();
+            this.Context = _repository.SqlSugarDbContext;
         }
 
 

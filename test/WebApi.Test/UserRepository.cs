@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using SqlSugar;
 using WBC66.Autofac.Core;
 using Easy.SqlSugar.Core;
-using Easy.SqlSugar.Core.BaseProvider;
 using Nest;
 
 namespace WebApi.Test
@@ -58,6 +57,16 @@ namespace WebApi.Test
     public interface IUserRepository : IBaseSqlSugarRepository<User>
     {
         //Task<bool> UpdateAsync(User updateObj);
+    }
+
+    public class UserService : BaseSqlSugarService<User>, IUserService
+    {
+
+    }
+
+    public interface IUserService : IBaseSqlSugarService<User>
+    {
+
     }
 
     public class UserDto

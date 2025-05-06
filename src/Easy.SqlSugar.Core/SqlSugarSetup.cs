@@ -4,6 +4,7 @@ using SqlSugar.IOC;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Http;
+using Easy.SqlSugar.Core;
 
 namespace Easy.SqlSugar.Core
 {
@@ -130,6 +131,7 @@ namespace Easy.SqlSugar.Core
             });
             AddService(services, 2);
         }
+
         /// <summary>
         /// 服务注入
         /// </summary>
@@ -151,6 +153,8 @@ namespace Easy.SqlSugar.Core
                 }
                 services.AddSingleton(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
                 services.AddSingleton(typeof(BaseSqlSugarRepository<>));
+                services.AddSingleton(typeof(IBaseSqlSugarService<>), typeof(BaseSqlSugarService<>));
+                services.AddSingleton(typeof(BaseSqlSugarService<>));
             }
             else if (lifecycleType == 2)
             {
@@ -160,6 +164,8 @@ namespace Easy.SqlSugar.Core
                 }
                 services.AddScoped(typeof(IBaseSqlSugarRepository<>), typeof(BaseSqlSugarRepository<>));
                 services.AddScoped(typeof(BaseSqlSugarRepository<>));
+                services.AddScoped(typeof(IBaseSqlSugarService<>), typeof(BaseSqlSugarService<>));
+                services.AddScoped(typeof(BaseSqlSugarService<>));
             }
         }
 

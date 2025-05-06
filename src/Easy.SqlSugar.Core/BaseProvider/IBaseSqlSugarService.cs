@@ -2,7 +2,7 @@
 using Easy.SqlSugar.Core.BiewModels;
 using SqlSugar;
 
-namespace Easy.SqlSugar.Core.BaseProvider
+namespace Easy.SqlSugar.Core
 {
     public interface IBaseSqlSugarService<T> : ISimpleClient<T> where T : class, new()
     {
