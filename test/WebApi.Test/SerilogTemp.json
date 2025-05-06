@@ -1,0 +1,148 @@
+{
+  "Serilog": {
+    // 指定使用的 Serilog 插件（此处为控制台输出）
+    "Using": [ "Serilog.Sinks.Console" ],
+
+    // 定义一个日志级别开关，可动态控制日志级别
+    "LevelSwitches": {
+      "controlSwitch": "Verbose"
+    },
+
+    // 定义一个过滤器开关，只允许 Application = 'Sample' 的日志通过
+    "FilterSwitches": {
+      "$filterSwitch": "Application = 'Sample'"
+    },
+
+    // 设置日志最小等级
+    "MinimumLevel": {
+      "Default": "Debug", // 默认最小日志等级为 Debug
+      "Override": {
+        "Microsoft": "Warning", // Microsoft 命名空间日志等级设为 Warning，避免大量无关输出
+        "MyApp.Something.Tricky": "Verbose" // 特定命名空间输出更详细日志
+      }
+    },
+
+    // 子日志记录器（Sublogger）配置，可独立指定输出方式和等级
+    "WriteTo:Sublogger": {
+      "Name": "Logger",
+      "Args": {
+        "configureLogger": {
+          "MinimumLevel": "Verbose", // 子记录器最小等级
+          "WriteTo": [
+            {
+              "Name": "Console", // 输出到控制台
+              "Args": {
+                "outputTemplate": "[{Timestamp:HH:mm:ss} {SourceContext} [{Level}] {Message}{NewLine}{Exception}",
+                "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console" // 控制台使用灰度主题
+              }
+            }
+          ]
+        },
+        "restrictedToMinimumLevel": "Verbose", // 限制子记录器的最低等级
+        "levelSwitch": "$controlSwitch" // 受 level switch 控制
+      }
+    },
+
+    // 异步输出配置，提高性能
+    "WriteTo:Async": {
+      "Name": "Async",
+      "Args": {
+        "configure": [
+          {
+            "Name": "File", // 输出到文件
+            "Args": {
+              "path": "%TEMP%/Logs/serilog-configuration-sample.txt",
+              "outputTemplate": "{Timestamp:o} [{Level:u3}] ({Application}/{MachineName}/{ThreadId}/{ThreadName}) {Message}{NewLine}{Exception}"
+            }
+          }
+        ]
+      }
+    },
+
+    // 条件输出：仅输出 Error 和 Fatal 等级日志到另一个文件
+    "WriteTo:ConditionalSink": {
+      "Name": "Conditional",
+      "Args": {
+        "expression": "@Level in ['Error', 'Fatal']", // 过滤条件：仅错误和致命等级
+        "configureSink": [
+          {
+            "Name": "File",
+            "Args": {
+              "path": "%TEMP%/Logs/serilog-configuration-sample-errors.txt",
+              "formatter": {
+                "type": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact",
+                "valueFormatter": {
+                  "typeTagName": "customTypeTag"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+
+    // 增强器配置：为日志添加额外信息
+    "Enrich": [
+      "FromLogContext", // 从上下文中附加属性
+      "WithThreadId", // 添加线程ID
+      {
+        "Name": "AtLevel",
+        "Args": {
+          "enrichFromLevel": "Error", // 仅在错误级别及以上时添加
+          "configureEnricher": [ "WithThreadName" ] // 添加线程名称
+        }
+      },
+      {
+        "Name": "When",
+        "Args": {
+          "expression": "Application = 'Sample'", // 仅当应用名为 Sample 时执行
+          "configureEnricher": [ "WithMachineName" ] // 添加机器名
+        }
+      }
+    ],
+
+    // 自定义属性
+    "Properties": {
+      "Application": "Sample" // 默认日志属性，可在过滤和格式中使用
+    },
+
+    // 对象结构序列化的限制配置（防止过大输出）
+    "Destructure": [
+      {
+        "Name": "With",
+        "Args": { "policy": "Sample.CustomPolicy, Sample" } // 使用自定义结构化策略
+      },
+      {
+        "Name": "ToMaximumDepth",
+        "Args": { "maximumDestructuringDepth": 3 } // 最多嵌套 3 层
+      },
+      {
+        "Name": "ToMaximumStringLength",
+        "Args": { "maximumStringLength": 10 } // 字符串截断为 10
+      },
+      {
+        "Name": "ToMaximumCollectionCount",
+        "Args": { "maximumCollectionCount": 5 } // 集合最大 5 个元素
+      }
+    ],
+
+    // 日志过滤器配置
+    "Filter": [
+      {
+        "Name": "ControlledBy",
+        "Args": {
+          "switch": "$filterSwitch" // 使用前面定义的 filterSwitch 控制
+        }
+      },
+      {
+        "Name": "With",
+        "Args": {
+          "filter": {
+            "type": "Sample.CustomFilter, Sample", // 使用自定义过滤器
+            "levelFilter": "Verbose" // 适用于 Verbose 级别
+          }
+        }
+      }
+    ]
+  }
+}

@@ -22,6 +22,7 @@ using Autofac;
 using Scalar.AspNetCore;
 using Microsoft.Extensions.Options;
 using Easy.SqlSugar.Core.Common;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -42,7 +43,8 @@ builder.Services.AddSwaggerGen(s =>
     });
 });
 //Serilog
-builder.Host.AddSerilogHost(configuration);
+//builder.Host.AddSerilogHost(configuration);
+builder.Host.AddSerilogHostJson(configuration);
 
 //NLong
 //builder.AddNLogSteup(configuration);

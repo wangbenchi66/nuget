@@ -21,7 +21,23 @@ namespace WBC66.Serilog.Core
     public static class SerilogHostSetup
     {
         /// <summary>
-        /// 添加Serilog
+        /// 添加Serilog(json的方式)
+        /// </summary>
+        /// <remarks>
+        /// 完整json示例 https://github.com/serilog/serilog-settings-configuration/blob/dev/sample/Sample/appsettings.json
+        /// </remarks>
+        /// <param name="builder"></param>
+        /// <param name="configuration"></param>
+        public static void AddSerilogHostJson(this IHostBuilder builder, IConfiguration configuration)
+        {
+            builder.UseSerilog((ctx, lc) =>
+            {
+                lc.ReadFrom.Configuration(ctx.Configuration);
+            });
+        }
+
+        /// <summary>
+        /// 添加Serilog（配置类的方式）
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="configuration"></param>
@@ -69,7 +85,6 @@ namespace WBC66.Serilog.Core
             return logger;
         }
 
-
         /// <summary>
         /// 文件日志配置
         /// </summary>
@@ -89,6 +104,7 @@ namespace WBC66.Serilog.Core
                 // 日志根据级别区分，并应用通用过滤器
                 .WriteTo.Logger(lc => lc.Filter.With(new HealthCheckFilter())
                 .Filter.ByIncludingOnly(le => le.Level == logLevel)
+                //滚动日志,格式固定为日期在最后面，例如 log-20250526.txt 不能变更
                 .WriteTo.File(
                         path: path,
                         //outputTemplate: options.Template,
@@ -98,10 +114,13 @@ namespace WBC66.Serilog.Core
                         rollOnFileSizeLimit: true,
                         restrictedToMinimumLevel: logLevel
                         ));
+                /*滚动日志，指定文件名格式，其中{Date}为占位符,不需要替换，Serilog会自动替换(需要引入Serilog.Sinks.RollingFile)
+                 string levelPath = Path.Combine(path, "{Date}" + $"{level}.log");
+                 */
+                // .WriteTo.RollingFile(levelPath, retainedFileCountLimit: 7, shared: true)
             }
             return logger;
         }
-
 
         /// <summary>
         /// 控制台日志配置

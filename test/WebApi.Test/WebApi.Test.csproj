@@ -10,7 +10,7 @@
     <DocumentationFile>bin\Debug\WebApi.Test.xml</DocumentationFile>
   </PropertyGroup>
 <ItemGroup>
-	<PackageReference Include="Scalar.AspNetCore" Version="2.1.16" />
+	<PackageReference Include="Scalar.AspNetCore" Version="2.2.7" />
 	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.3.1" />
     <PackageReference Include="IGeekFan.AspNetCore.Knife4jUI" Version="0.0.16" />
     <!--<PackageReference Include="Easy.SqlSugar.Core" Version="2024.11.4.3" />-->

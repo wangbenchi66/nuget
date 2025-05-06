@@ -21,16 +21,16 @@ namespace WebApi.Test.Controllers
 
 
         [HttpGet]
-        public object Get()
+        public ApiResult Get()
         {
             //所有操作都有异步方法，增加Async即可
             //查询单个
             var obj = _userRepository.GetSingle(p => p.Id == 1);
-            //_logger.LogInformation("查询单个结果：{@obj}", obj);
+            _logger.LogInformation("查询单个结果：{@obj}", obj);
 
             var obj1 = _categoryRepository.GetSingle(p => p.ID == 1);
             //_logger.LogInformation("查询单个结果：{@obj1}", obj1);
-            return obj;
+            return ApiResult.Ok(obj);
             //查询列表
             var list = _userRepository.GetList(p => p.Id > 0);
             //分页查询 (条件,排序,页码,每页条数)
@@ -184,7 +184,7 @@ namespace WebApi.Test.Controllers
 
 
 
-            return "ok";
+            return ApiResult.Ok();
         }
 
         /// <summary>

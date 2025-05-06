@@ -18,7 +18,7 @@ namespace WBC66.Serilog.Core
         /// <summary>
         /// 配置文件中 Serilog 选项的位置。
         /// </summary>
-        public const string Position = "SerilogOptions";
+        public const string Position = "Serilog";
 
         /// <summary>
         /// 最小日志记录级别。
