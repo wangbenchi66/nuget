@@ -3,7 +3,7 @@ namespace Easy.Common.Core;
 public static class DateTimeExtensions
 {
 
-    #region 返回当前的毫秒时间戳
+    #region 时间戳相关
 
     /// <summary>
     /// 返回当前的毫秒时间戳
@@ -14,9 +14,65 @@ public static class DateTimeExtensions
         return timeTicks.ToString();
     }
 
-    #endregion 返回当前的毫秒时间戳
+    /// <summary>
+    /// 获取指定时间的毫秒时间戳
+    /// </summary>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    public static string Msectime(DateTime time)
+    {
+        long timeTicks = (time.ToUniversalTime().Ticks - 621355968000000000) / 10000;
+        return timeTicks.ToString();
+    }
 
-    #region 剩余多久时间文字描述
+    /// <summary>
+    /// 时间转换为秒的时间戳
+    /// </summary>
+    /// <param name="time"> </param>
+    /// <returns> </returns>
+    private static long ConvertTicks(DateTime time)
+    {
+        long currentTicks = time.Ticks;
+        DateTime dtFrom = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        long currentMillis = (currentTicks - dtFrom.Ticks) / 10000000;  //转换为秒为Ticks/10000000，转换为毫秒Ticks/10000
+        return currentMillis;
+    }
+
+    /// <summary>
+    /// 获取10位时间戳
+    /// </summary>
+    /// <returns> </returns>
+    public static long GetTimeStampByTotalSeconds()
+    {
+        TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        return Convert.ToInt64(ts.TotalSeconds);
+    }
+
+    /// <summary>
+    /// 获取13位时间戳
+    /// </summary>
+    /// <returns> </returns>
+    public static long GetTimeStampByTotalMilliseconds()
+    {
+        TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        return Convert.ToInt64(ts.TotalMilliseconds);
+    }
+
+    /// <summary>
+    /// 将当前时间转换为时间戳(秒)
+    /// </summary>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    public static long ConvertDateTimeToInt(this DateTime time)
+    {
+        DateTime dtStart = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        TimeSpan toNow = time - dtStart;
+        return Convert.ToInt64(toNow.TotalSeconds);
+    }
+
+    #endregion 时间戳相关
+
+    #region 剩余多久时间
 
     /// <summary>
     /// 剩余多久时间
@@ -46,31 +102,6 @@ public static class DateTimeExtensions
             }
         }
     }
-
-    #endregion 剩余多久时间文字描述
-
-    #region 剩余多久时间返回时间类型
-
-    /// <summary>
-    /// 剩余多久时间
-    /// </summary>
-    /// <param name="remainingTime"> </param>
-    /// <param name="day"> </param>
-    /// <param name="hours"> </param>
-    /// <param name="minute"> </param>
-    /// <param name="seconds"> </param>
-    public static void GetBackTime(DateTime remainingTime, out int day, out int hours, out int minute, out int seconds)
-    {
-        TimeSpan timeSpan = remainingTime - DateTime.Now;
-        day = timeSpan.Days;
-        hours = timeSpan.Hours;
-        minute = timeSpan.Minutes;
-        seconds = timeSpan.Seconds;
-    }
-
-    #endregion 剩余多久时间返回时间类型
-
-    #region 计算时间戳剩余多久时间
 
     /// <summary>
     /// 计算时间戳剩余多久时间
@@ -138,19 +169,23 @@ public static class DateTimeExtensions
     }
 
     /// <summary>
-    /// 时间转换为秒的时间戳
+    /// 剩余多久时间
     /// </summary>
-    /// <param name="time"> </param>
-    /// <returns> </returns>
-    private static long ConvertTicks(DateTime time)
+    /// <param name="remainingTime"> </param>
+    /// <param name="day"> </param>
+    /// <param name="hours"> </param>
+    /// <param name="minute"> </param>
+    /// <param name="seconds"> </param>
+    public static void GetBackTime(DateTime remainingTime, out int day, out int hours, out int minute, out int seconds)
     {
-        long currentTicks = time.Ticks;
-        DateTime dtFrom = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-        long currentMillis = (currentTicks - dtFrom.Ticks) / 10000000;  //转换为秒为Ticks/10000000，转换为毫秒Ticks/10000
-        return currentMillis;
+        TimeSpan timeSpan = remainingTime - DateTime.Now;
+        day = timeSpan.Days;
+        hours = timeSpan.Hours;
+        minute = timeSpan.Minutes;
+        seconds = timeSpan.Seconds;
     }
 
-    #endregion 计算时间戳剩余多久时间
+    #endregion 剩余多久时间
 
     #region 获取现在是星期几
 
@@ -198,46 +233,51 @@ public static class DateTimeExtensions
         return week;
     }
 
-    #endregion 获取现在是星期几
-
-    #region 获取10位时间戳
-
     /// <summary>
-    /// 获取10位时间戳
+    /// 获取指定时间是星期几
     /// </summary>
-    /// <returns> </returns>
-    public static long GetTimeStampByTotalSeconds()
-    {
-        TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
-        return Convert.ToInt64(ts.TotalSeconds);
-    }
-
-    #endregion 获取10位时间戳
-
-    #region 获取13位时间戳
-
-    /// <summary>
-    /// 获取13位时间戳
-    /// </summary>
-    /// <returns> </returns>
-    public static long GetTimeStampByTotalMilliseconds()
-    {
-        TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
-        return Convert.ToInt64(ts.TotalMilliseconds);
-    }
-
-    #endregion 获取13位时间戳
-
-    /// <summary>
-    /// 将当前时间转换为时间戳
-    /// </summary>
-    /// <param name="time"></param>
+    /// <param name="dateTime"></param>
     /// <returns></returns>
-    public static long ConvertDateTimeToInt(this DateTime time)
+    public static string GetWeek(DateTime dateTime)
     {
-        DateTime dtStart = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-        TimeSpan toNow = time - dtStart;
-        return Convert.ToInt64(toNow.TotalSeconds);
+        string week = string.Empty;
+        switch (dateTime.DayOfWeek)
+        {
+            case DayOfWeek.Monday:
+                week = "周一";
+                break;
+
+            case DayOfWeek.Tuesday:
+                week = "周二";
+                break;
+
+            case DayOfWeek.Wednesday:
+                week = "周三";
+                break;
+
+            case DayOfWeek.Thursday:
+                week = "周四";
+                break;
+
+            case DayOfWeek.Friday:
+                week = "周五";
+                break;
+
+            case DayOfWeek.Saturday:
+                week = "周六";
+                break;
+
+            case DayOfWeek.Sunday:
+                week = "周日";
+                break;
+
+            default:
+                week = "N/A";
+                break;
+        }
+        return week;
     }
+
+    #endregion 获取现在是星期几
 
 }

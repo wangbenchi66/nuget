@@ -165,7 +165,7 @@ namespace Easy.Common.Core
         {
             if (conversionType.IsGenericType && conversionType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
             {
-                if (string.IsNullOrEmpty(value))
+                if (value.IsNull())
                     return null;
                 conversionType = Nullable.GetUnderlyingType(conversionType);
             }
@@ -183,7 +183,7 @@ namespace Easy.Common.Core
         /// <returns>转换后的数值</returns>
         public static T? ToValue<T>(this string value) where T : struct
         {
-            if (string.IsNullOrEmpty(value)) return null;
+            if (value.IsNull()) return null;
             var type = typeof(T);
 
             if (type == typeof(sbyte))

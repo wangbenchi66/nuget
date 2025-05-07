@@ -332,6 +332,20 @@ object dbNullValue = DBNull.Value;
 DateTime defaultDateValue = dbNullValue.ToDate();  // defaultDateValue = DateTime.MinValue
 Console.WriteLine($"defaultIntValue: {defaultIntValue}, defaultDateValue: {defaultDateValue}");
 ```
+# 8. 钉钉推送
+``` csharp
+//初始化
+private DingTalkExtensions _dingTalkExtend = new DingTalkExtensions("src", "accessToken");
+//每个方法都有bool返回值，表示是否发送成功
+
+//发送文本消息
+await _dingTalkExtend.SendTextMsgAsync("测试消息");
+//发送链接消息
+await _dingTalkExtend.SendLinkMsgAsync("测试标题", "测试内容", "图片地址", "消息跳转地址");
+//发送markdown消息
+await _dingTalkExtend.SendMarkdownMsgAsync("测试标题", "#测试内容(MD格式)");
+
+```
 
 
 

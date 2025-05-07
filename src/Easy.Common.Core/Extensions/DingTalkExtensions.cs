@@ -37,7 +37,7 @@ namespace Easy.Common.Core.Extensions
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        public async Task SendTextMsgAsync(string msg)
+        public async Task<bool> SendTextMsgAsync(string msg)
         {
             var param = new
             {
@@ -47,7 +47,7 @@ namespace Easy.Common.Core.Extensions
                     content = msg
                 }
             };
-            await PostAsync(GetUrl(), param.ToJson());
+            return await PostAsync(GetUrl(), param.ToJson());
         }
 
         /// <summary>
@@ -58,20 +58,20 @@ namespace Easy.Common.Core.Extensions
         /// <param name="picUrl"></param>
         /// <param name="messageUrl"></param>
         /// <returns></returns>
-        public async Task SendLinkMsgAsync(string title, string text, string picUrl, string messageUrl)
+        public async Task<bool> SendLinkMsgAsync(string title, string text, string picUrl, string messageUrl)
         {
             var param = new
             {
                 msgtype = "link",
                 link = new
                 {
-                    text = text,
-                    title = title,
+                    text,
+                    title,
                     picUrl,
-                    messageUrl = messageUrl
+                    messageUrl
                 }
             };
-            await PostAsync(GetUrl(), param.ToJson());
+            return await PostAsync(GetUrl(), param.ToJson());
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace Easy.Common.Core.Extensions
         /// <param name="title"></param>
         /// <param name="text"></param>
         /// <returns></returns>
-        public async Task SendMarkdownMsgAsync(string title, string text)
+        public async Task<bool> SendMarkdownMsgAsync(string title, string text)
         {
             var param = new
             {
@@ -91,18 +91,18 @@ namespace Easy.Common.Core.Extensions
                     text
                 }
             };
-            await PostAsync(GetUrl(), param.ToJson());
+            return await PostAsync(GetUrl(), param.ToJson());
         }
 
-        private async Task PostAsync(string url, string param)
+        private async Task<bool> PostAsync(string url, string param)
         {
-            if (url.IsNull()) return;
+            if (url.IsNull()) return false;
             try
             {
-
                 HttpClient httpClient = new HttpClient();
                 HttpContent httpContent = new StringContent(param, Encoding.UTF8, "application/json");
-                await httpClient.PostAsync(url, httpContent);
+                var res = await httpClient.PostAsync(url, httpContent);
+                return res.IsSuccessStatusCode;
             }
             catch (HttpRequestException ex)
             {
@@ -119,6 +119,7 @@ namespace Easy.Common.Core.Extensions
                 // 处理其他异常
                 Console.WriteLine($"钉钉推送请求异常: {ex.Message}");
             }
+            return false;
         }
     }
 }
