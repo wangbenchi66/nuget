@@ -26,7 +26,7 @@ namespace Easy.Common.Core.Extensions
         /// <returns></returns>
         private string GetUrl()
         {
-            if (_sec.IsNull()) return string.Empty;
+            if (_sec.IsNull() || _accessToken.IsNull()) return string.Empty;
             long timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             string sign = FoundationExtensions.HmacSHA256(timestamp, _sec);
             return $"https://oapi.dingtalk.com/robot/send?access_token={_accessToken}&timestamp={timestamp}&sign={sign}";
@@ -96,7 +96,11 @@ namespace Easy.Common.Core.Extensions
 
         private async Task<bool> PostAsync(string url, string param)
         {
-            if (url.IsNull()) return false;
+            if (url.IsNull())
+            {
+                Console.WriteLine("请检查秘钥是否填写");
+                return false;
+            }
             try
             {
                 HttpClient httpClient = new HttpClient();

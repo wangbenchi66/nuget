@@ -131,13 +131,13 @@ builder.Host.AddNLogHost();
 builder.AddNLogSteup(configuration);
 ```
 
-## 3.[SqlSugar配置](./src/Easy.SqlSugar.Core/README.md)
-## 4.[EF配置](./src/Easy.EF.Core/README.md)
+## 3. [SqlSugar配置](./src/Easy.SqlSugar.Core/README.md)
+## 4. [EF配置](./src/Easy.EF.Core/README.md)
 ## 5. [Autofac配置](./src/WBC66.Autofac.Core/README.md)
 ## 6. [Aop缓存配置](./src/WBC66.Cache.Core/README.md)
 
 ## 7. 过滤器,中间件
-### 1. 过滤器
+### 7.1. 过滤器
 ``` csharp
 //幂等性过滤器
 builder.Services.AddControllers(options =>
@@ -148,7 +148,7 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<IdempotentFilter>();
 });
 ```
-### 2. 中间件
+### 7.2. 中间件
 ``` csharp
 //添加自定义的中间件
 app.UseMiddleware<LogMiddleware>();//添加日志中间件

@@ -23,6 +23,7 @@ using Scalar.AspNetCore;
 using Microsoft.Extensions.Options;
 using Easy.SqlSugar.Core.Common;
 using Serilog;
+using WebApi.Test.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -126,6 +127,10 @@ builder.Services.AddSingleton(typeof(IBaseEFRepository<,>), typeof(BaseEFReposit
 builder.Services.AddSingleton<IUserEFRepository, UserEFRepository>();*/
 //builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+//Ip2region.Net
+builder.Services.AddSingleton<IpService>(_ => new IpService(@"E:\Code\个人项目\nuget\test\WebApi.Test\ip2region.xdb"));
+
+
 builder.Services.AddControllers(options =>
 {
     //添加自定义的模型验证过滤器
@@ -149,6 +154,8 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 //动态api
 builder.Services.AddDynamicApi();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
