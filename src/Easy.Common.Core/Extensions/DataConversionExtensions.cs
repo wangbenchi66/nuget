@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Easy.Common.Core
 {
@@ -212,4 +214,23 @@ namespace Easy.Common.Core
 
         #endregion 字符串转换为基本数据类型
     }
+
+    /// <summary>
+    /// json时间格式化转换器
+    /// </summary>
+    /// <remarks>
+    /// 控制器中使用 例如
+    /// AddJsonOptions(options =>{
+    /// options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
+    /// });
+    /// </remarks>
+    public class DateTimeConverter : JsonConverter<DateTime>
+    {
+        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            => DateTime.Parse(reader.GetString()!);
+
+        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+            => writer.WriteStringValue(value.ToString("yyyy-MM-dd HH:mm:ss"));
+    }
+
 }
