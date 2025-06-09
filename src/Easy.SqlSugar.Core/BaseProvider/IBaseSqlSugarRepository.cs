@@ -416,6 +416,25 @@ namespace Easy.SqlSugar.Core
         /// <returns>分页查询对象</returns>
         ISugarQueryable<T> IQueryablePage(ISugarQueryable<T> queryable, int pageIndex, int pagesize, out int rowcount,
             Dictionary<string, QueryOrderBy> orderBy, bool returnRowCount = true);
+        /// <summary>
+        /// 分页
+        /// </summary>
+        /// <param name="queryable"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pagesize"></param>
+        /// <param name="returnRowCount"></param>
+        /// <returns></returns>
+        IPageList<T> QueryPage(ISugarQueryable<T> queryable, int pageIndex, int pagesize, bool returnRowCount = true);
+
+        /// <summary>
+        /// 分页
+        /// </summary>
+        /// <param name="queryable"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pagesize"></param>
+        /// <param name="returnRowCount"></param>
+        /// <returns></returns>
+        Task<IPageList<T>> QueryPageAsync(ISugarQueryable<T> queryable, int pageIndex, int pagesize, bool returnRowCount = true);
 
         #endregion 查询分页数据
 

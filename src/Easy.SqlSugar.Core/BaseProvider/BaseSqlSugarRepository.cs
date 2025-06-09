@@ -680,6 +680,38 @@ namespace Easy.SqlSugar.Core
                 .Skip((pageIndex - 1) * pagesize)
                 .Take(pagesize);
         }
+        /// <summary>
+        /// 分页
+        /// </summary>
+        /// <param name="queryable"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pagesize"></param>
+        /// <param name="returnRowCount"></param>
+        /// <returns></returns>
+        public virtual IPageList<T> QueryPage(ISugarQueryable<T> queryable, int pageIndex, int pagesize, bool returnRowCount = true)
+        {
+            pageIndex = pageIndex <= 0 ? 1 : pageIndex;
+            pagesize = pagesize <= 0 ? 10 : pagesize;
+            int rowcount = 0;
+            List<T>? list = returnRowCount ? queryable.ToPageList(pageIndex, pagesize, ref rowcount) : queryable.ToPageList(pageIndex, pagesize);
+            return new PageList<T>(list, pageIndex, pagesize, rowcount);
+        }
+        /// <summary>
+        /// 分页
+        /// </summary>
+        /// <param name="queryable"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pagesize"></param>
+        /// <param name="returnRowCount"></param>
+        /// <returns></returns>
+        public virtual async Task<IPageList<T>> QueryPageAsync(ISugarQueryable<T> queryable, int pageIndex, int pagesize, bool returnRowCount = true)
+        {
+            pageIndex = pageIndex <= 0 ? 1 : pageIndex;
+            pagesize = pagesize <= 0 ? 10 : pagesize;
+            RefAsync<int> rowcount = 0;
+            List<T>? list = returnRowCount ? await queryable.ToPageListAsync(pageIndex, pagesize, rowcount) : await queryable.ToPageListAsync(pageIndex, pagesize);
+            return new PageList<T>(list, pageIndex, pagesize, rowcount);
+        }
 
         #endregion 根据条件查询分页数据
 
