@@ -85,11 +85,6 @@ namespace Easy.SqlSugar.Core
 
         #region 写入实体数据
 
-        public virtual async Task<bool> UpdateAsync(T updateObj)
-        {
-            return await SqlSugarDbContext.Updateable(updateObj).ExecuteCommandHasChangeAsync();
-        }
-
         /// <summary>
         /// 写入实体数据
         /// </summary>

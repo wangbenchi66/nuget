@@ -11,7 +11,7 @@
 	  <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
 	  <PackageReleaseNotes>基于SqlSugar进行封装使用</PackageReleaseNotes>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Version>2025.4.18.1</Version>
+	  <Version>2025.6.09.1</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -26,7 +26,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="SqlSugar.IOC" Version="2.0.0" />
-		<PackageReference Include="sqlSugarCore" Version="5.1.4.185" />
+		<PackageReference Include="sqlSugarCore" Version="5.1.4.196" />
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
 		<!--<PackageReference Include="CSRedisCore" Version="3.8.804" />

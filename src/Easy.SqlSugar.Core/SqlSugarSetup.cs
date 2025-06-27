@@ -57,7 +57,7 @@ namespace Easy.SqlSugar.Core
             }
         }
 
-        /// <summary>
+        /*/// <summary>
         /// SqlSugar服务 Singleton单例
         /// </summary>
         /// <param name="services"></param>
@@ -73,7 +73,7 @@ namespace Easy.SqlSugar.Core
                 return configs;
             });
             AddService(services, 1);
-        }
+        }*/
 
         /// <summary>
         /// SqlSugar服务 Singleton单例
@@ -94,7 +94,7 @@ namespace Easy.SqlSugar.Core
         }
 
         /// <summary>
-        /// SqlSugar服务 Scoped作用域
+        /// SqlSugar服务 Scoped作用域(首选)
         /// 所有依赖BaseSqlSugarRepository的类会自动注入
         /// </summary>
         /// <param name="services"></param>
