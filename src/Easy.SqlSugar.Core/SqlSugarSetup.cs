@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using SqlSugar;
 using SqlSugar.IOC;
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.AspNetCore.Http;
-using Easy.SqlSugar.Core;
 
 namespace Easy.SqlSugar.Core
 {
@@ -167,6 +168,11 @@ namespace Easy.SqlSugar.Core
                 services.AddScoped(typeof(IBaseSqlSugarService<>), typeof(BaseSqlSugarService<>));
                 services.AddScoped(typeof(BaseSqlSugarService<>));
             }
+            //雪花id设置,雪花id必须是0-31之内
+            string machineTag = Environment.MachineName + "_" + GetLocalIp() + "_" + GetMac();
+            int workId = Math.Abs(machineTag.GetHashCode()) % 32;
+            SnowFlakeSingle.WorkId = workId;
+
         }
 
         private static IEnumerable<Type> GetAssemblyList(string name = "BaseSqlSugarRepository")
@@ -174,5 +180,21 @@ namespace Easy.SqlSugar.Core
             var assembly = Assembly.GetEntryAssembly();
             return assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == name);
         }
+
+        private static string GetLocalIp()
+        {
+            return Dns.GetHostAddresses(Dns.GetHostName())
+                      .FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork)?.ToString() ?? "";
+        }
+
+        private static string GetMac()
+        {
+            return NetworkInterface.GetAllNetworkInterfaces()
+                    .FirstOrDefault(x => x.NetworkInterfaceType != NetworkInterfaceType.Loopback &&
+                                         x.OperationalStatus == OperationalStatus.Up)?
+                    .GetPhysicalAddress()
+                    .ToString() ?? "";
+        }
+
     }
 }
