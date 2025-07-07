@@ -11,6 +11,7 @@
   </PropertyGroup>
 <ItemGroup>
 	<PackageReference Include="IP2Region.Net" Version="2.0.2" />
+	<PackageReference Include="Mapster" Version="7.4.0" />
 	<PackageReference Include="Rezero.Api" Version="1.8.14" />
 	<PackageReference Include="Scalar.AspNetCore" Version="2.4.13" />
 	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.3.1" />
