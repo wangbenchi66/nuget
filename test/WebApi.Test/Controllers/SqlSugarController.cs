@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Easy.SqlSugar.Core;
 using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
@@ -24,12 +25,13 @@ namespace WebApi.Test.Controllers
 
 
         [HttpGet]
-        public ApiResult Get()
+        public async Task<ApiResult> Get()
         {
             //所有操作都有异步方法，增加Async即可
             //查询单个
             var obj = _userService.GetSingle(p => p.Id == 1);
             _logger.LogInformation("查询单个结果：{@obj}", obj);
+            var e = await _userService.ExistsAsync(x => x.Id == 1);
 
             var obj1 = _categoryRepository.GetSingle(p => p.ID == 1);
             //_logger.LogInformation("查询单个结果：{@obj1}", obj1);
@@ -308,6 +310,26 @@ namespace WebApi.Test.Controllers
             var user = new User() { Id = 99999, Name = $"admin1" };
             await _userRepository.UpdateAsync(user);
             return "并发测试完成";
+        }
+
+        /// <summary>
+        /// 测试静态的上下文
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("StaticContext")]
+        public object StaticContext()
+        {
+            //使用静态上下文
+            Console.WriteLine(SugarDbManger.Db.ContextID);
+            var db = SugarDbManger.GetConfigDb("journal");
+            Console.WriteLine(db.ContextID);
+            var db2 = SugarDbManger.GetTenantDb<User>();
+            Console.WriteLine(db2.ContextID);
+            var list = SugarDbManger.GetNewDb();
+            Console.WriteLine(list.ContextID);
+            //var obj = SugarDbManger.GetInstance().Queryable<User>().Where(p => p.Id == 1).First();
+            //return obj;
+            return null;
         }
     }
 }

@@ -10,7 +10,7 @@
 	  <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
 	  <PackageReleaseNotes>基于Panda.DynamicWebApi</PackageReleaseNotes>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Version>2025.02.25.1</Version>
+	  <Version>2025.05.14.1</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -25,13 +25,6 @@
 	</ItemGroup>
   <ItemGroup>
 	  <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  
-  <ItemGroup>
-	  <None Include=".\README.md" >
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
-	  </None>
   </ItemGroup>
 
 </Project>

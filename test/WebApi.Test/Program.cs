@@ -1,29 +1,20 @@
-﻿using Easy.Common.Core;
-using IGeekFan.AspNetCore.Knife4jUI;
+﻿using IGeekFan.AspNetCore.Knife4jUI;
 using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 using WBC66.Autofac.Core;
-using WBC66.Cache.Core;
-using WBC66.Core;
-using WBC66.Core.Filters;
 using WBC66.Serilog.Core;
 using Easy.SqlSugar.Core;
 using WebApi.Test.Filter;
 using Microsoft.Extensions.Caching.Memory;
 using Easy.DynamicApi;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Easy.EF.Core.BaseProvider;
-using Easy.EF.Core;
-using WebApi.Test.Apis;
-using Microsoft.EntityFrameworkCore;
-using SqlSugar.IOC;
-using System.Text;
-using Autofac;
 using Scalar.AspNetCore;
-using Microsoft.Extensions.Options;
 using Easy.SqlSugar.Core.Common;
-using Serilog;
 using WebApi.Test.Service;
+using ReZero;
+using System.Reflection;
+using ReZero.SuperAPI;
+using Yitter.IdGenerator;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -98,22 +89,40 @@ foreach (var item in list)
 }
 var sqlSugarScope = new SqlSugarScope(list, db =>
 {
-    var configId = db.CurrentConnectionConfig.ConfigId;
-    var dbType = db.CurrentConnectionConfig.DbType;
-    var sqlFileInfo = db.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
-    db.Aop.OnLogExecuting = (sql, p) =>
+    foreach (var item in list)
     {
-        Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
-    };
-    db.Aop.OnError = (SqlSugarException exp) =>
-    {
-        Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));
-    };
+        var configId = item.ConfigId;
+        var dbType = item.DbType;
+        var conn = db.GetConnection(configId);
+        var sqlFileInfo = conn.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
+        var aop = conn.Aop;
+        aop.OnLogExecuting = (sql, p) =>
+        {
+            Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
+        };
+        aop.OnError = (SqlSugarException exp) =>
+        {
+            Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));
+        };
+    }
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);
 /*var listIoc = configuration.GetSection("DBS").Get<List<IocConfig>>();
 builder.Services.AddSqlSugarIocSetup(listIoc);*/
+SnowFlakeSingle.WorkId = 1;
+var options = new IdGeneratorOptions
+{
+    WorkerIdBitLength = 4,  // 最大 16 台机器
+    SeqBitLength = 6,       // 每毫秒最多 64 个 ID
+    BaseTime = new DateTime(2020, 1, 1)
+};
+
+YitIdHelper.SetIdGenerator(options);
+StaticConfig.CustomSnowFlakeFunc = () =>
+{
+    return YitIdHelper.NextId();
+};
 
 /*
 //EF
@@ -128,7 +137,7 @@ builder.Services.AddSingleton<IUserEFRepository, UserEFRepository>();*/
 //builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 //Ip2region.Net
-builder.Services.AddSingleton<IpService>(_ => new IpService(@"E:\Code\个人项目\nuget\test\WebApi.Test\ip2region.xdb"));
+builder.Services.AddSingleton<IpService>(_ => new IpService(@".\ip2region.xdb"));
 
 
 builder.Services.AddControllers(options =>
@@ -154,9 +163,18 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 //动态api
 builder.Services.AddDynamicApi();
-
+/*builder.Services.AddReZeroServices(api =>
+{
+    //有重载可换json文件
+    var apiObj = new SuperAPIOptions();
+    apiObj!.DependencyInjectionOptions = new DependencyInjectionOptions(Assembly.GetExecutingAssembly());
+    //启用超级API
+    api.EnableSuperApi(apiObj);//默认载体为sqlite ，有重载可以配置数据库
+});
+*/
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 //app.UseAuthorization();

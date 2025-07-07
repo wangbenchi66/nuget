@@ -143,7 +143,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         private static void AddService(IServiceCollection services, int lifecycleType = 1)
         {
-            services.AddHttpContextAccessor();
+            //services.AddHttpContextAccessor();
             AppService.Services = services;
             var bseSqlSugarRepositorytypes = GetAssemblyList();
             if (lifecycleType == 1)

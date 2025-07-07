@@ -25,7 +25,7 @@ namespace WebApi.Test.Apis
             return _userRepository.GetList(p => true);
         }
 
-        public object Add()
+        public object Add1()
         {
             /*var user = _userRepository.EFContext.UserEF.Add(new UserEF { Name = "test" });
             _userRepository.EFContext.SaveChanges();
@@ -33,7 +33,7 @@ namespace WebApi.Test.Apis
             return _userRepository.InsertReturnIdentity(new UserEF { Name = "test" });
         }
 
-        public object Update()
+        public object Update1()
         {
             var user = new UserEF { Id = 1, Name = "自定义", CreateTime = DateTime.Now };
             //return _userRepository.Update(new UserEF { Id = 1, Name = "自定义" }, true);

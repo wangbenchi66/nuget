@@ -22,7 +22,7 @@ namespace WebApi.Test.Apis
         {
             return await _bulkNumRepository.GetSingleAsync(x=>x.Id==1);
         }
-        public async Task<object> Add()
+        public async Task<object> Add1()
         {
             //使用遍历的模式插入三条
             var objs= Enumerable.Range(1, 3)
@@ -31,7 +31,7 @@ namespace WebApi.Test.Apis
             return await _bulkNumRepository.InsertAsync(objs);
         }
 
-        public async Task<object> Update()
+        public async Task<object> Update1()
         {
             var objs = await _bulkNumRepository.GetListAsync(x => true);
             //给所有的Num加1.1
