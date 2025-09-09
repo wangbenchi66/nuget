@@ -611,9 +611,9 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="func"></param>
         /// <returns></returns>
-        public virtual bool DbContextBeginTransaction(Func<bool> func)
+        public virtual bool DbContextBeginTransaction(Func<bool> func, Action<Exception>? logAction = null)
         {
-            return _repository.DbContextBeginTransaction(func);
+            return _repository.DbContextBeginTransaction(func, logAction);
         }
 
         /// <summary>
@@ -621,9 +621,9 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="func"></param>
         /// <returns></returns>
-        public virtual async Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func)
+        public virtual async Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func, Action<Exception>? logAction = null)
         {
-            return await _repository.DbContextBeginTransactionAsync(func);
+            return await _repository.DbContextBeginTransactionAsync(func, logAction);
         }
 
         #endregion 事务

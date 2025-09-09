@@ -416,6 +416,7 @@ namespace Easy.SqlSugar.Core
         /// <returns>分页查询对象</returns>
         ISugarQueryable<T> IQueryablePage(ISugarQueryable<T> queryable, int pageIndex, int pagesize, out int rowcount,
             Dictionary<string, QueryOrderBy> orderBy, bool returnRowCount = true);
+
         /// <summary>
         /// 分页
         /// </summary>
@@ -540,14 +541,14 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="func">事务操作</param>
         /// <returns>事务是否成功</returns>
-        bool DbContextBeginTransaction(Func<bool> func);
+        bool DbContextBeginTransaction(Func<bool> func, Action<Exception>? logAction = null);
 
         /// <summary>
         /// 开启事务
         /// </summary>
         /// <param name="func">事务操作</param>
         /// <returns>事务是否成功</returns>
-        Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func);
+        Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func, Action<Exception>? logAction = null);
 
         #endregion 开启事务
     }

@@ -883,3 +883,4 @@ namespace Easy.SqlSugar.Core.Cache
     }
 }
 ```
+项目gitee地址：https://gitee.com/wangbenchi66/nuget

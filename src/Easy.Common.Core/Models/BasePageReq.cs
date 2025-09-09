@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
-namespace Easy.Common.Core.Models
+namespace Easy.Common.Core
 {
     /// <summary>
     /// 分页请求基类

@@ -30,6 +30,7 @@ namespace WebApi.Test.Apis
             //因为 UserDto 里 FullName、City 不对应，需要配置或映射自定义。
             return dto;
         }
+
         /// <summary>
         /// 配置映射规则
         /// </summary>
@@ -55,6 +56,7 @@ namespace WebApi.Test.Apis
             var dto = user.Adapt<UserDto>();
             return dto;
         }
+
         /// <summary>
         /// 即时映射（无需预先配置）
         /// </summary>
@@ -74,11 +76,10 @@ namespace WebApi.Test.Apis
             };
 
             var dto = user.Adapt<UserDto>(new TypeAdapterConfig()
-    .NewConfig<User, UserDto>()
-        .Map(dest => dest.FullName, src => $"{src.FirstName} {src.LastName}")
-        .Map(dest => dest.City, src => src.Address.City)
-        .Config);  // ⚠️ 注意要加 .Config
-
+                            .NewConfig<User, UserDto>()
+                            .Map(dest => dest.FullName, src => $"{src.FirstName} {src.LastName}")
+                            .Map(dest => dest.City, src => src.Address.City)
+                            .Config);  // 要加 .Config
             return dto;
         }
 
@@ -121,6 +122,7 @@ namespace WebApi.Test.Apis
                 .Config);
             return dtos;
         }
+
         /// <summary>
         /// 深拷贝示例
         /// </summary>

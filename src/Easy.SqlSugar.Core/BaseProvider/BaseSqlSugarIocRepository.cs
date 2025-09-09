@@ -643,6 +643,7 @@ namespace Easy.SqlSugar.Core
                 .Skip((pageIndex - 1) * pagesize)
                 .Take(pagesize);
         }
+
         /// <summary>
         /// 分页
         /// </summary>
@@ -659,6 +660,7 @@ namespace Easy.SqlSugar.Core
             List<T>? list = returnRowCount ? queryable.ToPageList(pageIndex, pagesize, ref rowcount) : queryable.ToPageList(pageIndex, pagesize);
             return new PageList<T>(list, pageIndex, pagesize, rowcount);
         }
+
         /// <summary>
         /// 分页
         /// </summary>
@@ -675,6 +677,7 @@ namespace Easy.SqlSugar.Core
             List<T>? list = returnRowCount ? await queryable.ToPageListAsync(pageIndex, pagesize, rowcount) : await queryable.ToPageListAsync(pageIndex, pagesize);
             return new PageList<T>(list, pageIndex, pagesize, rowcount);
         }
+
         #endregion 根据条件查询分页数据
 
         #region 执行sql语句
@@ -899,7 +902,7 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="func"></param>
         /// <returns></returns>
-        public virtual bool DbContextBeginTransaction(Func<bool> func)
+        public virtual bool DbContextBeginTransaction(Func<bool> func, Action<Exception>? logAction = null)
         {
             var result = new bool();
             var tran = SqlSugarTenant;
@@ -922,6 +925,7 @@ namespace Easy.SqlSugar.Core
                 tran.RollbackTran();
                 result = false;
                 Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
+                logAction?.Invoke(ex);
             }
             return result;
         }
@@ -931,7 +935,7 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="func"></param>
         /// <returns></returns>
-        public virtual async Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func)
+        public virtual async Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func, Action<Exception>? logAction = null)
         {
             var result = new bool();
             var tran = SqlSugarTenant;
@@ -954,6 +958,7 @@ namespace Easy.SqlSugar.Core
                 await tran.RollbackTranAsync();
                 result = false;
                 Console.WriteLine("执行事务发生错误，错误信息:{0},详细信息:{1}", ex.Message, ex);
+                logAction?.Invoke(ex);
             }
             return result;
         }

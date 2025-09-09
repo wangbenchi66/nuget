@@ -412,14 +412,14 @@ namespace Easy.SqlSugar.Core
         /// </summary>
         /// <param name="func"></param>
         /// <returns></returns>
-        bool DbContextBeginTransaction(Func<bool> func);
+        bool DbContextBeginTransaction(Func<bool> func, Action<Exception>? logAction = null);
 
         /// <summary>
         /// 事务
         /// </summary>
         /// <param name="func"></param>
         /// <returns></returns>
-        Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func);
+        Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func, Action<Exception>? logAction = null);
 
         #endregion 事务
     }
