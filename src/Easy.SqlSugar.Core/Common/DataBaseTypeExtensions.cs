@@ -108,6 +108,11 @@ namespace Easy.SqlSugar.Core.Common
             {
                 return DbType.Sqlite;
             }
+            //mongodb
+            if (connectionString.Contains("mongodb", StringComparison.OrdinalIgnoreCase))
+            {
+                return DbType.MongoDb;
+            }
             throw new ArgumentException("未知的数据库类型");
         }
 
