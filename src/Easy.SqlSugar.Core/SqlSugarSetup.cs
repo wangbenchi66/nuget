@@ -76,7 +76,7 @@ namespace Easy.SqlSugar.Core
             AddService(services, 1);
         }*/
 
-        /// <summary>
+        /*/// <summary>
         /// SqlSugar服务 Singleton单例
         /// </summary>
         /// <param name="services"></param>
@@ -92,7 +92,7 @@ namespace Easy.SqlSugar.Core
                 return configs;
             });
             AddService(services, 1);
-        }
+        }*/
 
         /// <summary>
         /// SqlSugar服务 Scoped作用域(首选)

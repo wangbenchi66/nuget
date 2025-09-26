@@ -1,8 +1,5 @@
-﻿using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Easy.SqlSugar.Core;
+﻿using Easy.SqlSugar.Core;
 using Microsoft.AspNetCore.Mvc;
-using SqlSugar;
 
 namespace WebApi.Test.Controllers
 {
@@ -287,22 +284,37 @@ namespace WebApi.Test.Controllers
         [HttpGet("Concurrent")]
         public async Task<object> Concurrent()
         {
+            DateTime time = DateTime.Now;
             var tasks = new List<Task>();
-            for (int i = 0; i < 10; i++)
+            for (int i = 99999; i < 100010; i++)
             {
-                //tasks.Add(Task.Run(async () =>
-                //{
-                //var db = _userRepository.CopyNew();
-                var user = new User() { Id = 99999, Name = $"admin{i}" };
-                //await _userRepository.UpdateAsync(user, x => new { x.Name });
-                await _userRepository.UpdateAsync(user);
-                //}));
+                tasks.Add(Task.Run(async () =>
+                {
+                    //var db = _userRepository.CopyNew();
+                    var user = new User() { Id = i, Name = $"admin{i}", CreateTime = time };
+                    //await _userRepository.UpdateAsync(user, x => new { x.Name });
+                    await _userRepository.InsertOrUpdateAsync(user);
+                }));
             }
 
-            //await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
 
             return "并发测试完成";
         }
+
+        [HttpGet("ConcurrentParallel")]
+        public string ConcurrentParallel()
+        {
+            DateTime time = DateTime.Now;
+            Parallel.For(99999, 100010, new ParallelOptions { MaxDegreeOfParallelism = 10 }, i =>
+            {
+                var user = new User { Id = i, Name = $"admin{i}", CreateTime = time };
+                _userRepository.InsertOrUpdate(user); // 同步方法
+            });
+
+            return "Parallel 并发测试完成";
+        }
+
 
         [HttpGet("ConcurrentUpdate")]
         public async Task<object> ConcurrentUpdate()

@@ -1,19 +1,16 @@
-﻿using IGeekFan.AspNetCore.Knife4jUI;
+﻿using Easy.DynamicApi;
+using Easy.SqlSugar.Core;
+using Easy.SqlSugar.Core.Common;
+using IGeekFan.AspNetCore.Knife4jUI;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.Caching.Memory;
+using Scalar.AspNetCore;
 using SqlSugar;
 using WBC66.Autofac.Core;
 using WBC66.Serilog.Core;
-using Easy.SqlSugar.Core;
 using WebApi.Test.Filter;
-using Microsoft.Extensions.Caching.Memory;
-using Easy.DynamicApi;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Scalar.AspNetCore;
-using Easy.SqlSugar.Core.Common;
 using WebApi.Test.Service;
-using ReZero;
-using System.Reflection;
-using ReZero.SuperAPI;
 using Yitter.IdGenerator;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -98,7 +95,7 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
         var aop = conn.Aop;
         aop.OnLogExecuting = (sql, p) =>
         {
-            Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
+            //Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
         };
         aop.OnError = (SqlSugarException exp) =>
         {
@@ -107,6 +104,7 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
     }
 });
 builder.Services.AddHttpContextAccessor();
+//builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);
 builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);
 /*var listIoc = configuration.GetSection("DBS").Get<List<IocConfig>>();
 builder.Services.AddSqlSugarIocSetup(listIoc);*/
