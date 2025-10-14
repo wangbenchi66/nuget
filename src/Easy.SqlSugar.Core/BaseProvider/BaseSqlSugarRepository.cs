@@ -938,6 +938,7 @@ namespace Easy.SqlSugar.Core
         /// 事务
         /// </summary>
         /// <param name="func"></param>
+        /// <param name="logAction"></param>
         /// <returns></returns>
         public virtual bool DbContextBeginTransaction(Func<bool> func, Action<Exception>? logAction = null)
         {
@@ -971,6 +972,7 @@ namespace Easy.SqlSugar.Core
         /// 事务
         /// </summary>
         /// <param name="func"></param>
+        /// <param name="logAction"></param>
         /// <returns></returns>
         public virtual async Task<bool> DbContextBeginTransactionAsync(Func<Task<bool>> func, Action<Exception>? logAction = null)
         {

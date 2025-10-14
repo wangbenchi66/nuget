@@ -2,7 +2,7 @@
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="Easy.SqlSugar.Core" Version="2025.04.18.1" />
+<PackageReference Include="Easy.SqlSugar.Core" Version="2025.9.17.1" />
 ```
 ### 3.1.1 SqlSugar配置文件
 ``` json
@@ -25,6 +25,48 @@
       "ConnectionString": "server=localhost;Database=journal;Uid=root;Pwd=123456;allowPublicKeyRetrieval=true;"
     }
   ]
+```
+
+### 最简单的使用方法
+``` csharp
+var sqlSugarScope = new SqlSugarScope(list, db =>
+{
+    foreach (var item in list)
+    {
+        var configId = item.ConfigId;
+        var dbType = item.DbType;
+        var conn = db.GetConnection(configId);
+        var sqlFileInfo = conn.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
+        var aop = conn.Aop;
+        aop.OnLogExecuting = (sql, p) =>
+        {
+            //Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
+        };
+        aop.OnError = (SqlSugarException exp) =>
+        {
+            Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));
+        };
+    }
+});
+builder.Services.AddSqlSugarSetup(sqlSugarScope);
+
+//已经内置了很多调用方法，详情使用见下边3.4的使用示例
+//在仓储使用，ISingleton需要自己注入(内部已经封装了自动注入，如果不生效就自己注入)
+public class UserRepository : BaseSqlSugarRepository<User>, ISingleton
+{
+}
+//或者在service中直接注入BaseSqlSugarRepository<User>进行使用
+private readonly BaseSqlSugarRepository<User> _userRepository;
+public SqlSugarTestApis(BaseSqlSugarRepository<User> userRepository)
+{
+    _userRepository = userRepository;
+}
+//或者可以不注入，直接使用静态的db(框架内置已经封装好了可以直接用)
+var db=SugarDbManger.Db;
+var db = SugarDbManger.GetConfigDb("journal");
+var db2 = SugarDbManger.GetTenantDb<User>();
+var list = SugarDbManger.GetNewDb();
+
 ```
 ### 3.1.2 或者使用自定义的配置只要转换为对应的List配置集合就行
 #### 根据字符串获取DbType
