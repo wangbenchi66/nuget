@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿/*using System.ComponentModel.DataAnnotations.Schema;
 using Easy.EF.Core.BaseProvider;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -27,9 +27,9 @@ namespace WebApi.Test.Apis
 
         public object Add1()
         {
-            /*var user = _userRepository.EFContext.UserEF.Add(new UserEF { Name = "test" });
+            *//*var user = _userRepository.EFContext.UserEF.Add(new UserEF { Name = "test" });
             _userRepository.EFContext.SaveChanges();
-            return user.Entity.Id;*/
+            return user.Entity.Id;*//*
             return _userRepository.InsertReturnIdentity(new UserEF { Name = "test" });
         }
 
@@ -118,4 +118,4 @@ namespace WebApi.Test.Apis
         public string Name { get; set; }
         public DateTime CreateTime { get; set; }
     }
-}
+}*/

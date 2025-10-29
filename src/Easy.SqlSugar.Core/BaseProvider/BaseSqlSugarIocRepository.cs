@@ -353,7 +353,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(T entity, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Storageable(entity).WhereColumns(where).DefaultAddElseUpdate().ExecuteCommand();
+            return SqlSugarDbContext.Storageable(entity).WhereColumns(where).ExecuteCommand();
         }
 
         /// <summary>
@@ -364,7 +364,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual int InsertOrUpdate(List<T> entitys, Expression<Func<T, object>> where)
         {
-            return SqlSugarDbContext.Storageable(entitys).WhereColumns(where).DefaultAddElseUpdate().ExecuteCommand();
+            return SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ExecuteCommand();
         }
 
         /// <summary>
@@ -375,7 +375,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(T entity, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Storageable(entity).WhereColumns(where).DefaultAddElseUpdate().ExecuteCommandAsync();
+            return await SqlSugarDbContext.Storageable(entity).WhereColumns(where).ExecuteCommandAsync();
         }
 
         /// <summary>
@@ -386,7 +386,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<int> InsertOrUpdateAsync(List<T> entitys, Expression<Func<T, object>> where)
         {
-            return await SqlSugarDbContext.Storageable(entitys).WhereColumns(where).DefaultAddElseUpdate().ExecuteCommandAsync();
+            return await SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ExecuteCommandAsync();
         }
 
         /*
@@ -431,7 +431,7 @@ namespace Easy.SqlSugar.Core
                     var x = SqlSugarDbContext.Storageable(entitys).WhereColumns(where).ToStorage();
                     var insertCount = x.AsInsertable.ExecuteCommand();
                     var updateCount = x.AsUpdateable.UpdateColumns(updateColumns).ExecuteCommand();
-                    //var x = SqlSugarDbContext.Storageable(entitys).DefaultAddElseUpdate().ExecuteCommand();
+                    //var x = SqlSugarDbContext.Storageable(entitys).ExecuteCommand();
                 }
 
                 /// <summary>

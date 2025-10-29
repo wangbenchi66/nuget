@@ -20,6 +20,110 @@ namespace WBC66.Serilog.Core
     /// </summary>
     public static class SerilogHostSetup
     {
+        #region 方式一 直接引入，支持设置日志路径，忽略日志源，输出模板
+
+        /// <summary>
+        /// 默认忽略的日志源
+        /// </summary>
+        private static readonly string[] DefaultIgnoredSources =
+        {
+            "Microsoft.AspNetCore.Hosting.Diagnostics",
+            "Microsoft.AspNetCore.Routing.EndpointMiddleware",
+            "Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware",
+            "Serilog.AspNetCore.RequestLoggingMiddleware",
+            "Microsoft.AspNetCore.DataProtection",
+            "Microsoft.AspNetCore.Cors",
+            "Microsoft.AspNetCore.Mvc"
+        };
+
+        /// <summary>
+        /// 默认日志级别
+        /// </summary>
+        private static readonly LogEventLevel[] Levels =
+        {
+            LogEventLevel.Information,
+            LogEventLevel.Warning,
+            LogEventLevel.Error
+        };
+
+        /// <summary>
+        /// 默认输出模板
+        /// </summary>
+        private const string DefaultOutputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3} {SourceContext:l}] {Message:lj}{NewLine}{Exception}";
+
+        public static void AddSerilogHost(this IHostBuilder builder,
+                                          string? filePath = null,
+                                          IEnumerable<string>? ignoredSources = null,
+                                          string? outputTemplate = null)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                //获取系统路径和项目名称设置为filePath
+                var basePath = AppDomain.CurrentDomain.BaseDirectory;
+                var projectName = AppDomain.CurrentDomain.FriendlyName;
+                filePath = Path.Combine(basePath, "logs", projectName);
+            }
+            var sources = ignoredSources?.ToArray() ?? DefaultIgnoredSources;
+            var template = string.IsNullOrWhiteSpace(outputTemplate) ? DefaultOutputTemplate : outputTemplate;
+
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext() // 加入上下文信息，如请求Id
+                                         //.MinimumLevel.Information()    // 全局最小级别
+                .ConfigureConsole(template)
+                .ConfigureFile(filePath, template)
+                .ApplyIgnoredSources(sources)
+                .CreateLogger();
+
+            builder.UseSerilog();
+        }
+
+        private static LoggerConfiguration ConfigureConsole(this LoggerConfiguration logger, string outputTemplate)
+        {
+            return logger.WriteTo.Console(outputTemplate: outputTemplate);
+        }
+
+        /// <summary>
+        /// 按不同日志级别分别写入文件
+        /// </summary>
+        private static LoggerConfiguration ConfigureFile(this LoggerConfiguration logger, string basePath, string outputTemplate)
+        {
+            foreach (var level in Levels)
+            {
+                var levelName = level.ToString();
+                logger = logger.WriteTo.Logger(lc =>
+                    lc.Filter.ByIncludingOnly(e => e.Level == level)
+                      //两种滚动日志方式任选其一，只是生成的文件名格式不一样而已
+
+                      //Information20251029.log
+                      .WriteTo.File(
+                          path: Path.Combine(basePath, $"{levelName}.log"),
+                          rollingInterval: RollingInterval.Day,
+                          retainedFileCountLimit: 10,
+                          encoding: System.Text.Encoding.UTF8,
+                          shared: true,
+                          outputTemplate: outputTemplate)
+                //20251029Information.log
+                //.WriteTo.RollingFile(Path.Combine(basePath, "{Date}" + $"{levelName}.log"), retainedFileCountLimit: 7, shared: true, outputTemplate: DefaultOutputTemplate)
+                );
+            }
+            return logger;
+        }
+
+        /// <summary>
+        /// 忽略或降低指定命名空间的日志级别,直接设置为Warning级别减少输出
+        /// </summary>
+        private static LoggerConfiguration ApplyIgnoredSources(this LoggerConfiguration config, IEnumerable<string> sources)
+        {
+            foreach (var source in sources)
+                config = config.MinimumLevel.Override(source, LogEventLevel.Warning);
+            return config;
+        }
+
+
+        #endregion 方式一 直接引入，支持设置日志路径，忽略日志源，输出模板
+
+        #region 方式二 官方Json配置方式
+
         /// <summary>
         /// 添加Serilog(json的方式)
         /// </summary>
@@ -35,6 +139,10 @@ namespace WBC66.Serilog.Core
                 lc.ReadFrom.Configuration(ctx.Configuration);
             });
         }
+
+        #endregion 方式二 官方Json配置方式
+
+        #region 方式三 配置类的方式
 
         /// <summary>
         /// 添加Serilog（配置类的方式）
@@ -107,7 +215,7 @@ namespace WBC66.Serilog.Core
                 //滚动日志,格式固定为日期在最后面，例如 log-20250526.txt 不能变更
                 .WriteTo.File(
                         path: path,
-                        //outputTemplate: options.Template,
+                        //outputTemplate: options.DefaultOutputTemplate,
                         rollingInterval: options.RollingInterval,
                         shared: true,
                         fileSizeLimitBytes: 10 * 1024 * 1024,
@@ -222,6 +330,8 @@ namespace WBC66.Serilog.Core
 
             return successfulUris;
         }
+
+        #endregion 方式三 配置类的方式
     }
 
     /// <summary>

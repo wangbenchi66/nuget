@@ -2,9 +2,20 @@
 ## 1. Serilog配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="WBC66.Serilog.Core" Version="2024.10.28" />
+<PackageReference Include="WBC66.Serilog.Core" Version="2025.10.29" />
 ```
 ### 1.1 Serilog配置文件
+#### 方式一(最简单直接引入，支持设置日志路径，忽略日志源，输出模板)
+``` csharp
+builder.Host.AddSerilogHost();
+//里边三个参数可选 filePath, ignoredSources, outputTemplate,不设置就采用默认的
+builder.Host.AddSerilogHost(filePath, ignoredSources, outputTemplate);
+```
+#### 方式二(官方Json配置方式)
+``` csharp
+builder.Host.AddSerilogHostJson(configuration);
+```
+#### 方式三(自定义Json配置方式)
 ``` json
   "SerilogOptions": {
     "MinimumLevel": "Information",
@@ -31,7 +42,6 @@
     }
   }
 ```
-### 1.2 Serilog配置
 ``` csharp
 builder.Host.AddSerilogHost(configuration);
 

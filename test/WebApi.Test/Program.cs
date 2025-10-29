@@ -33,7 +33,8 @@ builder.Services.AddSwaggerGen(s =>
 });
 //Serilog
 //builder.Host.AddSerilogHost(configuration);
-builder.Host.AddSerilogHostJson(configuration);
+//builder.Host.AddSerilogHostJson(configuration);
+builder.Host.AddSerilogHost();
 
 //NLong
 //builder.AddNLogSteup(configuration);
@@ -171,6 +172,31 @@ builder.Services.AddDynamicApi();
 });
 */
 
+//cap
+/*builder.Services.AddCap(x =>
+{
+    x.UseMySql("server=192.168.21.232;Port=31665;Database=journal;Uid=root;Pwd=123456;allowPublicKeyRetrieval=true;");
+    x.UseRabbitMQ(opt =>
+    {
+        opt.HostName = "192.168.3.244";
+        opt.UserName = "fundu";
+        opt.Password = "FNS^7Q1MsBh";
+        opt.VirtualHost = "/";
+        opt.ExchangeName = "cap.default.router";
+    });
+    x.TopicNamePrefix = "fund";
+    x.GroupNamePrefix = "fund";
+    x.SucceedMessageExpiredAfter = 24 * 3600;
+    x.FailedMessageExpiredAfter = 15 * 24 * 3600;
+    x.FailedRetryCount = 5;
+    x.FailedRetryInterval = 10;
+    x.Version = "v1";
+    x.UseDashboard(options =>
+    {
+        options.PathMatch = "/cap";
+    });
+});*/
+builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 
@@ -202,6 +228,8 @@ app.MapScalarApiReference("/scalar", options =>
     options.DefaultHttpClient = new(ScalarTarget.Node, ScalarClient.Axios);
 });
 app.MapControllers();
+app.MapHealthChecks("/health");
+
 //app.UseMiddleware<LogMiddleware>();//添加日志中间件
 //app.UseMiddleware<ExceptionMiddleware>();//添加异常处理中间件
 //app.UseMiddleware<CurrentLimitingMiddleware>(1, 1);//添加限流中间件 1个线程 1个并发

@@ -10,17 +10,20 @@
     <DocumentationFile>bin\Debug\WebApi.Test.xml</DocumentationFile>
   </PropertyGroup>
 <ItemGroup>
+	<PackageReference Include="DotNetCore.CAP" Version="8.4.1" />
+	<PackageReference Include="DotNetCore.CAP.Dashboard" Version="8.4.1" />
+	<PackageReference Include="DotNetCore.CAP.MySql" Version="8.4.1" />
+	<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.4.1" />
 	<PackageReference Include="IP2Region.Net" Version="2.0.2" />
 	<PackageReference Include="Mapster" Version="7.4.0" />
 	<PackageReference Include="Rezero.Api" Version="1.8.14" />
-	<PackageReference Include="Scalar.AspNetCore" Version="2.4.13" />
+	<PackageReference Include="Scalar.AspNetCore" Version="2.8.6" />
 	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.3.1" />
     <PackageReference Include="IGeekFan.AspNetCore.Knife4jUI" Version="0.0.16" />
     <!--<PackageReference Include="Easy.SqlSugar.Core" Version="2024.11.4.3" />-->
     </ItemGroup>
 <ItemGroup>
   <ProjectReference Include="..\..\src\Easy.DynamicApi\Easy.DynamicApi.Core.csproj" />
-  <ProjectReference Include="..\..\src\Easy.EF.Core\Easy.EF.Core.csproj" />
   <ProjectReference Include="..\..\src\WBC66.Cache.Core\WBC66.Cache.Core.csproj" />
   <ProjectReference Include="..\..\src\WBC66.Core\WBC66.Core.csproj" />
   <ProjectReference Include="..\..\src\Easy.SqlSugar.Core\Easy.SqlSugar.Core.csproj" />
