@@ -11,7 +11,7 @@
     <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
     <PackageReleaseNotes>基于serilog进行封装使用</PackageReleaseNotes>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>2025.10.29</Version>
+    <Version>2025.11.03</Version>
     <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	<PackageId>$(AssemblyName)</PackageId>
 	<PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
