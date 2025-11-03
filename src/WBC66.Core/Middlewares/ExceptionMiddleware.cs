@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
+using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace WBC66.Core
 {
@@ -16,6 +13,7 @@ namespace WBC66.Core
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
+
         /// <summary>
         /// 异常中间件
         /// </summary>
@@ -26,6 +24,7 @@ namespace WBC66.Core
             _next = next;
             _logger = logger;
         }
+
         /// <summary>
         /// 异常中间件
         /// </summary>
@@ -39,10 +38,11 @@ namespace WBC66.Core
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                //_logger.LogError(ex, ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
         }
+
         /// <summary>
         /// 异常处理
         /// </summary>
@@ -51,21 +51,64 @@ namespace WBC66.Core
         /// <returns></returns>
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            context.Response.ContentType = "application/json";
-            //状态码如果是200，修改为500，如果不是200，不修改
-            if (context.Response.StatusCode == (int)HttpStatusCode.OK)
+            try
             {
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                //获取异常参数写入日志
+                var request = context.Request;
+                string path = request.Path;
+                string method = request.Method;
+                string req = await GetRequestLog(context);
+
+                string logTemplate =
+                    "========== 请求异常日志 ==========\n" +
+                    "【时间】 {Time}\n" +
+                    "【请求路径】 {Path}\n" +
+                    "【请求方法】 {Method}\n" +
+                    "【请求内容】 {Req}\n" +
+                    "【异常信息】 {Exception}\n";
+
+                _logger.LogError(
+                    logTemplate,
+                    new object?[]
+                    {
+                        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                        path,
+                        method,
+                        req,
+                        exception.ToString()
+                    });
+
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.Clear();
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    context.Response.ContentType = "application/json";
+                    var result = ApiResult.Fail(exception.Message, HttpStatusCode.InternalServerError);
+                    //保持原格式
+                    var options = new JsonSerializerOptions { PropertyNamingPolicy = null };
+                    await context.Response.WriteAsJsonAsync(result, options);
+                }
             }
-
-            var requestId = context.TraceIdentifier;
-
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+            catch (Exception writeEx)
             {
-                code = context.Response.StatusCode,
-                message = "Internal Server Error.",
-                requestId = requestId
-            }));
+                _logger.LogError(writeEx, "写入异常响应时出错");
+            }
+        }
+
+        private static async Task<string> GetRequestLog(HttpContext context)
+        {
+            var req = context.Request;
+            var body = string.Empty;
+            req.EnableBuffering();
+
+            if (req.ContentLength > 0 && req.Body.CanRead)
+            {
+                req.Body.Position = 0;
+                using var reader = new StreamReader(req.Body, Encoding.UTF8, leaveOpen: true);
+                body = await reader.ReadToEndAsync();
+                req.Body.Position = 0;
+            }
+            return $"Query: {req.QueryString} Body: {body}";
         }
     }
 }

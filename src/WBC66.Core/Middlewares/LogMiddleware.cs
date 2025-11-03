@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Routing;
 using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace WBC66.Core
 {
@@ -19,99 +20,159 @@ namespace WBC66.Core
             _logger = logger;
         }
 
+        private static string[] skipPaths =
+        {
+            "/swagger", "/health", "scalar",".html", ".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".ico"
+        };
+
         public async Task InvokeAsync(HttpContext context)
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            var path = context.Request.Path.Value?.ToLowerInvariant();
 
-            var routeData = context.GetRouteData();
-            var action = routeData.Values["action"];
-            var requestId = context.TraceIdentifier;
-            var logMessage = $"请求ID: {requestId}\n请求路径: {context.Request.Path}\n操作: {action}";
-
-            // 记录请求参数
-            logMessage = await LogRequestParameters(context, logMessage);
-
-            // 记录响应
-            logMessage = await LogResponse(context, logMessage);
-
-            stopwatch.Stop();
-            var elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
-            logMessage += $"\n请求处理时间: {elapsedSeconds} 秒";
-
-            // 根据状态码设置日志级别
-            var statusCode = context.Response.StatusCode;
-            if (statusCode >= 500)
+            if (skipPaths.Any(path.Contains))
             {
-                _logger.LogError(logMessage);
+                await _next(context);
+                return;
             }
-            else if (statusCode >= 400)
-            {
-                _logger.LogWarning(logMessage);
-            }
-            else
-            {
-                _logger.LogInformation(logMessage);
-            }
-        }
 
-        /// <summary>
-        /// 记录请求参数
-        /// </summary>
-        /// <param name="context">HTTP上下文</param>
-        /// <param name="logMessage">日志消息</param>
-        /// <returns>更新后的日志消息</returns>
-        private async Task<string> LogRequestParameters(HttpContext context, string logMessage)
-        {
-            if (context.Request.Method == HttpMethods.Get)
-            {
-                var queryParams = context.Request.QueryString.Value;
-                logMessage += $"\n查询参数: {queryParams}";
-            }
-            else if (context.Request.Method == HttpMethods.Post)
-            {
-                context.Request.EnableBuffering();
-                var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
-                context.Request.Body.Position = 0;
-                logMessage += $"\n请求体: {body}";
-            }
-            return logMessage;
-        }
+            // 请求计时器
+            var stopwatch = Stopwatch.StartNew();
 
-        /// <summary>
-        /// 记录响应
-        /// </summary>
-        /// <param name="context">HTTP上下文</param>
-        /// <param name="logMessage">日志消息</param>
-        /// <returns>更新后的日志消息</returns>
-        private async Task<string> LogResponse(HttpContext context, string logMessage)
-        {
-            var originalBodyStream = context.Response.Body;
-            using (var responseBody = new MemoryStream())
+            context.Request.EnableBuffering();
+            var originalBody = context.Response.Body;
+
+            try
             {
-                context.Response.Body = responseBody;
+                await using var ms = new MemoryStream();
+                context.Response.Body = ms;
+
+                // 读取请求内容
+                var reqLog = await GetRequestLog(context);
 
                 await _next(context);
 
-                context.Response.Body.Seek(0, SeekOrigin.Begin);
-                var responseText = await new StreamReader(context.Response.Body).ReadToEndAsync();
-                context.Response.Body.Seek(0, SeekOrigin.Begin);
+                stopwatch.Stop();
 
-                if (context.Response.ContentType != null && context.Response.ContentType.Contains("application/octet-stream"))
+                var contentType = context.Response.ContentType ?? string.Empty;
+                if (IsBinaryContent(contentType))
                 {
-                    var fileSize = responseBody.Length;
-                    logMessage += $"\n响应文件大小: {fileSize} 字节";
+                    _logger.LogInformation(
+                        "========== 请求日志==========\n" +
+                        "【请求路径】{Path}\n" +
+                        "【请求内容】{ReqData}\n" +
+                        "【响应类型】 文件({ContentType})，已跳过内容记录\n" +
+                        "【耗时】 {Elapsed} ms\n",
+                        path, reqLog, contentType, stopwatch.ElapsedMilliseconds);
                 }
                 else
                 {
-                    logMessage += $"\n响应:\n{responseText}";
-                    //状态码
-                    logMessage += $"\n状态码: {context.Response.StatusCode}";
-                }
+                    var resLog = await GetResponseLog(ms);
+                    var elapsed = stopwatch.ElapsedMilliseconds;
 
-                await responseBody.CopyToAsync(originalBodyStream);
+                    // 日志模板统一
+                    string logTemplate =
+                        "========== 请求响应日志==========\n" +
+                        "【请求路径】 {Path}\n" +
+                        "【请求内容】{ReqData}\n" +
+                        "【响应内容】{ResData}\n" +
+                        "【耗时】 {Elapsed} ms\n";
+                    // 判断耗时级别
+                    var logAction = elapsed switch
+                    {
+                        > 60000 => _logger.LogError,
+                        > 10000 => _logger.LogWarning,
+                        _ => ((Action<string, object?[]>)((tpl, args) => _logger.LogInformation(tpl, args)))
+                    };
+                    // 统一日志输出
+                    logAction(
+                               logTemplate,
+                               new object?[]
+                               {
+                               path,
+                               reqLog,
+                               resLog,
+                               elapsed
+                               });
+                    /* // 结构化日志对象
+                     var logObject = new
+                     {
+                         Path = path,
+                         Request = reqLog,
+                         Response = resLog,
+                         Elapsed = elapsed,
+                     };
+
+                     // 使用 JSON 一行输出（Serilog 会自动格式化为单行 JSON）
+                     logAction("RequestResponseLog {@LogObject}", new object?[] { logObject });*/
+                }
+                ms.Position = 0;
+                await ms.CopyToAsync(originalBody);
             }
-            return logMessage;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "请求日志中间件异常");
+            }
+            finally
+            {
+                context.Response.Body = originalBody;
+            }
+        }
+
+        /// <summary>
+        /// 读取请求体日志
+        /// </summary>
+        private static async Task<string> GetRequestLog(HttpContext context)
+        {
+            var req = context.Request;
+            var body = string.Empty;
+
+            if (req.ContentLength > 0 && req.Body.CanRead)
+            {
+                using var reader = new StreamReader(req.Body, Encoding.UTF8, leaveOpen: true);
+                body = await reader.ReadToEndAsync();
+                req.Body.Position = 0;
+            }
+
+            return $"Query: {req.QueryString} Body: {body}";
+        }
+
+        /// <summary>
+        /// 读取响应体日志
+        /// </summary>
+        private static async Task<string> GetResponseLog(MemoryStream ms)
+        {
+            ms.Position = 0;
+            var resText = await new StreamReader(ms, Encoding.UTF8).ReadToEndAsync();
+            // 如果是 JSON 转义的 Unicode（例如 \u6D4B\u8BD5），还原成中文
+            if (resText.Contains("\\u"))
+                resText = Regex.Unescape(resText);
+
+            // 检测是否是 HTML
+            if (Regex.IsMatch(resText, "<[^>]+>"))
+                resText = "HTML 内容已省略";
+
+            return resText;
+        }
+
+        /// <summary>
+        /// 判断是否为二进制或文件类型
+        /// </summary>
+        private static bool IsBinaryContent(string contentType)
+        {
+            var binaryTypes = new[]
+            {
+            "application/octet-stream",
+            "application/pdf",
+            "application/zip",
+            "application/x-rar",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument",
+            "image/",
+            "video/",
+            "audio/"
+        };
+
+            return binaryTypes.Any(t => contentType.StartsWith(t, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

@@ -33,7 +33,8 @@ namespace WBC66.Serilog.Core
             "Serilog.AspNetCore.RequestLoggingMiddleware",
             "Microsoft.AspNetCore.DataProtection",
             "Microsoft.AspNetCore.Cors",
-            "Microsoft.AspNetCore.Mvc"
+            "Microsoft.AspNetCore.Mvc",
+            "Microsoft.AspNetCore.ResponseCaching"
         };
 
         /// <summary>
