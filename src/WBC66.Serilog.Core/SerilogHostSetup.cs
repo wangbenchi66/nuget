@@ -52,8 +52,17 @@ namespace WBC66.Serilog.Core
         /// </summary>
         private const string DefaultOutputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3} {SourceContext:l}] {Message:lj}{NewLine}{Exception}";
 
+        /// <summary>
+        ///  添加Serilog
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="filePath">日志文件地址</param>
+        /// <param name="consoleMinimumLevel">控制台最小日志级别</param>
+        /// <param name="ignoredSources">需要忽略的日志源</param>
+        /// <param name="outputTemplate">输出模板</param>
         public static void AddSerilogHost(this IHostBuilder builder,
                                           string? filePath = null,
+                                          LogEventLevel? consoleMinimumLevel = null,
                                           IEnumerable<string>? ignoredSources = null,
                                           string? outputTemplate = null)
         {
@@ -70,7 +79,7 @@ namespace WBC66.Serilog.Core
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext() // 加入上下文信息，如请求Id
                                          //.MinimumLevel.Information()    // 全局最小级别
-                .ConfigureConsole(template)
+                .ConfigureConsole(template, consoleMinimumLevel)
                 .ConfigureFile(filePath, template)
                 .ApplyIgnoredSources(sources)
                 .CreateLogger();
@@ -78,9 +87,11 @@ namespace WBC66.Serilog.Core
             builder.UseSerilog();
         }
 
-        private static LoggerConfiguration ConfigureConsole(this LoggerConfiguration logger, string outputTemplate)
+        private static LoggerConfiguration ConfigureConsole(this LoggerConfiguration logger, string outputTemplate, LogEventLevel? minimumLevel = null)
         {
-            return logger.WriteTo.Console(outputTemplate: outputTemplate);
+            if (minimumLevel == null)
+                return logger;
+            return logger.WriteTo.Console(restrictedToMinimumLevel: minimumLevel.Value, outputTemplate: outputTemplate);
         }
 
         /// <summary>

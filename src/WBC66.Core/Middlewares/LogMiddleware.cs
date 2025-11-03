@@ -27,9 +27,9 @@ namespace WBC66.Core
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var path = context.Request.Path.Value?.ToLowerInvariant();
+            var path = context.Request.Path.Value;
 
-            if (skipPaths.Any(path.Contains))
+            if (skipPaths.Any(s => path.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 await _next(context);
                 return;
