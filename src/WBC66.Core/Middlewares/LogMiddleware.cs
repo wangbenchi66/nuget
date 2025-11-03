@@ -52,30 +52,30 @@ namespace WBC66.Core
                 await _next(context);
 
                 stopwatch.Stop();
+                var elapsed = stopwatch.ElapsedMilliseconds;
 
                 var contentType = context.Response.ContentType ?? string.Empty;
                 if (IsBinaryContent(contentType))
                 {
                     _logger.LogInformation(
-                    "========== 请求日志==========" +
-                    "【请求路径】{Path}" +
-                    "【请求内容】{ReqData}" +
-                    "【耗时】 {Elapsed} ms\n" +
-                    "【响应类型】 文件({ContentType})，已跳过内容记录",
-                        path, reqLog, contentType, stopwatch.ElapsedMilliseconds);
+                        "========== 请求日志==========" +
+                        "【请求路径】{Path}" +
+                        "【请求内容】{ReqData}" +
+                        "【耗时】 {Elapsed} ms\n" +
+                        "【响应类型】 文件({ContentType})，已跳过内容记录",
+                        path, reqLog, elapsed, contentType);
                 }
                 else
                 {
                     var resLog = await GetResponseLog(ms);
-                    var elapsed = stopwatch.ElapsedMilliseconds;
 
                     // 日志模板统一
                     string logTemplate =
-                    "========== 请求响应日志==========" +
-                    "【请求路径】 {Path}" +
-                    "【请求内容】{ReqData}" +
-                    "【耗时】 {Elapsed} ms\n" +
-                    "【响应内容】{ResData}\n";
+                        "========== 请求响应日志==========" +
+                        "【请求路径】 {Path}" +
+                        "【请求内容】{ReqData}" +
+                        "【耗时】 {Elapsed} ms\n" +
+                        "【响应内容】{ResData}\n";
                     // 判断耗时级别
                     var logAction = elapsed switch
                     {
@@ -90,8 +90,8 @@ namespace WBC66.Core
                                {
                                path,
                                reqLog,
-                               resLog,
-                               elapsed
+                               elapsed,
+                               resLog
                                });
                 }
                 ms.Position = 0;
