@@ -60,10 +60,10 @@ namespace WBC66.Core
                 string req = await GetRequestLog(context);
 
                 string logTemplate =
-                    "========== 请求异常日志 ==========\n" +
-                    "【时间】 {Time}\n" +
-                    "【请求路径】 {Path}\n" +
-                    "【请求方法】 {Method}\n" +
+                    "========== 请求异常日志 ==========" +
+                    "【时间】 {Time}" +
+                    "【请求路径】 {Path}" +
+                    "【请求方法】 {Method}" +
                     "【请求内容】 {Req}\n" +
                     "【异常信息】 {Exception}\n";
 

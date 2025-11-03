@@ -57,11 +57,11 @@ namespace WBC66.Core
                 if (IsBinaryContent(contentType))
                 {
                     _logger.LogInformation(
-                        "========== 请求日志==========\n" +
-                        "【请求路径】{Path}\n" +
-                        "【请求内容】{ReqData}\n" +
-                        "【响应类型】 文件({ContentType})，已跳过内容记录\n" +
-                        "【耗时】 {Elapsed} ms\n",
+                    "========== 请求日志==========" +
+                    "【请求路径】{Path}" +
+                    "【请求内容】{ReqData}" +
+                    "【耗时】 {Elapsed} ms\n" +
+                    "【响应类型】 文件({ContentType})，已跳过内容记录",
                         path, reqLog, contentType, stopwatch.ElapsedMilliseconds);
                 }
                 else
@@ -71,11 +71,11 @@ namespace WBC66.Core
 
                     // 日志模板统一
                     string logTemplate =
-                        "========== 请求响应日志==========\n" +
-                        "【请求路径】 {Path}\n" +
-                        "【请求内容】{ReqData}\n" +
-                        "【响应内容】{ResData}\n" +
-                        "【耗时】 {Elapsed} ms\n";
+                    "========== 请求响应日志==========" +
+                    "【请求路径】 {Path}" +
+                    "【请求内容】{ReqData}" +
+                    "【耗时】 {Elapsed} ms\n" +
+                    "【响应内容】{ResData}\n";
                     // 判断耗时级别
                     var logAction = elapsed switch
                     {
@@ -93,17 +93,6 @@ namespace WBC66.Core
                                resLog,
                                elapsed
                                });
-                    /* // 结构化日志对象
-                     var logObject = new
-                     {
-                         Path = path,
-                         Request = reqLog,
-                         Response = resLog,
-                         Elapsed = elapsed,
-                     };
-
-                     // 使用 JSON 一行输出（Serilog 会自动格式化为单行 JSON）
-                     logAction("RequestResponseLog {@LogObject}", new object?[] { logObject });*/
                 }
                 ms.Position = 0;
                 await ms.CopyToAsync(originalBody);

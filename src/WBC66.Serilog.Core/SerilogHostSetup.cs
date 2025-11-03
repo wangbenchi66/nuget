@@ -73,6 +73,9 @@ namespace WBC66.Serilog.Core
                 var projectName = AppDomain.CurrentDomain.FriendlyName;
                 filePath = Path.Combine(basePath, "logs", projectName);
             }
+            //如果filePath最后边没有路径分隔符，则添加
+            if (!filePath.EndsWith(Path.DirectorySeparatorChar))
+                filePath += Path.DirectorySeparatorChar;
             var sources = ignoredSources?.ToArray() ?? DefaultIgnoredSources;
             var template = string.IsNullOrWhiteSpace(outputTemplate) ? DefaultOutputTemplate : outputTemplate;
 
