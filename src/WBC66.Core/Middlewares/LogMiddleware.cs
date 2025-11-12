@@ -150,15 +150,31 @@ namespace WBC66.Core
         {
             var binaryTypes = new[]
             {
-            "application/octet-stream",
-            "application/pdf",
-            "application/zip",
-            "application/x-rar",
-            "application/vnd.ms-excel",
-            "application/vnd.openxmlformats-officedocument",
-            "image/",
-            "video/",
-            "audio/"
+           // 常见的二进制流类型
+        "application/octet-stream", // 二进制流
+        "application/pdf",          // PDF 文件
+        "application/zip",          // Zip 压缩文件
+        "application/x-rar",        // RAR 压缩文件
+        "application/x-tar",        // Tar 文件
+        "application/gzip",         // Gzip 压缩文件
+
+        // 办公软件格式
+        "application/vnd.ms-excel",  // Excel 文件
+        "application/vnd.openxmlformats-officedocument", // Office 2007及以后的格式
+
+        // 图片格式
+        "image/",                    // 所有图片格式 (jpg, png, gif 等)
+        "video/",                    // 所有视频格式
+        "audio/",                    // 所有音频格式
+
+        // 应用程序和执行文件
+        "application/x-msdownload",  // 可执行文件 (exe 等)
+        "application/x-sh",          // Shell 脚本
+        "application/x-elf",         // ELF 可执行文件（Linux系统）
+        "application/x-dosexec",     // DOS可执行文件
+        "application/msword",        // Word 文件
+        "application/vnd.ms-powerpoint", // PowerPoint 文件
+        "application/vnd.ms-project" // Project 文件
         };
 
             return binaryTypes.Any(t => contentType.StartsWith(t, StringComparison.OrdinalIgnoreCase));

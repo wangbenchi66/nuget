@@ -1,4 +1,5 @@
 ﻿using Easy.DynamicApi;
+using Easy.EF.Core;
 using Easy.SqlSugar.Core;
 using Easy.SqlSugar.Core.Common;
 using IGeekFan.AspNetCore.Knife4jUI;
@@ -6,9 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Caching.Memory;
 using Scalar.AspNetCore;
+using Serilog;
 using SqlSugar;
 using WBC66.Autofac.Core;
+using WBC66.Core;
 using WBC66.Serilog.Core;
+using WebApi.Test.EF;
 using WebApi.Test.Filter;
 using WebApi.Test.Service;
 using Yitter.IdGenerator;
@@ -34,7 +38,7 @@ builder.Services.AddSwaggerGen(s =>
 //Serilog
 //builder.Host.AddSerilogHost(configuration);
 //builder.Host.AddSerilogHostJson(configuration);
-builder.Host.AddSerilogHost();
+builder.Host.AddSerilogHost("", Serilog.Events.LogEventLevel.Information);
 
 //NLong
 //builder.AddNLogSteup(configuration);
@@ -96,7 +100,7 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
         var aop = conn.Aop;
         aop.OnLogExecuting = (sql, p) =>
         {
-            //Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
+            Log.Information(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
         };
         aop.OnError = (SqlSugarException exp) =>
         {
@@ -123,7 +127,7 @@ StaticConfig.CustomSnowFlakeFunc = () =>
     return YitIdHelper.NextId();
 };
 
-/*
+
 //EF
 EFOptions efOptions = new EFOptions()
 {
@@ -131,7 +135,7 @@ EFOptions efOptions = new EFOptions()
     ConnectionString = configuration.GetSection("DBS:0:ConnectionString").Value
 };
 builder.Services.AddEFSetup<TestDBContext>(efOptions);
-builder.Services.AddSingleton(typeof(IBaseEFRepository<,>), typeof(BaseEFRepository<,>));
+/*builder.Services.AddSingleton(typeof(IBaseEFRepository<,>), typeof(BaseEFRepository<,>));
 builder.Services.AddSingleton<IUserEFRepository, UserEFRepository>();*/
 //builder.Services.AddScoped<IUserRepository, UserRepository>();
 
@@ -143,6 +147,7 @@ builder.Services.AddControllers(options =>
 {
     //添加自定义的模型验证过滤器
     options.Filters.Add<ValidateModelAttribute>();
+    options.Filters.Add<ApiCommonResultFilter>();//全局统一返回格式包装
     //添加自定义的缓存过滤器
     //options.Filters.Add<CacheResultFilter>();
     //添加幂等性过滤器
@@ -230,7 +235,7 @@ app.MapScalarApiReference("/scalar", options =>
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-//app.UseMiddleware<LogMiddleware>();//添加日志中间件
+app.UseMiddleware<LogMiddleware>();//添加日志中间件
 //app.UseMiddleware<ExceptionMiddleware>();//添加异常处理中间件
 //app.UseMiddleware<CurrentLimitingMiddleware>(1, 1);//添加限流中间件 1个线程 1个并发
 //app.UseMiddleware<IdempotenceMiddleware>();//添加幂等性中间件
