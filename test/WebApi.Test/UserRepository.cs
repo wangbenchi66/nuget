@@ -1,9 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-using SqlSugar;
-using WBC66.Autofac.Core;
 using Easy.SqlSugar.Core;
-using Nest;
+using SqlSugar;
 
 namespace WebApi.Test
 {

@@ -11,7 +11,7 @@
     <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
     <PackageReleaseNotes>基于serilog进行封装使用</PackageReleaseNotes>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>2025.11.03</Version>
+    <Version>2025.11.17</Version>
     <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	<PackageId>$(AssemblyName)</PackageId>
 	<PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
@@ -22,21 +22,17 @@
 		<PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
 		<PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-		<PackageReference Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.1-dev-00771" />
 	</ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8'">
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
-    <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7'">
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
-    <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6'">
     <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
-    <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />
   </ItemGroup>
 
 </Project>

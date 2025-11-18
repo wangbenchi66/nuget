@@ -28,9 +28,9 @@ namespace WebApi.Test.Controllers
             //查询单个
             var obj = _userService.GetSingle(p => p.Id == 1);
             _logger.LogInformation("查询单个结果：{@obj}", obj);
-            var e = await _userService.ExistsAsync(x => x.Id == 1);
+            //var e = await _userService.ExistsAsync(x => x.Id == 1);
 
-            var obj1 = _categoryRepository.GetSingle(p => p.ID == 1);
+            //var obj1 = _categoryRepository.GetSingle(p => p.ID == 1);
             //_logger.LogInformation("查询单个结果：{@obj1}", obj1);
             return ApiResult.Ok(obj);
             //查询列表

@@ -10,8 +10,6 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Formatting.Elasticsearch;
-using Serilog.Sinks.Elasticsearch;
 
 namespace WBC66.Serilog.Core
 {
@@ -174,7 +172,7 @@ namespace WBC66.Serilog.Core
                     .ConfigureMinimumLevel(options)
                     .ConfigureFile(options.File)
                     .ConfigureConsole(options.Console)
-                    .ConfigureElasticsearch(options.Elasticsearch)
+                    //.ConfigureElasticsearch(options.Elasticsearch)
                     .CreateLogger();
 
             builder.UseSerilog();
@@ -263,45 +261,45 @@ namespace WBC66.Serilog.Core
 
             return logger;
         }
-
-        /// <summary>
-        /// Elasticsearch 日志配置
-        /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        private static LoggerConfiguration ConfigureElasticsearch(this LoggerConfiguration logger, ElasticsearchOptions options)
-        {
-            if (options == null || string.IsNullOrEmpty(options.Uri))
-                return logger;
-
-            var uris = new List<Uri> { new Uri(options.Uri) };
-            uris = PingAndFilterUrisAsync(uris).Result;
-            if (uris.Count == 0)
-                return logger;
-
-            logger.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(uris)
-            {
-                IndexFormat = options.IndexFormat,
-                NumberOfShards = options.NumberOfShards,
-                NumberOfReplicas = options.NumberOfReplicas,
-                CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage: true),
-                EmitEventFailure = EmitEventFailureHandling.RaiseCallback,
-                FailureCallback = FailureCallback,
-                AutoRegisterTemplate = true,
-                AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
-                ModifyConnectionSettings = conn =>
+        /*
+                /// <summary>
+                /// Elasticsearch 日志配置
+                /// </summary>
+                /// <param name="logger"></param>
+                /// <param name="options"></param>
+                /// <returns></returns>
+                private static LoggerConfiguration ConfigureElasticsearch(this LoggerConfiguration logger, ElasticsearchOptions options)
                 {
-                    if (!string.IsNullOrEmpty(options.UserName) && !string.IsNullOrEmpty(options.Password))
-                    {
-                        conn.BasicAuthentication(options.UserName, options.Password);
-                    }
-                    return conn;
-                }
-            });
+                    if (options == null || string.IsNullOrEmpty(options.Uri))
+                        return logger;
 
-            return logger;
-        }
+                    var uris = new List<Uri> { new Uri(options.Uri) };
+                    uris = PingAndFilterUrisAsync(uris).Result;
+                    if (uris.Count == 0)
+                        return logger;
+
+                    logger.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(uris)
+                    {
+                        IndexFormat = options.IndexFormat,
+                        NumberOfShards = options.NumberOfShards,
+                        NumberOfReplicas = options.NumberOfReplicas,
+                        CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage: true),
+                        EmitEventFailure = EmitEventFailureHandling.RaiseCallback,
+                        FailureCallback = FailureCallback,
+                        AutoRegisterTemplate = true,
+                        AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
+                        ModifyConnectionSettings = conn =>
+                        {
+                            if (!string.IsNullOrEmpty(options.UserName) && !string.IsNullOrEmpty(options.Password))
+                            {
+                                conn.BasicAuthentication(options.UserName, options.Password);
+                            }
+                            return conn;
+                        }
+                    });
+
+                    return logger;
+                }*/
 
         /// <summary>
         /// 日志记录失败回调
