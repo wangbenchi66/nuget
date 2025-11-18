@@ -38,7 +38,7 @@ builder.Services.AddSwaggerGen(s =>
 //Serilog
 //builder.Host.AddSerilogHost(configuration);
 //builder.Host.AddSerilogHostJson(configuration);
-builder.Host.AddSerilogHost("", Serilog.Events.LogEventLevel.Information);
+builder.Host.AddSerilogHost("/home/logger/nuget", Serilog.Events.LogEventLevel.Information);
 
 //NLong
 //builder.AddNLogSteup(configuration);

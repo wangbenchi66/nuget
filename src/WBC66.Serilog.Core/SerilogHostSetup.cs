@@ -48,7 +48,7 @@ namespace WBC66.Serilog.Core
         /// <summary>
         /// 默认输出模板
         /// </summary>
-        private const string DefaultOutputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3} {SourceContext:l}] {Message:lj}{NewLine}{Exception}";
+        private const string DefaultOutputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} |{Level:u}| [{SourceContext:l}] {Message:lj}{NewLine}{Exception}";
 
         /// <summary>
         ///  添加Serilog
@@ -108,13 +108,14 @@ namespace WBC66.Serilog.Core
                       //两种滚动日志方式任选其一，只是生成的文件名格式不一样而已
 
                       //Information20251029.log
-                      .WriteTo.File(
+                      .WriteTo.Async(a => a.File(
                           path: Path.Combine(basePath, $"{levelName}.log"),
                           rollingInterval: RollingInterval.Day,
                           retainedFileCountLimit: 10,
                           encoding: System.Text.Encoding.UTF8,
                           shared: true,
-                          outputTemplate: outputTemplate)
+                          outputTemplate: outputTemplate))
+                //需要引入Serilog.Sinks.RollingFile
                 //20251029Information.log
                 //.WriteTo.RollingFile(Path.Combine(basePath, "{Date}" + $"{levelName}.log"), retainedFileCountLimit: 7, shared: true, outputTemplate: DefaultOutputTemplate)
                 );
