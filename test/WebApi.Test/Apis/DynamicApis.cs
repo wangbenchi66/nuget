@@ -1,4 +1,6 @@
-﻿namespace WebApi.Test.Apis
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Test.Apis
 {
     /// <summary>
     /// 动态api测试
@@ -23,6 +25,12 @@
         {
             //return _userRepository.GetUserId();
             return "ok";
+        }
+
+        //忽略这个方法
+        [NonAction]
+        public void IgnoreMe()
+        {
         }
     }
 }
