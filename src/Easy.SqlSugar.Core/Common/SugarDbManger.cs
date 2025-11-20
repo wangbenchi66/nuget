@@ -41,10 +41,9 @@ public class SugarDbManger
     /// <exception cref="Exception"></exception>
     public static ISqlSugarClient GetConfigDb(string configId)
     {
-        if (string.IsNullOrEmpty(configId))
-        {
-            new Exception("configId不能为空");
-        }
+        if (!HasConfigId(configId))
+            throw new Exception($"未找到配置的数据库连接，ConfigId：{configId}");
+
         //尝试转换为SqlSugarScope或SqlSugarClient
         ISqlSugarClient db = Db;
         if (db is SqlSugarScope)
@@ -59,13 +58,41 @@ public class SugarDbManger
         }
         throw new Exception("SqlSugar未注册或配置错误");
     }
+    /// <summary>
+    /// 根据指定ConfigId获取对应的数据库实例的仓储类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="configId"></param>
+    /// <returns></returns>
+    public static SimpleClient<T> GetConfigDbRepository<T>(string configId) where T : class, new()
+    {
+        var db = GetConfigDb(configId);
+        return new SimpleClient<T>(db);
+    }
 
     /// <summary>
     /// 根据实体上的TenantId特性获取对应的数据库实例
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static ISqlSugarClient GetTenantDb<T>() => Db.AsTenant().GetConnectionScopeWithAttr<T>();
+    public static ISqlSugarClient GetTenantDb<T>()
+    {
+        //判断实体上是否有Tenant特性
+        //if (typeof(T).GetCustomAttribute<TenantAttribute>() == null)
+        //    throw new Exception($"实体{typeof(T).Name}上未找到Tenant特性，无法获取对应的数据库连接");
+        return Db.AsTenant().GetConnectionScopeWithAttr<T>();
+    }
+
+    /// <summary>
+    /// 根据实体上的TenantId特性获取对应的数据库实例的仓储类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static SimpleClient<T> GetTenantDbRepository<T>() where T : class, new()
+    {
+        var db = GetTenantDb<T>();
+        return new SimpleClient<T>(db);
+    }
 
     /// <summary>
     /// 获取新的数据库实例(会是一个SqlSugarClient新的连接)
@@ -129,5 +156,20 @@ public class SugarDbManger
             }
         }
         return null;
+    }
+
+    /// <summary>
+    /// 判断是否有configId的数据库连接
+    /// </summary>
+    /// <param name="configId"></param>
+    /// <returns></returns>
+    public static bool HasConfigId(string configId)
+    {
+        if (string.IsNullOrEmpty(configId))
+            new Exception("configId不能为空");
+        var configs = GetConnectionConfigs();
+        if (configs != null)
+            return configs.Any(c => c.ConfigId.ToString() == configId);
+        return false;
     }
 }

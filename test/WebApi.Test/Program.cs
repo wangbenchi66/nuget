@@ -87,7 +87,7 @@ foreach (var item in list)
     //    //如果开启缓存需要重写BaseSqlSugarRepository中的查询方法才能生效,或者使用db上下文查询中加入WithCache()
     //    DataInfoCacheService = cacheService
     //};
-    item.ConnectionString = item.ConnectionString.CheckTrustServerCertificate(item.DbType).CheckEncrypt(item.DbType);
+    item.ConnectionString = item.ConnectionString.CheckTrustServerCertificate().CheckEncrypt();
 }
 var sqlSugarScope = new SqlSugarScope(list, db =>
 {

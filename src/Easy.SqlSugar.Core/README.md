@@ -2,7 +2,7 @@
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="Easy.SqlSugar.Core" Version="2025.9.17.1" />
+<PackageReference Include="Easy.SqlSugar.Core" Version="2025.11.20.1" />
 ```
 ### 3.1.1 SqlSugar配置文件
 ``` json
@@ -61,12 +61,20 @@ public SqlSugarTestApis(BaseSqlSugarRepository<User> userRepository)
 {
     _userRepository = userRepository;
 }
-//或者可以不注入，直接使用静态的db(框架内置已经封装好了可以直接用)
-var db=SugarDbManger.Db;
-var db = SugarDbManger.GetConfigDb("journal");
-var db2 = SugarDbManger.GetTenantDb<User>();
-var list = SugarDbManger.GetNewDb();
+```
 
+### 静态类SugarDbManger使用方法
+``` csharp
+//或者可以不注入，直接使用静态的db(框架内置已经封装好了可以直接用)
+//获取db对应的ISqlSugarClient
+var db=SugarDbManger.Db;
+var db = SugarDbManger.GetConfigDb("journal");//根据ConfigId获取对应的DbContext
+var db2 = SugarDbManger.GetTenantDb<User>();//根据实体类获取对应的DbContext(需要实体类有Tenant特性标识)
+//获取对应仓储
+var userRepository = SugarDbManger.GetConfigDbRepository<UserPg>("Pg");//根据ConfigId获取对应的仓储
+var userRepository = SugarDbManger.GetTenantDbRepository<User>();//根据实体类获取对应的仓储(需要实体类有Tenant特性标识)
+//获取一个新的DbContext
+var db = SugarDbManger.GetNewDb();
 ```
 ### 3.1.2 或者使用自定义的配置只要转换为对应的List配置集合就行
 #### 根据字符串获取DbType
@@ -498,6 +506,26 @@ base.Change<OrderItem>()//只支持自带方法和单库
 ``` csharp
 //获取数据库类型
 var dbType= DataBaseTypeExtensions.GetDatabaseType(conn);
+
+
+//将微软官方特性转换为sqlsugar特性 转换Key、Table、DatabaseGenerated、MaxLength、 Required特性为sqlsugar特性
+//用的时候在数据库初始化中直接设置
+ConfigureExternalServices = UniversalExtensions.GetInitConfigureExternalServices()
+//例如：
+var db = new ConnectionConfig()
+{
+    ConfigId = item.ToString(),
+    ConnectionString = conn.CheckTrustServerCertificate(),
+    DbType = DataBaseTypeExtensions.GetDatabaseType(conn),
+    IsAutoCloseConnection = true,
+    MoreSettings = new ConnMoreSettings()
+    {
+        IsAutoRemoveDataCache = true,
+        IsWithNoLockQuery = true,
+    },
+    ConfigureExternalServices = UniversalExtensions.GetInitConfigureExternalServices(),// 初始化时转换table和key的特性为sqlsugar 不需要可以注释
+};
+
 
 //检测TrustServerCertificate,没有则添加TrustServerCertificate=true
 conn=conn.CheckTrustServerCertificate(dbType);

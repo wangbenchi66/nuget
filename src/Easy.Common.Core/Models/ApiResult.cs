@@ -101,7 +101,7 @@ namespace Easy.Common.Core
                     }
                     var response = context.HttpContext.Response;
                     response.ContentType ??= "application/json;charset=utf-8";
-                    return Task.FromResult(response.WriteAsync(JsonHelper.ToJson(this)));
+                    return Task.FromResult(response.WriteAsync(JsonComm.ToJson(this)));
                 }*/
 
         /// <summary>

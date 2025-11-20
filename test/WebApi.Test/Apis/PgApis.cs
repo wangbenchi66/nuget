@@ -14,7 +14,11 @@ public class PgApis : BaseApi
 
     public object Get()
     {
-        return _repository.QueryPage(x => true, null, 2, 2);
+        //return _repository.QueryPage(x => true, null, 2, 2);
+        var a = SugarDbManger.GetConfigDbRepository<UserPg>("Pg");
+        return a.AsQueryable().ToList();
+        //var a = SugarDbManger.GetTenantDbRepository<UserPg>();
+        //return a.AsQueryable().ToList();
     }
 
     public object Add()
@@ -37,7 +41,7 @@ public class PgApis : BaseApi
     }
 }
 
-[Tenant("Pg")]
+//[Tenant("Pg")]
 [SugarTable("j_user")]
 public class UserPg
 {

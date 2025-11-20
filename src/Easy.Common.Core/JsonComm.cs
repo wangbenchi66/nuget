@@ -6,7 +6,7 @@ namespace Easy.Common.Core
     /// <summary>
     /// json序列化、反序列化帮助类
     /// </summary>
-    public static class JsonHelper
+    public static class JsonComm
     {
 
         /// <summary>

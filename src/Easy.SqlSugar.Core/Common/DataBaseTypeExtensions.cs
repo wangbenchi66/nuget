@@ -124,12 +124,11 @@ namespace Easy.SqlSugar.Core.Common
         /// 如果连接字符串中不包含这两个参数，则在连接字符串末尾添加 TrustServerCertificate=true 参数。
         /// </remarks>
         /// <param name="connectionString"></param>
-        /// <param name="dbType"></param>
         /// <returns></returns>
-        public static string CheckTrustServerCertificate(this string connectionString, DbType dbType)
+        public static string CheckTrustServerCertificate(this string connectionString)
         {
             // 仅对 SqlServer 数据库进行检测
-            if (dbType == DbType.SqlServer && !connectionString.Contains("TrustServerCertificate", StringComparison.OrdinalIgnoreCase))
+            if (GetDatabaseType(connectionString) == DbType.SqlServer && !connectionString.Contains("TrustServerCertificate", StringComparison.OrdinalIgnoreCase))
             {
                 // 根据连接字符串是否以分号结尾决定拼接方式
                 connectionString += connectionString.EndsWith(";")
@@ -146,12 +145,11 @@ namespace Easy.SqlSugar.Core.Common
         /// 如果连接字符串中已经包含 Encrypt=true 或 Encrypt=False，则不进行修改。
         /// 如果连接字符串中不包含这两个参数，则在连接字符串末尾添加 Encrypt=true 参数。
         /// <param name="connectionString"></param>
-        /// <param name="dbType"></param>
         /// <returns></returns>
-        public static string CheckEncrypt(this string connectionString, DbType dbType)
+        public static string CheckEncrypt(this string connectionString)
         {
             // 仅对 SqlServer 数据库进行检测
-            if (dbType == DbType.SqlServer && !connectionString.Contains("Encrypt", StringComparison.OrdinalIgnoreCase))
+            if (GetDatabaseType(connectionString) == DbType.SqlServer && !connectionString.Contains("Encrypt", StringComparison.OrdinalIgnoreCase))
             {
                 // 检查是否已包含 Encrypt 参数
                 // 根据连接字符串是否以分号结尾决定拼接方式

@@ -155,7 +155,7 @@ https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx807d86fb6b3d4fd2&red
 </xml>
             */
             //将xml转换为对象
-            var res = JsonHelper.ToObject<dynamic>(xml);
+            var res = JsonComm.ToObject<dynamic>(xml);
             return res;
         }
 

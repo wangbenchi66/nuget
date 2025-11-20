@@ -34,7 +34,7 @@ namespace Easy.Common.Core
             if (req.IsSuccessStatusCode)
             {
                 var res = await req.Content.ReadAsStringAsync();
-                return JsonHelper.ToObject<T>(res);
+                return JsonComm.ToObject<T>(res);
             }
             else
             {
@@ -73,7 +73,7 @@ namespace Easy.Common.Core
             if (req.IsSuccessStatusCode)
             {
                 var res = await req.Content.ReadAsStringAsync();
-                return JsonHelper.ToObject<T>(res);
+                return JsonComm.ToObject<T>(res);
             }
             else
             {

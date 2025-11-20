@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using SqlSugar;
 
@@ -63,6 +65,64 @@ namespace Easy.SqlSugar.Core
         public static string GetSqlErrorString(object configId, SqlSugarException exp, string? sqlFileInfo = null)
         {
             return $"{new string('-', 30)}错误{Environment.NewLine}{DateTime.Now},ConfigId:{configId},{sqlFileInfo},Sql:{Environment.NewLine}{exp.Sql}{Environment.NewLine}Error:{exp.Message}{Environment.NewLine}{new string('-', 30)}";
+        }
+
+        /// <summary>
+        /// 将官方特性转换为sqlsugar特性
+        /// </summary>
+        /// <returns></returns>
+        public static ConfigureExternalServices GetInitConfigureExternalServices()
+        {
+            return new ConfigureExternalServices()
+            {
+                EntityService = (property, column) =>
+                {
+                    var attributes = property.GetCustomAttributes(true);
+                    if (attributes == null || attributes.Length == 0)
+                        return;
+                    //主键
+                    if (attributes.Any(it => it is KeyAttribute))
+                    {
+                        column.IsPrimarykey = true;
+                    }
+                    //忽略
+                    if (attributes.Any(it => it is NotMappedAttribute))
+                    {
+                        column.IsIgnore = true;
+                    }
+                    //自增
+                    if (attributes.Any(it => it is DatabaseGeneratedAttribute))
+                    {
+                        var attr = (DatabaseGeneratedAttribute)attributes.First(it => it is DatabaseGeneratedAttribute);
+                        if (attr.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
+                        {
+                            column.IsIdentity = true;
+                        }
+                    }
+                    // 长度限制
+                    if (attributes.Any(it => it is MaxLengthAttribute))
+                    {
+                        var attr = (MaxLengthAttribute)attributes.First(it => it is MaxLengthAttribute);
+                        column.Length = attr.Length;
+                    }
+                    // 非空约束
+                    if (attributes.Any(it => it is RequiredAttribute))
+                    {
+                        column.IsNullable = false;
+                    }
+                },
+                EntityNameService = (type, entity) =>
+                {
+                    var attributes = type.GetCustomAttributes(true);
+                    if (attributes == null || attributes.Length == 0)
+                        return;
+                    if (attributes.Any(it => it is TableAttribute))
+                    {
+                        var attr = (attributes.First(it => it is TableAttribute) as TableAttribute);
+                        entity.DbTableName = attr.Name;
+                    }
+                }
+            };
         }
     }
 }
