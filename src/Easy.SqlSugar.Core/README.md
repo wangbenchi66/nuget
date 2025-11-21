@@ -76,6 +76,32 @@ var userRepository = SugarDbManger.GetTenantDbRepository<User>();//根据实体�
 //获取一个新的DbContext
 var db = SugarDbManger.GetNewDb();
 ```
+### 雪花id配置
+``` csharp
+//默认使用的是sqlsugar自带的雪花id生成器,框架内部每次启动会生成一个随机的0-31之间的机器码 不需要手动配置
+
+//推荐使用下面的Yitter.IdGenerator雪花id算法,内置时钟回拨问题处理,支持71000年唯一不重复，suagr的雪花只支持到69年后
+YitIdHelper.SetIdGenerator(UniversalExtensions.YitSnowflakeOptions);//直接这样设置使用 内部已经配置好了，如果不用这种内置的雪花id解析方法可能会出问题
+StaticConfig.CustomSnowFlakeFunc = YitIdHelper.NextId;
+
+//雪花id解析方法
+
+//解析sqlsugar自带的雪花id
+UniversalExtensions.ParseSugarSnowflakeId(id);
+//解析Yitter.IdGenerator雪花id,内部会自动读取当前的配置
+UniversalExtensions.ParseYitSnowflakeId(id);
+
+//会返回一个实体类，样式如下
+{
+  "SnowflakeId": 1945020448118469,//原始雪花id
+  "Timestamp": "2025-11-21T10:51:22.498+08:00",//时间戳
+  "Date": "2025-11-21 10:51:22",//本地时间
+  "DatacenterId": 0,//数据中心id,Yitter.IdGenerator没有数据中心id，默认0
+  "WorkerId": 27,//机器id
+  "Sequence": 5//序列号
+}
+```
+
 ### 3.1.2 或者使用自定义的配置只要转换为对应的List配置集合就行
 #### 根据字符串获取DbType
 ``` csharp

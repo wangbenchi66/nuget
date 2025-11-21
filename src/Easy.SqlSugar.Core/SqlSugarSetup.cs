@@ -169,9 +169,7 @@ namespace Easy.SqlSugar.Core
                 services.AddScoped(typeof(BaseSqlSugarService<>));
             }
             //雪花id设置,雪花id必须是0-31之内
-            string machineTag = Environment.MachineName + "_" + GetLocalIp() + "_" + GetMac();
-            int workId = Math.Abs(machineTag.GetHashCode()) % 32;
-            SnowFlakeSingle.WorkId = workId;
+            SnowFlakeSingle.WorkId = UniversalExtensions.GetRandomWorkId();
 
         }
 
@@ -180,21 +178,5 @@ namespace Easy.SqlSugar.Core
             var assembly = Assembly.GetEntryAssembly();
             return assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == name);
         }
-
-        private static string GetLocalIp()
-        {
-            return Dns.GetHostAddresses(Dns.GetHostName())
-                      .FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork)?.ToString() ?? "";
-        }
-
-        private static string GetMac()
-        {
-            return NetworkInterface.GetAllNetworkInterfaces()
-                    .FirstOrDefault(x => x.NetworkInterfaceType != NetworkInterfaceType.Loopback &&
-                                         x.OperationalStatus == OperationalStatus.Up)?
-                    .GetPhysicalAddress()
-                    .ToString() ?? "";
-        }
-
     }
 }

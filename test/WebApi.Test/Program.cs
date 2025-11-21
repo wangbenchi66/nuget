@@ -113,19 +113,17 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);
 /*var listIoc = configuration.GetSection("DBS").Get<List<IocConfig>>();
 builder.Services.AddSqlSugarIocSetup(listIoc);*/
-SnowFlakeSingle.WorkId = 1;
-var options = new IdGeneratorOptions
-{
-    WorkerIdBitLength = 4,  // 最大 16 台机器
-    SeqBitLength = 6,       // 每毫秒最多 64 个 ID
-    BaseTime = new DateTime(2020, 1, 1)
-};
+//SnowFlakeSingle.WorkId = 1;
 
-YitIdHelper.SetIdGenerator(options);
-StaticConfig.CustomSnowFlakeFunc = () =>
-{
-    return YitIdHelper.NextId();
-};
+//var options = new IdGeneratorOptions((ushort)UniversalExtensions.GetRandomWorkId())
+//{
+//    WorkerIdBitLength = 10,
+//    SeqBitLength = 12,
+//    BaseTime = DateTimeOffset.FromUnixTimeMilliseconds(1288834974657L).UtcDateTime
+//};
+
+YitIdHelper.SetIdGenerator(UniversalExtensions.YitSnowflakeOptions);
+StaticConfig.CustomSnowFlakeFunc = YitIdHelper.NextId;
 
 
 //EF

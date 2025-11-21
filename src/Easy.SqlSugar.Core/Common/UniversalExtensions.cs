@@ -1,5 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using SqlSugar;
 
@@ -124,5 +127,63 @@ namespace Easy.SqlSugar.Core
                 }
             };
         }
+
+        /// <summary>
+        /// 随机获取雪花id的工作单元(根据localIP+mac地址+机器名生成0-31的workId)
+        /// </summary>
+        /// <returns></returns>
+        public static int GetRandomWorkId()
+        {
+            var localIp = Dns.GetHostAddresses(Dns.GetHostName())
+                      .FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork)?.ToString() ?? "";
+            var mac = NetworkInterface.GetAllNetworkInterfaces()
+                    .FirstOrDefault(x => x.NetworkInterfaceType != NetworkInterfaceType.Loopback && x.OperationalStatus == OperationalStatus.Up)?
+                    .GetPhysicalAddress()
+                    .ToString() ?? "";
+            string machineTag = Environment.MachineName + "_" + localIp + "_" + mac;
+            int workId = Math.Abs(machineTag.GetHashCode()) % 32;
+            return workId;
+        }
+        /// <summary>
+        /// 获取Yitter.IdGenerator雪花id配置
+        /// </summary>
+        /// <returns></returns>
+        private static Yitter.IdGenerator.IdGeneratorOptions GetYitSnowflakeOptions()
+        {
+            //定义推特时间戳(2010-11-04 01:42:54.657 UTC)
+            DateTime twepochUtc = new DateTime(2010, 11, 4, 1, 42, 54, 657, DateTimeKind.Utc);
+            var options = new Yitter.IdGenerator.IdGeneratorOptions((ushort)GetRandomWorkId())
+            {
+                BaseTime = twepochUtc,
+                WorkerIdBitLength = 6,
+                SeqBitLength = 6
+            };
+            return options;
+        }
+        /// <summary>
+        /// 存储生成的Yitter.IdGenerator雪花id配置 一旦生成不能修改
+        /// </summary>
+        public static readonly Yitter.IdGenerator.IdGeneratorOptions YitSnowflakeOptions = GetYitSnowflakeOptions();
+        /// <summary>
+        /// 解析sugar雪花id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static SnowflakeIdParts ParseSugarSnowflakeId(long id)
+        {
+            return SnowflakeIdParser.ParseSqlSugarSnowflakeId(id);
+        }
+        /// <summary>
+        /// 解析Yitter.IdGenerator雪花id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static SnowflakeIdParts ParseYitSnowflakeId(long id)
+        {
+            var options = YitSnowflakeOptions;
+            var res = SnowflakeIdParser.ParseYitBySnowFlakeId(id, options.BaseTime, options.WorkerIdBitLength, options.SeqBitLength);
+            return res;
+        }
+
     }
 }
