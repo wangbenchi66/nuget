@@ -573,7 +573,7 @@ var errorSql= UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo);
 var list = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
 foreach (var item in list)
 {
-    item.ConnectionString = item.ConnectionString.CheckTrustServerCertificate(item.DbType).CheckEncrypt(item.DbType);
+    item.ConnectionString = item.ConnectionString.CheckTrustServerCertificate().CheckEncrypt();
 }
 var sqlsugarSope = new SqlSugarScope(list, db =>
 {
