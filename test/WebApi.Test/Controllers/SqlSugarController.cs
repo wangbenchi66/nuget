@@ -1,4 +1,5 @@
 ﻿using Easy.SqlSugar.Core;
+using Easy.SqlSugar.Core.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Test.Controllers
@@ -342,6 +343,37 @@ namespace WebApi.Test.Controllers
             //var obj = SugarDbManger.GetInstance().Queryable<User>().Where(p => p.Id == 1).First();
             //return obj;
             return null;
+        }
+
+        /// <summary>
+        /// 参数化修改测试
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("ParamUpdate")]
+        public async Task<object> ParamUpdate()
+        {
+            var user = new User() { Id = 99999, Name = "admin_param31" };
+            var list = new List<User>
+            {
+                new User() { Id = 99999, Name = "admin_param31" },
+                new User() { Id = 100000, Name = "admin_param1" },
+            };
+            var parms = SugarEntityExtensions.ToSqlSugarDictionary(list);
+            var isUpdate = await _userRepository.ExecuteSqlAsync("update j_user set name=@Name where id=@Id", parms) > 0;
+            return isUpdate;
+        }
+        /// <summary>
+        /// 参数化in查询
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("ParamInQuery")]
+        public async Task<object> ParamInQuery()
+        {
+            var ids = new List<int> { 99999, 100000, 100001 };
+            var name = "自定义";
+            string sql = "select * from j_user where id IN @ids or name in @name";
+            var list = await _userRepository.SqlQueryAsync(SugarEntityExtensions.InSqlReplace(sql), new { ids,name });
+            return list;
         }
     }
 }

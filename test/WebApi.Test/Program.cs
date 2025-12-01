@@ -152,7 +152,7 @@ builder.Services.AddControllers(options =>
     //options.Filters.Add<HttpIdempotenceFilter>();
 }).AddJsonOptions(options =>
 {
-    options.JsonSerializerOptions.PropertyNamingPolicy = null; // 保留原始属性名
+    //options.JsonSerializerOptions.PropertyNamingPolicy = null; // 保留原始属性名
     options.JsonSerializerOptions.WriteIndented = true; // 格式化输出
     //时间格式化
     options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());

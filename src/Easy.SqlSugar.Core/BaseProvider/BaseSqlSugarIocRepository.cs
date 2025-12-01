@@ -4,6 +4,7 @@ using SqlSugar;
 using SqlSugar.IOC;
 using Easy.SqlSugar.Core.BiewModels;
 using Microsoft.Extensions.DependencyInjection;
+using Easy.SqlSugar.Core.Common;
 
 namespace Easy.SqlSugar.Core
 {
@@ -690,7 +691,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual List<T> SqlQuery(string sql, object? parameters)
         {
-            return SqlSugarDbContext.Ado.SqlQuery<T>(sql, parameters);
+            return SqlSugarDbContext.Ado.SqlQuery<T>(SugarEntityExtensions.CheckSql(sql), parameters);
         }
 
         /// <summary>
@@ -701,7 +702,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<List<T>> SqlQueryAsync(string sql, object? parameters)
         {
-            return await SqlSugarDbContext.Ado.SqlQueryAsync<T>(sql, parameters);
+            return await SqlSugarDbContext.Ado.SqlQueryAsync<T>(SugarEntityExtensions.CheckSql(sql), parameters);
         }
 
         /// <summary>
@@ -713,7 +714,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual List<TResult> SqlQuery<TResult>(string sql, object? parameters)
         {
-            return SqlSugarDbContext.Ado.SqlQuery<TResult>(sql, parameters);
+            return SqlSugarDbContext.Ado.SqlQuery<TResult>(SugarEntityExtensions.CheckSql(sql), parameters);
         }
 
         /// <summary>
@@ -725,7 +726,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<List<TResult>> SqlQueryAsync<TResult>(string sql, object? parameters)
         {
-            return await SqlSugarDbContext.Ado.SqlQueryAsync<TResult>(sql, parameters);
+            return await SqlSugarDbContext.Ado.SqlQueryAsync<TResult>(SugarEntityExtensions.CheckSql(sql), parameters);
         }
 
         /// <summary>
@@ -737,7 +738,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual TResult SqlQuerySingle<TResult>(string sql, object? parameters)
         {
-            return SqlSugarDbContext.Ado.SqlQuerySingle<TResult>(sql, parameters);
+            return SqlSugarDbContext.Ado.SqlQuerySingle<TResult>(SugarEntityExtensions.CheckSql(sql), parameters);
         }
 
         /// <summary>
@@ -749,7 +750,7 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         public virtual async Task<TResult> SqlQuerySingleAsync<TResult>(string sql, object? parameters)
         {
-            return await SqlSugarDbContext.Ado.SqlQuerySingleAsync<TResult>(sql, parameters);
+            return await SqlSugarDbContext.Ado.SqlQuerySingleAsync<TResult>(SugarEntityExtensions.CheckSql(sql), parameters);
         }
 
         /// <summary>
@@ -766,7 +767,7 @@ namespace Easy.SqlSugar.Core
             //计算分页
             var skip = (pageIndex - 1) * pageSize;
             var take = pageSize;
-            var list = SqlSugarDbContext.Ado.SqlQuery<TResult>(sql, parameters);
+            var list = SqlSugarDbContext.Ado.SqlQuery<TResult>(SugarEntityExtensions.CheckSql(sql), parameters);
             var total = list.Count;
             if (total == 0)
                 return new PageList<TResult>(null, pageIndex, pageSize, total);
@@ -787,7 +788,7 @@ namespace Easy.SqlSugar.Core
             //计算分页
             var skip = (pageIndex - 1) * pageSize;
             var take = pageSize;
-            var list = await SqlSugarDbContext.Ado.SqlQueryAsync<TResult>(sql, parameters);
+            var list = await SqlSugarDbContext.Ado.SqlQueryAsync<TResult>(SugarEntityExtensions.CheckSql(sql), parameters);
             var total = list.Count;
             if (total == 0)
                 return new PageList<TResult>(null, pageIndex, pageSize, total);
@@ -802,17 +803,23 @@ namespace Easy.SqlSugar.Core
         /// <returns>返回影响行数</returns>
         public virtual int ExecuteSql(string sql, object? parameters)
         {
-            if (parameters is IEnumerable<object> parameterList)
+            if (parameters is IEnumerable<T> || parameters is List<T> || parameters is IList<T>)
             {
+                var parameterList = parameters as IEnumerable<T>;
                 int totalAffectedRows = 0;
                 using (SqlSugarDbContext.Ado.OpenAlways())
                 {
-                    foreach (var parameter in GetSugarParameters(parameterList) as List<SugarParameter[]>)
+                    foreach (var parameter in parameterList)
                     {
-                        totalAffectedRows += SqlSugarDbContext.Ado.ExecuteCommand(sql, parameter);
+                        totalAffectedRows += SqlSugarDbContext.Ado.ExecuteCommand(sql, SugarEntityExtensions.ToSqlSugarDictionary(parameter, sql));
                     }
                     return totalAffectedRows;
                 }
+            }
+            else if (parameters is T)
+            {
+                var sugarParameters = SugarEntityExtensions.ToSqlSugarDictionary(parameters, sql);
+                return SqlSugarDbContext.Ado.ExecuteCommand(sql, sugarParameters);
             }
             else
             {
@@ -828,17 +835,23 @@ namespace Easy.SqlSugar.Core
         /// <returns>返回影响行数</returns>
         public virtual async Task<int> ExecuteSqlAsync(string sql, object? parameters)
         {
-            if (parameters is IEnumerable<object> parameterList)
+            if (parameters is IEnumerable<T> || parameters is List<T> || parameters is IList<T>)
             {
+                var parameterList = parameters as IEnumerable<T>;
                 int totalAffectedRows = 0;
                 using (SqlSugarDbContext.Ado.OpenAlways())
                 {
-                    foreach (var parameter in GetSugarParameters(parameterList) as List<SugarParameter[]>)
+                    foreach (var parameter in parameterList)
                     {
-                        totalAffectedRows += await SqlSugarDbContext.Ado.ExecuteCommandAsync(sql, parameter);
+                        totalAffectedRows += await SqlSugarDbContext.Ado.ExecuteCommandAsync(sql, SugarEntityExtensions.ToSqlSugarDictionary(parameter, sql));
                     }
                     return totalAffectedRows;
                 }
+            }
+            else if (parameters is T)
+            {
+                var sugarParameters = SugarEntityExtensions.ToSqlSugarDictionary(parameters, sql);
+                return await SqlSugarDbContext.Ado.ExecuteCommandAsync(sql, sugarParameters);
             }
             else
             {
