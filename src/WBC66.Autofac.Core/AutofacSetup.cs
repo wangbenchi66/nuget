@@ -90,76 +90,57 @@ namespace WBC66.Autofac.Core
         public static void AddRegisterDependencies(this IServiceCollection services)
         {
             var assemblies = GetAllAssemblies();
+            // 扫描三种生命周期的实现类
+            var markerInterfaces = new[] { typeof(IScoped), typeof(ITransient), typeof(ISingleton) };
             foreach (var assembly in assemblies)
             {
-                var dependencyTypes = assembly.GetTypes()
-                    .Where(t => typeof(ITransient).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
-                var singletonTypes = assembly.GetTypes()
-                    .Where(t => typeof(ISingleton).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
-                var scopedTypes = assembly.GetTypes()
-                    .Where(t => typeof(IScoped).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+                var transientTypes = assembly.GetTypes()
+                    .Where(t => typeof(ITransient).IsAssignableFrom(t)
+                                && !t.IsInterface && !t.IsAbstract);
 
-                foreach (var type in dependencyTypes)
+                var scopedTypes = assembly.GetTypes()
+                    .Where(t => typeof(IScoped).IsAssignableFrom(t)
+                                && !t.IsInterface && !t.IsAbstract);
+
+                var singletonTypes = assembly.GetTypes()
+                    .Where(t => typeof(ISingleton).IsAssignableFrom(t)
+                                && !t.IsInterface && !t.IsAbstract);
+
+                Register(services, transientTypes, markerInterfaces, ServiceLifetime.Transient);
+                Register(services, scopedTypes, markerInterfaces, ServiceLifetime.Scoped);
+                Register(services, singletonTypes, markerInterfaces, ServiceLifetime.Singleton);
+            }
+        }
+        private static void Register(
+            IServiceCollection services,
+            IEnumerable<Type> types,
+            Type[] markerInterfaces,
+            ServiceLifetime lifetime)
+        {
+            foreach (var type in types)
+            {
+                // 获取非标记接口（业务接口）
+                var interfaces = type.GetInterfaces()
+                                     .Where(i => !markerInterfaces.Contains(i))
+                                     .ToList();
+
+                if (interfaces.Any())
                 {
-                    var interfaces = type.GetInterfaces();
-                    if (interfaces.Any())
+                    // 注册接口 → 实现类
+                    foreach (var it in interfaces)
                     {
-                        foreach (var @interface in interfaces)
+                        if (!services.Any(s => s.ServiceType == it))
                         {
-                            if (!services.Any(s => s.ServiceType == @interface))
-                            {
-                                services.AddTransient(@interface, type);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (!services.Any(s => s.ServiceType == type))
-                        {
-                            services.AddTransient(type);
+                            services.Add(new ServiceDescriptor(it, type, lifetime));
                         }
                     }
                 }
-                foreach (var type in singletonTypes)
+                else
                 {
-                    var interfaces = type.GetInterfaces();
-                    if (interfaces.Any())
+                    // 没有业务接口 → 注册自身类型
+                    if (!services.Any(s => s.ServiceType == type))
                     {
-                        foreach (var @interface in interfaces)
-                        {
-                            if (!services.Any(s => s.ServiceType == @interface))
-                            {
-                                services.AddSingleton(@interface, type);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (!services.Any(s => s.ServiceType == type))
-                        {
-                            services.AddSingleton(type);
-                        }
-                    }
-                }
-                foreach (var type in scopedTypes)
-                {
-                    var interfaces = type.GetInterfaces();
-                    if (interfaces.Any())
-                    {
-                        foreach (var @interface in interfaces)
-                        {
-                            if (!services.Any(s => s.ServiceType == @interface))
-                            {
-                                services.AddScoped(@interface, type);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (!services.Any(s => s.ServiceType == type))
-                        {
-                            services.AddScoped(type);
-                        }
+                        services.Add(new ServiceDescriptor(type, type, lifetime));
                     }
                 }
             }

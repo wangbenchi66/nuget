@@ -5,7 +5,7 @@
 ## 安装
 
 ```xml
-<PackageReference Include="Easy.Common.Core" Version="2025.5.6.1" />
+<PackageReference Include="Easy.Common.Core" Version="2025.12.2.1" />
 ```
 # 1. 通用结果类
 ### 1.1 ApiResult

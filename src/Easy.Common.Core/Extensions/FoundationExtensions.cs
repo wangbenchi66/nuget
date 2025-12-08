@@ -340,7 +340,50 @@ public static class FoundationExtensions
     #endregion HmacSHA256加密
 
     #region 空值判断
+    /// <summary>
+    /// 判断字符串是否为非null或非空
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static bool IsNotNull(this string str) => !IsNull(str);
+    /// <summary>
+    /// 判断泛型集合是否为非null或非空
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public static bool IsNotNull<T>(this IEnumerable<T> source) => !IsNull(source);
+    /// <summary>
+    /// 判断集合是否为非null或非空
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <returns></returns>
+    public static bool IsNotNull<T>(this List<T> list) => !IsNull(list);
+    /// <summary>
+    /// 检查对象是否为非null或非空
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static bool IsNotNull(this object obj) => !IsNull(obj);
+    /// <summary>
+    /// 判断多个对象是否全部为非null或非空
+    /// </summary>
+    /// <param name="objs"></param>
+    /// <returns></returns>
+    public static bool AreAllNotNull(params object[] objs) => !AreAllNull(objs);
 
+    /// <summary>
+    /// 深度检查对象属性是否全不为空（仅当需要极致判空时用）
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static bool DeepIsNotNull(this object obj) => !DeepIsNull(obj);
+    /// <summary>
+    /// 判断字符串是否为null或空
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
     public static bool IsNull(this string str)
     {
         return str == null || str == "" || string.IsNullOrWhiteSpace(str);
@@ -428,6 +471,23 @@ public static class FoundationExtensions
         }
 
         return true; // 所有属性都为null，判定为空
+    }
+
+    /// <summary>
+    /// 判断多个对象是否全部为null或空
+    /// </summary>
+    /// <param name="objs"></param>
+    /// <returns></returns>
+    public static bool AreAllNull(params object[] objs)
+    {
+        foreach (var obj in objs)
+        {
+            if (!IsNull(obj))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     /// <summary>

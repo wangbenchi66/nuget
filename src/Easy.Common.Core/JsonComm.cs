@@ -50,13 +50,18 @@ namespace Easy.Common.Core
                 WriteIndented = true,
                 //设置属性命名策略
                 PropertyNamingPolicy = null,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                // 忽略大小写
+                PropertyNameCaseInsensitive = true,
+                //总是包含null
+                DefaultIgnoreCondition = JsonIgnoreCondition.Never,
                 //设置编码器
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 //保持原格式
                 AllowTrailingCommas = true,
                 //时间格式化
-                Converters = { new DateTimeConverter("yyyy-MM-dd HH:mm:ss") }
+                Converters = { new DateTimeConverter("yyyy-MM-dd HH:mm:ss") },
+                // 允许从字符串读取数字
+                NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString,
             };
         }
 
