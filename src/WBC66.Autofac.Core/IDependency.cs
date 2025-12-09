@@ -20,4 +20,11 @@
     public interface IScoped
     {
     }
+
+    /// <summary>
+    /// 通用注入接口(继承该接口的类型将会被注入)
+    /// </summary>
+    public interface IDependency
+    {
+    }
 }

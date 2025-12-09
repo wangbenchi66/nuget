@@ -2,7 +2,7 @@
 ### 1. Autofac配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="WBC66.Autofac.Core" Version="2025.12.08.1" />
+<PackageReference Include="WBC66.Autofac.Core" Version="2025.12.09.2" />
 ```
 ### 2.使用Autofac工厂
 ``` csharp
