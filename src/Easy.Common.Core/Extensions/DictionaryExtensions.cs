@@ -29,4 +29,25 @@ public static class DictionaryExtensions
 
         return valuePairs;
     }
+
+    /// <summary>
+    /// 字典转换为实体
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="dict"></param>
+    /// <returns></returns>
+    public static T DicToEntity<T>(this IDictionary<string, object> dict) where T : new()
+    {
+        T obj = new T();
+        Type type = typeof(T);
+        foreach (var item in dict)
+        {
+            PropertyInfo prop = type.GetProperty(item.Key);
+            if (prop != null && prop.CanWrite)
+            {
+                prop.SetValue(obj, Convert.ChangeType(item.Value, prop.PropertyType), null);
+            }
+        }
+        return obj;
+    }
 }

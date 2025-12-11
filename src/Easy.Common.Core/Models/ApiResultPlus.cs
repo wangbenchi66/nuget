@@ -1,3 +1,7 @@
+using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using System.Reflection;
+
 namespace Easy.Common.Core;
 
 /// <summary>
@@ -109,19 +113,101 @@ public static class ApiResultPlusExtensions
     /// <typeparam name="TError">错误结果类型</typeparam>
     /// <param name="result">ApiResultPlus 实例</param>
     /// <returns>转换后的 ApiResult</returns>
+    //public static ApiResult ToApiResult<TSuccess, TError>(this ApiResultPlus<TSuccess, TError> result)
+    //    where TError : ErrorInfo
+    //{
+    //    return result.Match(
+    //        success =>
+    //        {
+    //            if (success is ApiResult apiResult)
+    //            {
+    //                return apiResult;
+    //            }
+    //            return ApiResult.Ok(success);
+    //        },
+    //        error => ApiResult.Fail(error.Msg, error.Data)
+    //    );
+    //}
     public static ApiResult ToApiResult<TSuccess, TError>(this ApiResultPlus<TSuccess, TError> result)
-        where TError : ErrorInfo
     {
         return result.Match(
             success =>
             {
+                // 如果成功数据本身就是 ApiResult，直接返回
                 if (success is ApiResult apiResult)
                 {
                     return apiResult;
                 }
+
+                // 否则包装成 ApiResult.Ok
                 return ApiResult.Ok(success);
             },
-            error => ApiResult.Fail(error.Msg, error.Data)
+            error =>
+            {
+                if (error == null)
+                    return ApiResult.Fail("操作失败");
+
+                if (error is string s)
+                    return ApiResult.Fail(s);
+
+                if (typeof(TError).IsEnum)
+                    return ApiResult.Fail(error?.ToString());
+
+                if (error is ErrorInfo ei)
+                    return ApiResult.Fail(ei.Msg, ei.Data);
+
+                if (error is Exception ex)
+                    return ApiResult.Fail(ex.Message);
+
+                return ApiResult.Fail(null, error);
+            }
         );
+    }
+
+
+    private static readonly ConcurrentDictionary<Type, Func<object, ApiResult>> Cache =
+        new ConcurrentDictionary<Type, Func<object, ApiResult>>();
+    /// <summary>
+    /// object 类型的 ApiResultPlus 转 ApiResult
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static ApiResult Convert(object value)
+    {
+        var type = value.GetType();
+
+        // —— 已缓存，直接 O(1) 返回 ——
+        if (Cache.TryGetValue(type, out var func))
+            return func(value);
+
+        // —— 构建委托（只构建一次） ——
+        var converter = BuildConverter(type);
+
+        Cache[type] = converter; // 缓存
+
+        return converter(value);
+    }
+
+    private static Func<object, ApiResult> BuildConverter(Type apiResultPlusType)
+    {
+        // 获取扩展方法 ToApiResult<TSuccess, TError>
+        var method = typeof(ApiResultPlusExtensions)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .First(m => m.Name == "ToApiResult" && m.IsGenericMethod);
+
+        // 构建泛型方法
+        var genericMethod = method.MakeGenericMethod(apiResultPlusType.GenericTypeArguments);
+
+        // 参数：object input
+        var param = Expression.Parameter(typeof(object), "input");
+
+        // 强制转换 input → ApiResultPlus<TSuccess,TError>
+        var cast = Expression.Convert(param, apiResultPlusType);
+
+        // 调用 ToApiResult
+        var call = Expression.Call(null, genericMethod, cast);
+
+        // 构建 Func<object, ApiResult>
+        return Expression.Lambda<Func<object, ApiResult>>(call, param).Compile();
     }
 }

@@ -5,7 +5,7 @@
 ## 安装
 
 ```xml
-<PackageReference Include="Easy.Common.Core" Version="2025.12.2.1" />
+<PackageReference Include="Easy.Common.Core" Version="2025.12.11.2" />
 ```
 # 1. 通用结果类
 ### 1.1 ApiResult
@@ -38,7 +38,7 @@ TError 表示失败时返回的数据类型。
 ```csharp
 public ApiResult GetResult(int type)
 {
-    // 创建 ApiResultPlus 实例，表示成功返回类型为 string，失败返回类型为 ErrorInfo
+    // 创建 ApiResultPlus 实例，表示成功返回类型为 string，失败返回类型为 ErrorInfo(成功和失败的两个类型可以是任意类型，但不能是相同类型)
     var result = new ApiResultPlus<string, ErrorInfo>();
 
     // 模拟业务逻辑
@@ -344,6 +344,31 @@ await _dingTalkExtend.SendTextMsgAsync("测试消息");
 await _dingTalkExtend.SendLinkMsgAsync("测试标题", "测试内容", "图片地址", "消息跳转地址");
 //发送markdown消息
 await _dingTalkExtend.SendMarkdownMsgAsync("测试标题", "#测试内容(MD格式)");
+
+```
+
+# 9. HttpClientFactoryExtensions扩展
+``` csharp
+
+// IHttpClientFactory 已经在 DI 容器中注册(如果没有注册 下边调用的时候服务名空着就行,然后url写全地址)
+// services.AddHttpClient("服务名称", c => { c.BaseAddress = new Uri("https://example.com"); });
+
+//Get请求
+var result = await _httpClientFactory.GetAsync<MyResponse>("服务名称", "/api/get");
+// Post请求
+
+// JSON
+var resultJson = await _httpClientFactory.PostAsync<MyResponse>("服务名称", "/api/json", new { id = 1 });
+
+// Form
+var resultForm = await _httpClientFactory.PostFormAsync<MyResponse>("服务名称", "/api/form", new { id = 1, name = "Tom" });
+
+// 单文件上传
+var file = new FileParameter { Content = File.ReadAllBytes("test.png"), FileName = "test.png" };
+var resultFile = await _httpClientFactory.PostMultipartAsync<MyResponse>("服务名称", "/api/file", new { file });
+// 多文件上传 + 表单字段
+var files = new[] { new FileParameter { Content = File.ReadAllBytes("a.png"), FileName = "a.png" } };
+var resultMulti = await _httpClientFactory.PostMultipartAsync<MyResponse>("服务名称", "/api/multi", new { id = 123, files });
 
 ```
 
