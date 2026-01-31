@@ -1,5 +1,4 @@
-﻿using Easy.Common.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Test.Apis
 {
@@ -14,9 +13,13 @@ namespace WebApi.Test.Apis
         }
 
         [HttpGet("GetResultError")]
-        public ApiResultPlus<string, ErrorInfo> GetResultError()
+        public ApiResultPlus<User, bool> GetResultError()
         {
-            return ErrorInfo.Error("手动错误");
+            return false;
+        }
+        public class User
+        {
+            public int Id { get; set; }
         }
 
         [HttpGet("GetResult")]

@@ -1,6 +1,7 @@
 ﻿using Easy.SqlSugar.Core;
 using Easy.SqlSugar.Core.Common;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Test.Model;
 
 namespace WebApi.Test.Controllers
 {
@@ -372,8 +373,26 @@ namespace WebApi.Test.Controllers
             var ids = new List<int> { 99999, 100000, 100001 };
             var name = "自定义";
             string sql = "select * from j_user where id IN @ids or name in @name";
-            var list = await _userRepository.SqlQueryAsync(SugarEntityExtensions.InSqlReplace(sql), new { ids,name });
+            var list = await _userRepository.SqlQueryAsync(SugarEntityExtensions.InSqlReplace(sql), new { ids, name });
             return list;
+        }
+
+        //sql执行前aop事件处理添加时间&修改时间
+        [HttpGet("AddAopTest")]
+        public async Task<object> AddAopTest()
+        {
+            var db = SugarDbManger.GetConfigDb("journal");
+            var aopTest = new AopTest() { };
+            var snowId = await db.Insertable(aopTest).ExecuteReturnSnowflakeIdAsync();
+            return snowId;
+        }
+        [HttpGet("EditAopTest")]
+        public async Task<object> EditAopTest(long id)
+        {
+            var db = SugarDbManger.GetConfigDb("journal");
+            var aopTest = db.Queryable<AopTest>().InSingle(id);
+            var res = await db.Updateable(aopTest).ExecuteCommandHasChangeAsync();
+            return res;
         }
     }
 }

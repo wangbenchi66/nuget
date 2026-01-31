@@ -106,6 +106,20 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
         {
             Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));
         };
+        //sql执行前 列事件处理
+        aop.DataExecuting = (oldValue, entityInfo) =>
+        {
+            if (entityInfo.OperationType == DataFilterType.InsertByObject)
+            {
+                if (entityInfo.PropertyName == "CreateTime")
+                    entityInfo.SetValue(DateTime.Now);//修改CreateTime字段
+            }
+            else if (entityInfo.OperationType == DataFilterType.UpdateByObject)
+            {
+                if (entityInfo.PropertyName == "UpdateTime")
+                    entityInfo.SetValue(DateTime.Now);//修改UpdateTime字段
+            }
+        };
     }
 });
 builder.Services.AddHttpContextAccessor();
