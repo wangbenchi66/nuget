@@ -111,12 +111,12 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
         {
             if (entityInfo.OperationType == DataFilterType.InsertByObject)
             {
-                if (entityInfo.PropertyName == "CreateTime")
+                if (entityInfo.PropertyName == "CreateTime" && oldValue == null)
                     entityInfo.SetValue(DateTime.Now);//修改CreateTime字段
             }
             else if (entityInfo.OperationType == DataFilterType.UpdateByObject)
             {
-                if (entityInfo.PropertyName == "UpdateTime")
+                if (entityInfo.PropertyName == "UpdateTime" && (oldValue == null || Math.Abs((DateTime.Now - oldValue.ToDate()).TotalSeconds) > 60))
                     entityInfo.SetValue(DateTime.Now);//修改UpdateTime字段
             }
         };

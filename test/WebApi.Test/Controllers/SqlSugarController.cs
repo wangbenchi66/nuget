@@ -391,6 +391,7 @@ namespace WebApi.Test.Controllers
         {
             var db = SugarDbManger.GetConfigDb("journal");
             var aopTest = db.Queryable<AopTest>().InSingle(id);
+            aopTest.UpdateTime = DateTime.Now.AddDays(1000);
             var res = await db.Updateable(aopTest).ExecuteCommandHasChangeAsync();
             return res;
         }
