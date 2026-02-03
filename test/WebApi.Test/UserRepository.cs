@@ -13,8 +13,7 @@ namespace WebApi.Test
         /// <summary>
         ///用户id
         ///</summary>
-        [Key]
-        [SugarColumn(ColumnName = "ID", IsPrimaryKey = true)]
+        [SugarColumn(ColumnName = "ID", IsPrimaryKey = true,IsIdentity =true)]
         public int Id { get; set; }
 
         public string Name { get; set; }

@@ -395,5 +395,19 @@ namespace WebApi.Test.Controllers
             var res = await db.Updateable(aopTest).ExecuteCommandHasChangeAsync();
             return res;
         }
+
+        //新增返回主键到实体
+        [HttpGet("InsertReturnPk")]
+        public async Task<object> InsertReturnPk()
+        {
+            var db = SugarDbManger.GetConfigDb("journal");
+            var user = new User() { Name = "test" };
+            var list = new List<User>();
+            list.Add(user);
+            list.Add(new User() { Id = 99, Name = "test2", CreateTime = DateTime.Now.AddYears(-100000) });
+            //var res = await db.Insertable(user).ExecuteReturnEntityAsync();//只支持单个实体返回主键到实体,多个会只返回第一个的实体
+            var res = db.Insertable(list).ExecuteReturnPkList<int>();
+            return user;
+        }
     }
 }
