@@ -122,6 +122,7 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
         };
     }
 });
+//StaticConfig.AppContext_ConvertInfinityDateTime = true;//全局配置将DateTime.MaxValue转换为无限远的时间，解决sqlsugar中DateTime.MaxValue无法插入数据库的问题
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);
 builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);

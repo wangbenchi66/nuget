@@ -140,6 +140,10 @@ namespace WBC66.Core
             if (Regex.IsMatch(resText, "<[^>]+>"))
                 resText = "HTML 内容已省略";
 
+            //超过5k则省略
+            if (resText.Length > 1 * 1024)
+                resText = resText.Substring(0, 1 * 1024) + "...【内容过长已省略】";
+
             return resText;
         }
 
