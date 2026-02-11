@@ -96,8 +96,8 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
         var configId = item.ConfigId;
         var dbType = item.DbType;
         var conn = db.GetConnection(configId);
-        var sqlFileInfo = conn.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
         var aop = conn.Aop;
+        var sqlFileInfo = conn.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
         aop.OnLogExecuting = (sql, p) =>
         {
             Log.Information(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
@@ -107,21 +107,11 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
             Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));
         };
         //sql执行前 列事件处理
-        aop.DataExecuting = (oldValue, entityInfo) =>
-        {
-            if (entityInfo.OperationType == DataFilterType.InsertByObject)
-            {
-                if (entityInfo.PropertyName == "CreateTime" && oldValue == null)
-                    entityInfo.SetValue(DateTime.Now);//修改CreateTime字段
-            }
-            else if (entityInfo.OperationType == DataFilterType.UpdateByObject)
-            {
-                if (entityInfo.PropertyName == "UpdateTime" && (oldValue == null || Math.Abs((DateTime.Now - oldValue.ToDate()).TotalSeconds) > 60))
-                    entityInfo.SetValue(DateTime.Now);//修改UpdateTime字段
-            }
-        };
+        aop.DataExecuting = (oldValue, entityInfo) => UniversalExtensions.HandleTimeField(oldValue, entityInfo);
     }
 });
+UniversalExtensions.AddCreateTimeField("Createtime");
+UniversalExtensions.AddUpdateTimeField("updatetime");
 //StaticConfig.AppContext_ConvertInfinityDateTime = true;//全局配置将DateTime.MaxValue转换为无限远的时间，解决sqlsugar中DateTime.MaxValue无法插入数据库的问题
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);

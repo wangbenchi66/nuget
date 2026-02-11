@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+using Easy.Common.Core;
 using SqlSugar;
 
 namespace Easy.SqlSugar.Core
@@ -185,5 +186,90 @@ namespace Easy.SqlSugar.Core
             return res;
         }
 
+
+
+        #region aop数据据库操作事件处理
+        private static readonly HashSet<string> _createTimeFieldNames = new(StringComparer.OrdinalIgnoreCase) { "createtime", "createdtime", "addtime", "create_time", "created_at" };
+        private static readonly HashSet<string> _updateTimeFieldNames = new(StringComparer.OrdinalIgnoreCase) { "updatetime", "updatedtime", "lasttime", "modifydate", "update_time", "updated_at" };
+
+        /// <summary>
+        /// 只读集合，外部只能通过AddCreateTimeField和AddUpdateTimeField方法添加字段名，确保字段名的有效性和唯一性
+        /// </summary>
+        public static IReadOnlyCollection<string> CreateTimeFieldNames => _createTimeFieldNames;
+        /// <summary>
+        /// 只读集合，外部只能通过AddCreateTimeField和AddUpdateTimeField方法添加字段名，确保字段名的有效性和唯一性
+        /// </summary>
+        public static IReadOnlyCollection<string> UpdateTimeFieldNames => _updateTimeFieldNames;
+
+        /// <summary>
+        /// 添加创建时间字段名，添加后会在aop数据操作事件中自动赋值当前时间
+        /// </summary>
+        /// <remarks>
+        /// (系统默认识别了一些字段，可以使用UniversalExtensions.CreateTimeFieldNames查看默认识别的字段名,避免冗余代码)
+        /// 注意：如果数据库中已经存在创建时间字段但不在默认识别的字段中，则需要调用此方法添加该字段名，否则aop事件将无法自动赋值创建时间
+        /// 如果需要添加多个字段名，可以使用逗号分隔的字符串或字符串数组传入，例如：
+        /// AddCreateTimeField("createtime,create_time,createdtime");
+        /// 已进行过输入校验，确保添加的字段名不包含特殊字符且不重复，避免无效字段名导致的性能问题
+        /// </remarks>
+        /// <param name="fieldNames"></param>
+        public static void AddCreateTimeField(params string[] fieldNames) => AddTimeField(_createTimeFieldNames, fieldNames);
+
+        /// <summary>
+        /// 添加更新时间字段名，添加后会在aop数据操作事件中自动赋值当前时间
+        /// </summary>
+        /// <remarks>
+        /// (系统默认识别了一些字段，可以使用UniversalExtensions.UpdateTimeFieldNames查看默认识别的字段名,避免冗余代码)
+        /// 注意：如果数据库中已经存在更新时间字段但不在默认识别的字段中，则需要调用此方法添加该字段名，否则aop事件将无法自动赋值更新时间
+        /// 如果需要添加多个字段名，可以使用逗号分隔的字符串或字符串数组传入，例如：
+        /// AddUpdateTimeField("updatetime,update_time,updatedtime");
+        /// 已进行过输入校验，确保添加的字段名不包含特殊字符且不重复，避免无效字段名导致的性能问题
+        /// </remarks>
+        /// <param name="fieldNames"></param>
+        public static void AddUpdateTimeField(params string[] fieldNames) => AddTimeField(_updateTimeFieldNames, fieldNames);
+
+        /// <summary>
+        /// 私有方法，添加时间字段名到指定集合，确保唯一性和有效性
+        /// </summary>
+        /// <param name="fieldNames"></param>
+        /// <param name="newFieldNames"></param>
+        private static void AddTimeField(HashSet<string> fieldNames, params string[] newFieldNames)
+        {
+            //TODO:要不要加限制后边看实际使用情况  限定添加的字段名称或数量，例如限制只能添加以time结尾的字段名，或限制总字段名数量不超过20个等，以避免无效字段名导致的性能问题
+            if (newFieldNames.IsNull()) return;
+            foreach (var fieldName in newFieldNames.Where(name => !string.IsNullOrWhiteSpace(name) && !System.Text.RegularExpressions.Regex.IsMatch(name.Trim(), @"^[A-Za-z0-9_]+$")).Select(name => name.Trim().ToLower()).ToArray())
+                fieldNames.Add(fieldName.Trim());
+        }
+
+        /// <summary>
+        /// 时间默认赋值处理方法
+        /// </summary>
+        /// <remarks>
+        /// 在aop数据操作事件中调用此方法，根据字段名自动识别并赋值创建时间和更新时间，避免重复代码和遗漏赋值的情况
+        /// 注意：此方法需要配合AddCreateTimeField和AddUpdateTimeField方法使用，确保正确识别时间字段名，否则将无法自动赋值时间
+        /// </remarks>
+        /// <param name="oldValue"></param>
+        /// <param name="entityInfo"></param>
+        public static void HandleTimeField(object oldValue, DataFilterModel entityInfo)
+        {
+            var normalized = entityInfo.PropertyName.ToLower();
+            bool isCreateTime = CreateTimeFieldNames.Contains(normalized);
+            bool isUpdateTime = UpdateTimeFieldNames.Contains(normalized);
+            if (!isCreateTime && !isUpdateTime)
+                return;
+            var now = DateTime.Now;
+            switch (entityInfo.OperationType)
+            {
+                case DataFilterType.InsertByObject:
+                    entityInfo.SetValue(now);
+                    break;
+
+                case DataFilterType.UpdateByObject:
+                    if (!isUpdateTime) break;
+                    entityInfo.SetValue(now);
+                    break;
+            }
+        }
+
+        #endregion aop数据据库操作事件处理
     }
 }

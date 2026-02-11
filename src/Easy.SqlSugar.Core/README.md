@@ -575,6 +575,14 @@ foreach (var item in list)
 {
     item.ConnectionString = item.ConnectionString.CheckTrustServerCertificate().CheckEncrypt();
 }
+
+//添加时间\修改时间 系统自动赋值(系统默认识别了一些字段，可以使用UniversalExtensions.CreateTimeFieldNames、UniversalExtensions.UpdateTimeFieldNames查看默认识别的字段名,避免冗余代码)
+
+//添加方法内部已经做了处理 不区分大小写 以及一些名称限制，只支持 字母\数字\下划线
+UniversalExtensions.AddCreateTimeField("Createtime");
+UniversalExtensions.AddUpdateTimeField("updatetime");
+
+
 var sqlsugarSope = new SqlSugarScope(list, db =>
 {
 //仅开发模式打印sql语句
@@ -583,9 +591,14 @@ var sqlsugarSope = new SqlSugarScope(list, db =>
     {
         var configId = item.ConfigId;
         var dbType = item.DbType;
-        string sqlFileInfo = db.GetConnection(configId).Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
-        db.GetConnection(configId).Aop.OnLogExecuting = (sql, p) => Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
-        db.GetConnection(configId).Aop.OnError = (exp) => Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));
+        var conn = db.GetConnection(configId);
+        var aop = conn.Aop;
+        string sqlFileInfo =conn.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
+        aop.OnLogExecuting = (sql, p) => Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
+        aop.OnError = (exp) => Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));
+
+        //使用添加时间\修改时间默认赋值需要开启
+        aop.DataExecuting = (oldValue, entityInfo) => UniversalExtensions.HandleTimeField(oldValue, entityInfo);
     }
 #endif
 });
