@@ -88,6 +88,10 @@ foreach (var item in list)
     //    DataInfoCacheService = cacheService
     //};
     item.ConnectionString = item.ConnectionString.CheckTrustServerCertificate().CheckEncrypt();
+    //item.ConfigureExternalServices = new ConfigureExternalServices()
+    //{
+    //    SqlFuncServices = UniversalExtensions.GetSqlFuncExternals()
+    //};
 }
 var sqlSugarScope = new SqlSugarScope(list, db =>
 {
@@ -110,8 +114,8 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
         aop.DataExecuting = (oldValue, entityInfo) => UniversalExtensions.HandleTimeField(oldValue, entityInfo);
     }
 });
-UniversalExtensions.AddCreateTimeField("Createtime");
-UniversalExtensions.AddUpdateTimeField("updatetime");
+UniversalExtensions.AddCreateTimeField("Createtime", "", "");//多个依次往后加
+UniversalExtensions.AddUpdateTimeField("updatetime", "", "");//多个依次往后加
 //StaticConfig.AppContext_ConvertInfinityDateTime = true;//全局配置将DateTime.MaxValue转换为无限远的时间，解决sqlsugar中DateTime.MaxValue无法插入数据库的问题
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);

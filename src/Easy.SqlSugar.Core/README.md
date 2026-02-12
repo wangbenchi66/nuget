@@ -579,8 +579,8 @@ foreach (var item in list)
 //添加时间\修改时间 系统自动赋值(系统默认识别了一些字段，可以使用UniversalExtensions.CreateTimeFieldNames、UniversalExtensions.UpdateTimeFieldNames查看默认识别的字段名,避免冗余代码)
 
 //添加方法内部已经做了处理 不区分大小写 以及一些名称限制，只支持 字母\数字\下划线
-UniversalExtensions.AddCreateTimeField("Createtime");
-UniversalExtensions.AddUpdateTimeField("updatetime");
+UniversalExtensions.AddCreateTimeField("Createtime", "", "");//多个依次往后加
+UniversalExtensions.AddUpdateTimeField("updatetime", "", "");//多个依次往后加
 
 
 var sqlsugarSope = new SqlSugarScope(list, db =>
@@ -597,7 +597,7 @@ var sqlsugarSope = new SqlSugarScope(list, db =>
         aop.OnLogExecuting = (sql, p) => Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));
         aop.OnError = (exp) => Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));
 
-        //使用添加时间\修改时间默认赋值需要开启
+        //使用添加时间\修改时间默认赋值需要开启，如果是大数据插入需要加上EnableDataAop() 否则不会生效，实例： db.Fastest<StudentWithSnowflake>().EnableDataAop().BulkCopy(listLong);
         aop.DataExecuting = (oldValue, entityInfo) => UniversalExtensions.HandleTimeField(oldValue, entityInfo);
     }
 #endif

@@ -106,6 +106,8 @@ namespace Easy.SqlSugar.Core
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
                 throw new ArgumentNullException("请检查是否配置数据库连接字符串");
+            //配置文件加工
+            configs = ConfigProcessing(configs);
             services.AddScoped<ISqlSugarClient>(s =>
             {
                 return configs;
@@ -126,11 +128,43 @@ namespace Easy.SqlSugar.Core
             if (services == null) { throw new ArgumentNullException(nameof(services)); }
             if (configs == null)
                 throw new ArgumentNullException("请检查是否配置数据库连接字符串");
+            //配置文件加工
+            configs = ConfigProcessing(configs);
             services.AddScoped<ISqlSugarClient>(s =>
             {
                 return configs;
             });
             AddService(services, 2);
+        }
+
+        private static SqlSugarScope ConfigProcessing(SqlSugarScope configs)
+        {
+            //用反射获取_configs，单个的获取补到多库
+            var field = typeof(SqlSugarScope).GetField("_configs", BindingFlags.NonPublic | BindingFlags.Instance);
+            var _configs = field.GetValue(configs) as List<ConnectionConfig>;
+            ConfigProcessing(_configs);
+            return configs;
+        }
+        private static SqlSugarClient ConfigProcessing(SqlSugarClient configs)
+        {
+            //用反射获取_configs，单个的获取补到多库
+            var field = typeof(SqlSugarClient).GetField("_configs", BindingFlags.NonPublic | BindingFlags.Instance);
+            var _configs = field.GetValue(configs) as List<ConnectionConfig>;
+            ConfigProcessing(_configs);
+            return configs;
+        }
+
+        /// <summary>
+        /// 配置加工
+        /// </summary>
+        /// <param name="configs"></param>
+        private static void ConfigProcessing(List<ConnectionConfig> configs)
+        {
+            foreach (var item in configs)
+            {
+                item.ConfigureExternalServices ??= new ConfigureExternalServices();
+                item.ConfigureExternalServices.SqlFuncServices ??= UniversalExtensions.GetSqlFuncExternals();
+            }
         }
 
         /// <summary>
