@@ -44,7 +44,7 @@ public class CacheResultService : ICacheResultService
     public Student GetStudentAsync(string name)
     {
         //直接使用缓存对象进行缓存操作
-        return _cacheService.GetOrSet($"student:{name}", () => new Student { Name = name }, TimeSpan.FromSeconds(5));
+        return _cacheService.Get($"student:{name}", "1", 30);
     }
 }
 
@@ -59,7 +59,7 @@ public class CacheResultService : ICacheResultService
     public Student GetStudentAsync(string name)
     {
         //切换到redis缓存客户端进行缓存操作
-        return _cacheService.UseClient("TestCache").GetOrSet($"student:{name}", () => new Student { Name = name }, TimeSpan.FromSeconds(5));
+        return _cacheService.Get($"student:{name}", "1", 30);
     }
 }
 
