@@ -1,5 +1,5 @@
+using Easy.Cache.Core;
 using Microsoft.AspNetCore.Mvc;
-using WBC66.Cache.Core;
 using WBC66.Core.Filters;
 
 namespace WebApi.Test.Controllers
@@ -16,7 +16,7 @@ namespace WebApi.Test.Controllers
         }
 
         [HttpGet]
-        [CacheResult(5)]
+        [EasyCacheResult(5)]
         public object Get()
         {
             _cacheResultService.GetStudentAsync("这是参数");
@@ -33,7 +33,7 @@ namespace WebApi.Test.Controllers
 
     public class CacheResultService : ICacheResultService
     {
-        [CacheResult(15)]
+        [EasyCacheResult(15)]
         public Student GetStudentAsync(string name)
         {
             return new Student { Name = name };

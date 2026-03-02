@@ -4,20 +4,20 @@ using Easy.Common.Core;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using System.Reflection;
 
-namespace WBC66.Cache.Core
+namespace Easy.Cache.Core
 {
     /// <summary>
     ///  自定义特性，用于标记需要缓存结果的方法
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, Inherited = true)]
-    public class CacheResultAttribute : Attribute
+    public class EasyCacheResultAttribute : Attribute
     {
         /// <summary>
         /// 缓存持续时间（秒）
         /// /// </summary>
         public int Duration { get; }
 
-        public CacheResultAttribute(int duration)
+        public EasyCacheResultAttribute(int duration)
         {
             Duration = duration;
         }
@@ -26,11 +26,11 @@ namespace WBC66.Cache.Core
     /// <summary>
     /// AOP过滤器，用于在调用接口时根据特性进行缓存
     /// </summary>
-    public class CacheResultFilter : IAsyncActionFilter
+    public class EasyCacheResultFilter : IAsyncActionFilter
     {
         private readonly IMemoryCache _memoryCache;
 
-        public CacheResultFilter(IMemoryCache memoryCache)
+        public EasyCacheResultFilter(IMemoryCache memoryCache)
         {
             _memoryCache = memoryCache;
         }
@@ -72,7 +72,7 @@ namespace WBC66.Cache.Core
             if (context.ActionDescriptor is ControllerActionDescriptor cad)
             {
                 var methodInfo = cad.MethodInfo;
-                var cacheAttribute = methodInfo.GetCustomAttribute<CacheResultAttribute>();
+                var cacheAttribute = methodInfo.GetCustomAttribute<EasyCacheResultAttribute>();
 
                 if (cacheAttribute == null)
                 {

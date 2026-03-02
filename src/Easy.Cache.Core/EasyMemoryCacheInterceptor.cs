@@ -2,12 +2,12 @@ using Castle.DynamicProxy;
 using Easy.Common.Core;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace WBC66.Cache.Core
+namespace Easy.Cache.Core
 {
     /// <summary>
     /// 类AOP拦截器，用于拦截方法执行前后
     /// </summary>
-    public class MemoryCacheInterceptor : IInterceptor
+    public class EasyMemoryCacheInterceptor : IInterceptor
     {
         private readonly IMemoryCache _memoryCache;
 
@@ -15,7 +15,7 @@ namespace WBC66.Cache.Core
         /// 构造函数 注入IMemoryCache
         /// </summary>
         /// <param name="memoryCache"></param>
-        public MemoryCacheInterceptor(IMemoryCache memoryCache)
+        public EasyMemoryCacheInterceptor(IMemoryCache memoryCache)
         {
             _memoryCache = memoryCache;
         }
@@ -27,7 +27,7 @@ namespace WBC66.Cache.Core
         public void Intercept(IInvocation invocation)
         {
             //判断有没有CacheResult特性
-            if (invocation.MethodInvocationTarget.GetCustomAttributes(true).Any(a => a.GetType() == typeof(CacheResultAttribute)))
+            if (invocation.MethodInvocationTarget.GetCustomAttributes(true).Any(a => a.GetType() == typeof(EasyCacheResultAttribute)))
             {
                 //开始执行前如果缓存中有数据则直接返回
                 if (BeforeExecution(invocation))
@@ -60,7 +60,7 @@ namespace WBC66.Cache.Core
             {
                 System.Console.WriteLine("缓存未命中");
                 var result = invocation.ReturnValue;
-                var cacheAttribute = invocation.MethodInvocationTarget.GetCustomAttributes(true).FirstOrDefault(a => a.GetType() == typeof(CacheResultAttribute)) as CacheResultAttribute;
+                var cacheAttribute = invocation.MethodInvocationTarget.GetCustomAttributes(true).FirstOrDefault(a => a.GetType() == typeof(EasyCacheResultAttribute)) as EasyCacheResultAttribute;
                 var cacheDuration = cacheAttribute.Duration;
                 var cacheEntryOptions = new MemoryCacheEntryOptions
                 {

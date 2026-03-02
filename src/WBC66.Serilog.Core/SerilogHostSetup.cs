@@ -18,6 +18,16 @@ namespace WBC66.Serilog.Core
     /// </summary>
     public static class SerilogHostSetup
     {
+        /// <summary>
+        /// 获取/home/logger/小写不带特殊字符的项目名称路径
+        /// </summary>
+        /// <returns></returns>
+        public static string GetHomeLoggerProjectNamePath()
+        {
+            var regex = new System.Text.RegularExpressions.Regex("[^a-zA-Z0-9]");
+            var projectName = AppDomain.CurrentDomain.FriendlyName;
+            return Path.Combine("home", "logger", regex.Replace(projectName, "").ToLower());
+        }
         #region 方式一 直接引入，支持设置日志路径，忽略日志源，输出模板
 
         /// <summary>
@@ -54,7 +64,7 @@ namespace WBC66.Serilog.Core
         ///  添加Serilog
         /// </summary>
         /// <param name="builder"></param>
-        /// <param name="filePath">日志文件地址</param>
+        /// <param name="filePath">日志文件地址(如果为null则使用/home/logger/小写不带特殊字符的项目名称路径</param>
         /// <param name="consoleMinimumLevel">控制台最小日志级别</param>
         /// <param name="ignoredSources">需要忽略的日志源</param>
         /// <param name="outputTemplate">输出模板</param>
@@ -66,10 +76,7 @@ namespace WBC66.Serilog.Core
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
-                //获取系统路径和项目名称设置为filePath
-                var basePath = AppDomain.CurrentDomain.BaseDirectory;
-                var projectName = AppDomain.CurrentDomain.FriendlyName;
-                filePath = Path.Combine(basePath, "logs", projectName);
+                filePath = GetHomeLoggerProjectNamePath();
             }
             //如果filePath最后边没有路径分隔符，则添加
             if (!filePath.EndsWith(Path.DirectorySeparatorChar))

@@ -28,7 +28,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Easy.Common.Core\Easy.Common.Core.csproj" />
 	  <ProjectReference Include="..\WBC66.Autofac.Core\WBC66.Autofac.Core.csproj" />
-	  <ProjectReference Include="..\WBC66.Cache.Core\WBC66.Cache.Core.csproj" />
+	  <ProjectReference Include="..\WBC66.Cache.Core\Easy.Cache.Core.csproj" />
 	  <ProjectReference Include="..\WBC66.Nlog.Core\WBC66.NLog.Core.csproj" />
 	  <ProjectReference Include="..\WBC66.Serilog.Core\WBC66.Serilog.Core.csproj" />
 	  <ProjectReference Include="..\Easy.SqlSugar.Core\Easy.SqlSugar.Core.csproj" />

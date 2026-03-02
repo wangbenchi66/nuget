@@ -1,26 +1,24 @@
-using Microsoft.Extensions.Caching.Memory;
+using Easy.Cache.Core;
 using Microsoft.Extensions.DependencyInjection;
-using WBC66.Cache.Core;
 
 namespace UnitTest
 {
     [TestClass]
     public class RedisTest : BaseUnitTest
     {
-        private IRedisService _redisService;
+        private IEasyCacheService _cacheService;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            _redisService = ServiceProvider.GetService<IRedisService>();
-            _redisService.Initialization("localhost:6379,abortConnect=false,ssl=false,password=123456");
+            _cacheService = ServiceProvider.GetService<IEasyCacheServiceFactory>().Create();
         }
 
         [TestMethod]
         public void TestMethod1()
         {
-            var value = _redisService.Add("key", 123, -1);
-            var value2 = _redisService.Get<int>("key", () =>
+            var value = _cacheService.Add("key", 123, -1);
+            var value2 = _cacheService.Get<int>("key", () =>
             {
                 return 0;
             }, -1);
