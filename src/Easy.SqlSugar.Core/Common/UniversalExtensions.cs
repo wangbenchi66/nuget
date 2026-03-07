@@ -301,5 +301,25 @@ public static class UniversalExtensions
             }
         };
     }
-    #endregion
+    #endregion sqlsugar扩展函数
+
+
+    #region sql参数解析
+
+    /// <summary>
+    /// sql参数解码
+    /// </summary>
+    /// <param name="sql"></param>
+    /// <param name="paramArr"></param>
+    /// <returns></returns>
+    public static string GetWholeSql(string sql, SugarParameter[] paramArr)
+    {
+        //UtilMethods.GetNativeSql(sql, paramArr);
+        foreach (var param in paramArr)
+        {
+            sql = sql.Replace($"@{param.ParameterName}", $"{param.Value}");
+        }
+        return sql;
+    }
+    #endregion sql参数解析
 }

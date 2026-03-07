@@ -26,7 +26,6 @@
   <ProjectReference Include="..\..\src\Easy.Cache.Core\Easy.Cache.Core.csproj" />
   <ProjectReference Include="..\..\src\Easy.DynamicApi\Easy.DynamicApi.Core.csproj" />
   <ProjectReference Include="..\..\src\Easy.EF.Core\Easy.EF.Core.csproj" />
-  <ProjectReference Include="..\..\src\WBC66.Cache.Core\Easy.Cache.Core.csproj" />
   <ProjectReference Include="..\..\src\WBC66.Core\WBC66.Core.csproj" />
   <ProjectReference Include="..\..\src\Easy.SqlSugar.Core\Easy.SqlSugar.Core.csproj" />
   <ProjectReference Include="..\..\src\WBC66.Serilog.Core\WBC66.Serilog.Core.csproj" />

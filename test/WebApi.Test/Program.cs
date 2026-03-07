@@ -38,7 +38,7 @@ builder.Services.AddSwaggerGen(s =>
 //Serilog
 //builder.Host.AddSerilogHost(configuration);
 //builder.Host.AddSerilogHostJson(configuration);
-builder.Host.AddSerilogHost(SerilogHostSetup.GetHomeLoggerProjectNamePath(), Serilog.Events.LogEventLevel.Information);
+builder.Host.AddSerilogHost(SerilogHostSetup.GetHomeLoggerProjectNamePath(), Serilog.Events.LogEventLevel.Debug);
 
 //NLong
 //builder.AddNLogSteup(configuration);
@@ -226,7 +226,7 @@ app.UseKnife4UI(c =>
 //app.MapScalarApiReference(options =>
 //{
 //    //options.WithOpenApiRoutePattern("/swagger/{documentName}.json");
-//    // or
+//    // orAddOpenApi
 //    options.OpenApiRoutePattern = "api/swagger/{documentName}/swagger.json";
 //});
 var documents = new[]
