@@ -26,7 +26,7 @@ namespace WBC66.Serilog.Core
         {
             var regex = new System.Text.RegularExpressions.Regex("[^a-zA-Z0-9]");
             var projectName = AppDomain.CurrentDomain.FriendlyName;
-            return Path.Combine("home", "logger", regex.Replace(projectName, "").ToLower());
+            return Path.Combine("/", "home", "logger", regex.Replace(projectName, "").ToLower());
         }
         #region 方式一 直接引入，支持设置日志路径，忽略日志源，输出模板
 
@@ -52,7 +52,10 @@ namespace WBC66.Serilog.Core
         {
             LogEventLevel.Information,
             LogEventLevel.Warning,
-            LogEventLevel.Error
+            LogEventLevel.Error,
+            LogEventLevel.Fatal,
+            LogEventLevel.Verbose,
+            LogEventLevel.Debug
         };
 
         /// <summary>
@@ -83,10 +86,11 @@ namespace WBC66.Serilog.Core
                 filePath += Path.DirectorySeparatorChar;
             var sources = ignoredSources?.ToArray() ?? DefaultIgnoredSources;
             var template = string.IsNullOrWhiteSpace(outputTemplate) ? DefaultOutputTemplate : outputTemplate;
+            var globalMinimumLevel = consoleMinimumLevel ?? LogEventLevel.Information;
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext() // 加入上下文信息，如请求Id
-                                         //.MinimumLevel.Information()    // 全局最小级别
+                .MinimumLevel.Is(globalMinimumLevel) // 全局最小级别，避免 Debug/Verbose 在进入 sink 前被过滤
                 .ConfigureConsole(template, consoleMinimumLevel)
                 .ConfigureFile(filePath, template)
                 .ApplyIgnoredSources(sources)
