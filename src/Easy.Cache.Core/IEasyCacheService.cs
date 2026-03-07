@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CSRedis;
+﻿using CSRedis;
 
 namespace Easy.Cache.Core
 {
@@ -30,18 +25,42 @@ namespace Easy.Cache.Core
         /// <summary>
         /// 批量添加
         /// </summary>
-        /// <param name="items">key/value 集合</param>
+        /// <param name="keyValues">key/value 集合</param>
         /// <param name="expiration">过期时间（秒），小于 0 表示不过期</param>
-        /// <returns>成功写入数量</returns>
-        int AddBatch(IEnumerable<KeyValuePair<string, object>> items, int expiration = -1);
+        /// <returns>是否写入成功。</returns>
+        bool Batch(Dictionary<string, object> keyValues, int expiration = -1);
 
         /// <summary>
-        /// 批量添加
+        /// 批量添加缓存到hash中
         /// </summary>
-        /// <param name="items">key/value 集合</param>
-        /// <param name="expiration">过期时间（秒），小于 0 表示不过期</param>
-        /// <returns>成功写入数量</returns>
-        Task<int> AddBatchAsync(IEnumerable<KeyValuePair<string, object>> items, int expiration = -1);
+        /// <param name="key">Hash 键。</param>
+        /// <param name="keyValues">要写入的键值集合。</param>
+        /// <returns>是否写入成功。</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        bool BatchHSet(string key, Dictionary<string, object> keyValues);
+
+        /// <summary>
+        /// 是否存在
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        bool Exists(string key);
+
+
+        /// <summary>
+        /// 是否存在
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        Task<bool> ExistsAsync(string key);
+
+        /// <summary>
+        /// 查询key 
+        /// </summary>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        List<string> SearchKeys(string pattern);
 
         /// <summary>
         /// 获取(委托)
@@ -62,14 +81,6 @@ namespace Easy.Cache.Core
         /// <param name="expiration"></param>
         /// <returns></returns>
         T Get<T>(string key, Func<T> func, int expiration = -1);
-
-
-        /// <summary>
-        /// 是否存在
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        Task<bool> ExistsAsync(string key);
 
         /// <summary>
         /// 获取

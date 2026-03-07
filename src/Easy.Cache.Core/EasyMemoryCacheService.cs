@@ -1,6 +1,8 @@
-﻿using CSRedis;
-using Microsoft.Extensions.Caching.Memory;
+﻿using System.Collections;
 using System.Collections.Concurrent;
+using System.Reflection;
+using CSRedis;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Easy.Cache.Core;
 
@@ -43,35 +45,44 @@ public class EasyMemoryCacheService : IEasyCacheService
     /// <summary>
     /// 批量添加缓存。
     /// </summary>
-    /// <param name="items">要写入的键值集合。</param>
+    /// <param name="keyValues">要写入的键值集合。</param>
     /// <param name="expiration">过期时间（秒），小于 0 表示不过期。</param>
-    /// <returns>成功写入的条目数量。</returns>
-    public int AddBatch(IEnumerable<KeyValuePair<string, object>> items, int expiration = -1)
+    /// <returns>是否写入成功。</returns>
+    public bool Batch(Dictionary<string, object> keyValues, int expiration = -1)
     {
-        if (items == null)
+        if (keyValues == null)
         {
-            throw new ArgumentNullException(nameof(items), "批量添加集合不能为空。");
+            throw new ArgumentNullException(nameof(keyValues), "批量添加集合不能为空。");
         }
 
-        var count = 0;
-        foreach (var item in items)
+        foreach (var item in keyValues)
         {
             Add(item.Key, item.Value, expiration);
-            count++;
         }
-
-        return count;
+        return true;
     }
 
     /// <summary>
-    /// 异步批量添加缓存。
+    /// 批量添加缓存到hash中
     /// </summary>
-    /// <param name="items">要写入的键值集合。</param>
-    /// <param name="expiration">过期时间（秒），小于 0 表示不过期。</param>
-    /// <returns>成功写入的条目数量。</returns>
-    public Task<int> AddBatchAsync(IEnumerable<KeyValuePair<string, object>> items, int expiration = -1)
+    /// <param name="keyValues">要写入的键值集合。</param>
+    /// <returns>是否写入成功。</returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
+    public bool BatchHSet(string key, Dictionary<string, object> keyValues)
     {
-        return Task.FromResult(AddBatch(items, expiration));
+        throw new NotImplementedException("请切换到 Redis 缓存以获得更高效的批量操作支持。");
+    }
+
+    /// <summary>
+    /// 判断指定键是否存在。
+    /// </summary>
+    /// <param name="key">缓存键。</param>
+    /// <returns>是否存在。</returns>
+    public bool Exists(string key)
+    {
+        ValidateKey(key);
+        return _memoryCache.TryGetValue(key, out _);
     }
 
     /// <summary>
@@ -83,6 +94,56 @@ public class EasyMemoryCacheService : IEasyCacheService
     {
         ValidateKey(key);
         return Task.FromResult(_memoryCache.TryGetValue(key, out _));
+    }
+
+    /// <summary>
+    /// 查询key 
+    /// </summary>
+    /// <param name="pattern"></param>
+    /// <returns></returns>
+    public List<string> SearchKeys(string pattern)
+    {
+        ValidateKey(pattern);
+        //返回所有缓存键中包含 pattern 的键列表
+        return GetCacheKeys(_memoryCache);
+    }
+
+
+    /// <summary>
+    /// 获取所有缓存键
+    /// </summary>
+    /// <returns></returns>
+    private List<string> GetCacheKeys(IMemoryCache cache)
+    {
+        //Microsoft.Extensions.Caching.Memory版本修改后里边的名称发生了变更
+        var netVersion = Assembly.Load("Microsoft.Extensions.Caching.Memory").GetName().Version.Major;
+        if (netVersion <= 5)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var entries = cache.GetType().GetField("_entries", flags).GetValue(cache);
+            var cacheItems = entries as IDictionary;
+            var keys = new List<string>();
+            if (cacheItems == null) return keys;
+            foreach (DictionaryEntry cacheItem in cacheItems)
+            {
+                keys.Add(cacheItem.Key.ToString());
+            }
+            return keys;
+        }
+        else
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var coherentState = cache.GetType().GetField("_coherentState", flags).GetValue(cache);
+            var entries = coherentState.GetType().GetField("_stringEntries", flags).GetValue(coherentState);
+            var cacheItems = entries as IDictionary;
+            var keys = new List<string>();
+            if (cacheItems == null) return keys;
+            foreach (DictionaryEntry cacheItem in cacheItems)
+            {
+                keys.Add(cacheItem.Key.ToString());
+            }
+            return keys;
+        }
     }
 
     /// <summary>

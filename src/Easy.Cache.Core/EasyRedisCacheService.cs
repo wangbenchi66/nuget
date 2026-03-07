@@ -39,42 +39,53 @@ public class EasyRedisCacheService : IEasyCacheService
     /// <summary>
     /// 批量添加缓存（使用 Pipeline）。
     /// </summary>
-    /// <param name="items">要写入的键值集合。</param>
+    /// <param name="keyValues">要写入的键值集合。</param>
     /// <param name="expiration">过期时间（秒），小于 0 表示不过期。</param>
-    /// <returns>成功写入的条目数量。</returns>
-    public int AddBatch(IEnumerable<KeyValuePair<string, object>> items, int expiration = -1)
+    /// <returns>是否写入成功。</returns>
+    public bool Batch(Dictionary<string, object> keyValues, int expiration = -1)
     {
-        if (items == null)
+        var pipeline = _redis.StartPipe();
+        int count = 0;
+        foreach (var item in keyValues)
         {
-            throw new ArgumentNullException(nameof(items), "批量添加集合不能为空。");
+            pipeline.Set(item.Key, item.Value, expiration);
+            count++;
         }
-
-        var entries = items.Where(x => !string.IsNullOrWhiteSpace(x.Key)).ToArray();
-        if (entries.Length == 0)
-        {
-            return 0;
-        }
-
-        _redis.StartPipe(pipe =>
-        {
-            foreach (var entry in entries)
-            {
-                pipe.Set(entry.Key, entry.Value, expiration);
-            }
-        });
-
-        return entries.Length;
+        pipeline.EndPipe();
+        return true;
     }
 
     /// <summary>
-    /// 异步批量添加缓存（使用 Pipeline）。
+    /// 批量添加缓存到hash中
     /// </summary>
-    /// <param name="items">要写入的键值集合。</param>
-    /// <param name="expiration">过期时间（秒），小于 0 表示不过期。</param>
-    /// <returns>成功写入的条目数量。</returns>
-    public Task<int> AddBatchAsync(IEnumerable<KeyValuePair<string, object>> items, int expiration = -1)
+    /// <param name="key">Hash 键。</param>
+    /// <param name="keyValues">要写入的键值集合。</param>
+    /// <returns>是否写入成功。</returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
+    public bool BatchHSet(string key, Dictionary<string, object> keyValues)
     {
-        return Task.FromResult(AddBatch(items, expiration));
+        var pipeline = _redis.StartPipe();
+        foreach (var item in keyValues)
+        {
+            pipeline.HSet(key, item.Key, item.Value);
+        }
+        pipeline.EndPipe();
+        return true;
+    }
+
+    /// <summary>
+    /// 查询key 
+    /// </summary>
+    /// <param name="pattern"></param>
+    /// <returns></returns>
+    public List<string> SearchKeys(string pattern)
+    {
+        if (string.IsNullOrWhiteSpace(pattern))
+        {
+            throw new ArgumentException("查询模式不能为空。", nameof(pattern));
+        }
+        return _redis.Keys(pattern).ToList();
     }
 
     /// <summary>
@@ -253,6 +264,15 @@ public class EasyRedisCacheService : IEasyCacheService
             _redis.Set(key, resule, expiration);
         }
         return resule;
+    }
+    /// <summary>
+    /// 判断指定键是否存在。
+    /// </summary>
+    /// <param name="key">缓存键。</param>
+    /// <returns>是否存在。</returns>
+    public bool Exists(string key)
+    {
+        return _redis.Exists(key);
     }
 
     /// <summary>

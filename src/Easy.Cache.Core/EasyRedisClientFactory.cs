@@ -10,9 +10,7 @@ public class EasyRedisClientFactory : IDisposable
     private readonly string _defaultClientName;
     private readonly ILogger<EasyRedisClientFactory> _logger;
 
-    public EasyRedisClientFactory(
-        IOptions<EasyCacheOptions> cacheOptions,
-        ILogger<EasyRedisClientFactory> logger)
+    public EasyRedisClientFactory(IOptions<EasyCacheOptions> cacheOptions, ILogger<EasyRedisClientFactory> logger)
     {
         _logger = logger;
         var options = cacheOptions.Value;
@@ -45,6 +43,11 @@ public class EasyRedisClientFactory : IDisposable
 
         try
         {
+            if (_clients.ContainsKey(name))
+            {
+                _logger.LogWarning("Redis 客户端 '{Name}' 已存在，跳过重复创建。", name);
+                return;
+            }
             var (csredis, connectionString) = CreateClient(config);
             _clients[name] = csredis;
             _logger.LogInformation("初始化 Redis 客户端 '{Name} 成功'，连接字符串: {ConnStr}", name, MaskConnectionString(connectionString));
