@@ -2,12 +2,13 @@
 ### 1. nuget包引入
 必须引入两个包 至少在2024.11.7以上
 ``` xml
-<PackageReference Include="Easy.Cache.Core" Version="2026.3.2" />
+<PackageReference Include="Easy.Cache.Core" Version="2026.3.11" />
 ```
 ### 2. 配置
 ``` json
 //如果使用内存缓存则不需要配置，如果使用redis缓存则需要配置redis连接字符串
 "RedisConfigurations": {
+    "DefaultRedis": "TestCache",//默认缓存客户端,不填则随便取一个当默认库
     "RedisClients": {
       "TestCache": {//单机模式配置(与集群模式配置是一样的)
         "ConnectionString": "localhost:6379,abortConnect=false,ssl=false,password=123456"

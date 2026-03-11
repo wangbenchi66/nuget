@@ -3,6 +3,10 @@
 public class EasyCacheOptions
 {
     public const string SectionName = "RedisConfigurations";
+    /// <summary>
+    /// 默认redis实例名称,如果不写就取字典的第一个实例(字典转换后是无序的)
+    /// </summary>
+    public string? DefaultRedis { get; set; }
 
     /// <summary>
     /// 多 Redis 实例配置

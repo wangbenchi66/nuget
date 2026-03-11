@@ -20,7 +20,7 @@ public class EasyRedisClientFactory : IDisposable
         {
             throw new InvalidOperationException("没有redis客户端配置，请检查配置文件中的 'RedisConfigurations:RedisClients' 节点");
         }
-        _defaultClientName = options.RedisClients.Keys.First();
+        _defaultClientName = string.IsNullOrWhiteSpace(options.DefaultRedis) ? options.RedisClients.Keys.First() : options.DefaultRedis;
         foreach (var (name, config) in options.RedisClients)
         {
             InitializeClient(name, config);

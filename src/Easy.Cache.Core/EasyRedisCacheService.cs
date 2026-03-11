@@ -234,13 +234,12 @@ public class EasyRedisCacheService : IEasyCacheService
     /// <param name="func">回源委托。</param>
     /// <param name="expiration">过期时间（秒），小于 0 表示不过期。</param>
     /// <returns>缓存或回源结果。</returns>
-    public async Task<T> GetAsync<T>(string key, Func<T> func, int expiration = -1)
+    public async Task<T> GetAsync<T>(string key, Func<Task<T>> func, int expiration = -1)
     {
         var resule = await _redis.GetAsync<T>(key);
-        var raw = resule?.ToString()?.Trim();
-        if (resule == null || raw == "[]")
+        if (resule != null)
         {
-            resule = func();
+            resule = await func();
             await _redis.SetAsync(key, resule, expiration);
         }
         return resule;
@@ -257,8 +256,7 @@ public class EasyRedisCacheService : IEasyCacheService
     public T Get<T>(string key, Func<T> func, int expiration = -1)
     {
         var resule = _redis.Get<T>(key);
-        var raw = resule?.ToString()?.Trim();
-        if (resule == null || raw == "[]")
+        if (resule != null)
         {
             resule = func();
             _redis.Set(key, resule, expiration);

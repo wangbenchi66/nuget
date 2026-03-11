@@ -11,15 +11,17 @@ public static class EasyCacheServiceSetup
     /// <param name="services"></param>
     /// <param name="configuration"></param>
     /// <param name="configName">配置文件,默认key RedisConfigurations</param>
+    /// <param name="defaultClientName">默认客户端名称</param>
     /// <returns></returns>
-    public static IServiceCollection AddEasyCache(this IServiceCollection services, IConfiguration configuration, string configName = EasyCacheOptions.SectionName)
+    public static IServiceCollection AddEasyCacheServiceSetup(this IServiceCollection services, IConfiguration configuration, string configName = EasyCacheOptions.SectionName)
     {
         var section = configuration.GetSection(configName);
+
         // 内存缓存总是需要
         services.AddMemoryCache();
 
         services.AddSingleton<IEasyCacheServiceFactory, EasyCacheServiceFactory>();
-        // 绑定配置
+
         var cacheOptions = section.Get<EasyCacheOptions>() ?? new EasyCacheOptions();
         services.Configure<EasyCacheOptions>(section);
 

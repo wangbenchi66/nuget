@@ -198,9 +198,17 @@ public class EasyMemoryCacheService : IEasyCacheService
     /// <param name="func">回源委托。</param>
     /// <param name="expiration">过期时间（秒），小于 0 表示不过期。</param>
     /// <returns>缓存或回源结果。</returns>
-    public Task<T> GetAsync<T>(string key, Func<T> func, int expiration = -1)
+    public async Task<T> GetAsync<T>(string key, Func<Task<T>> func, int expiration = -1)
     {
-        return Task.FromResult(Get(key, func, expiration));
+        ValidateKey(key);
+        if (_memoryCache.TryGetValue(key, out T cached))
+        {
+            return cached;
+        }
+
+        T value = await func();
+        _memoryCache.Set(key, value, TimeSpan.FromSeconds(expiration));
+        return value;
     }
 
     /// <summary>

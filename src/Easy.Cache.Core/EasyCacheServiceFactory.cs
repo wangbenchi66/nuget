@@ -29,6 +29,7 @@ public class EasyCacheServiceFactory : IEasyCacheServiceFactory
     {
         if (_redisClientFactory == null)
         {
+            //_logger.LogInformation("缓存模式：Memory（未检测到 Redis 客户端配置）。");
             return new EasyMemoryCacheService(_memoryCache);
         }
 
@@ -37,6 +38,7 @@ public class EasyCacheServiceFactory : IEasyCacheServiceFactory
             ? defaultName
             : redisClientName;
 
+        //_logger.LogInformation("缓存模式：Redis（当前客户端：{DefaultClient}）。", targetName);
         CSRedis.CSRedisClient client;
         try
         {
