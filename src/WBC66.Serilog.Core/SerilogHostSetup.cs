@@ -33,7 +33,7 @@ namespace WBC66.Serilog.Core
         /// <summary>
         /// 默认忽略的日志源
         /// </summary>
-        private static readonly string[] DefaultIgnoredSources =
+        private static string[] DefaultIgnoredSources =
         {
             "Microsoft.AspNetCore.Hosting.Diagnostics",
             "Microsoft.AspNetCore.Routing.EndpointMiddleware",
@@ -142,6 +142,15 @@ namespace WBC66.Serilog.Core
             foreach (var source in sources)
                 config = config.MinimumLevel.Override(source, LogEventLevel.Warning);
             return config;
+        }
+
+        /// <summary>
+        /// 添加DefaultIgnoredSources的静态方法，允许外部在不修改代码的情况下添加需要忽略的日志源
+        /// </summary>
+        /// <param name="sources"></param>
+        public static void AddDefaultIgnoredSources(params string[] sources)
+        {
+            DefaultIgnoredSources = DefaultIgnoredSources.Concat(sources).ToArray();
         }
 
 

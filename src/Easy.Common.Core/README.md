@@ -125,6 +125,7 @@ IPageList<T>
 ```
 
 # 2. 常用扩展方法
+
 ``` csharp
 // 空值判断
 bool isStringNull = "".IsNull(); // 返回 true
@@ -132,6 +133,12 @@ List<int> list = new List<int>();
 bool isListNull = list.IsNull(); // 返回 true
 object obj = null;
 bool isObjectNull = obj.IsNull(); // 返回 true
+
+bool isStringNotNull = "Hello".IsNotNull(); // 返回 true
+List<int> list2 = new List<int> { 1, 2, 3 };
+bool isListNotNull = list2.IsNotNull(); // 返回 true
+object obj2 = new object();
+bool isObjectNotNull = obj2.IsNotNull(); // 返回 true
 
 // 判断字符串是否为手机号码
 bool isMobile = "12345678910".IsMobile(); // 返回 true
@@ -370,6 +377,169 @@ var resultFile = await _httpClientFactory.PostMultipartAsync<MyResponse>("服务
 var files = new[] { new FileParameter { Content = File.ReadAllBytes("a.png"), FileName = "a.png" } };
 var resultMulti = await _httpClientFactory.PostMultipartAsync<MyResponse>("服务名称", "/api/multi", new { id = 123, files });
 
+```
+
+# 10. NumberExtensions 数字扩展
+``` csharp
+// 保留小数位（四舍五入）
+decimal d1 = 12.3456m;
+double d2 = 12.3456;
+var r1 = d1.RoundTo(2); // 12.35
+var r2 = d2.RoundTo(3); // 12.346
+
+// 判断是否在范围内（包含边界）
+bool between1 = 10.IsBetween(1, 20); // true
+bool between2 = 20.IsBetween(1, 20); // true
+
+// 数值钳制
+int clamped1 = 120.Clamp(0, 100); // 100
+int clamped2 = (-5).Clamp(0, 100); // 0
+
+// 判断 double 是否是有效数字
+bool valid1 = 12.3.IsValidNumber(); // true
+bool valid2 = double.NaN.IsValidNumber(); // false
+bool valid3 = double.PositiveInfinity.IsValidNumber(); // false
+
+// 添加正负符号
+string sign1 = 123.45m.WithSign(); // "+123.45"
+string sign2 = (-123.45m).WithSign(); // "-123.45"
+string sign3 = 0m.WithSign(); // "0"
+
+// 添加正负符号并保留小数位
+string signFixed1 = 12.345m.WithSignAndDigits(2); // "+12.35"
+string signFixed2 = (-12.345).WithSignAndDigits(2); // "-12.35"
+
+// 固定小数位输出
+string fixed1 = 12.3m.ToFixed(2); // "12.30"
+string fixed2 = 12.3.ToFixed(4); // "12.3000"
+string fixed3 = "12.3456".ToFixed(2); // "12.35"
+```
+
+# 11. HttpContextExtensions 请求上下文扩展
+适用于 ASP.NET Core 场景，用于从 HttpContext 中快速获取客户端 IP、当前用户信息、Claim、请求地址和 User-Agent 等常见数据。
+
+``` csharp
+using System.Security.Claims;
+using Easy.Common.Core;
+
+app.MapGet("/context-demo", (HttpContext context) =>
+{
+    var clientIp = context.GetClientIp();// 获取客户端 IP 地址
+    var userId = context.GetUserId();// 获取当前登录用户的 Id
+    var userName = context.GetUserName();// 获取当前登录用户的名称
+    var isAuthenticated = context.IsAuthenticated();// 判断当前请求是否已认证
+    var role = context.GetClaimValue(ClaimTypes.Role);// 获取当前用户的角色
+    var requestUrl = context.GetRequestUrl();// 获取当前请求的完整地址
+    var userAgent = context.GetUserAgent();// 获取当前请求的 User-Agent
+
+    return ApiResult.Ok(new
+    {
+        ClientIp = clientIp,
+        UserId = userId,
+        UserName = userName,
+        IsAuthenticated = isAuthenticated,
+        Role = role,
+        RequestUrl = requestUrl,
+        UserAgent = userAgent
+    });
+});
+```
+
+### 11.1 GetClientIp
+按以下顺序获取客户端 IP：
+
+1. X-Forwarded-For 请求头的第一个 IP
+2. X-Real-IP 请求头
+3. HttpContext.Connection.RemoteIpAddress
+
+``` csharp
+string ip = context.GetClientIp();
+```
+
+说明：
+
+- 当服务部署在 Nginx、网关、负载均衡或反向代理之后时，通常会优先从代理头中取值。
+- 如果 X-Forwarded-For 中包含多个 IP，例如 "client, proxy1, proxy2"，该方法会返回第一个客户端 IP。
+- 如果没有取到任何地址，则返回 "未知IP"。
+
+### 11.2 GetUserId
+从当前登录用户的 ClaimTypes.NameIdentifier 中读取用户 Id。
+
+``` csharp
+string userId = context.GetUserId();
+```
+
+说明：
+
+- 适用于认证成功后把用户主键写入 NameIdentifier Claim 的场景。
+- 如果当前请求未登录，或没有对应 Claim，则返回 null。
+
+### 11.3 GetUserName
+获取当前用户名称，本质上读取的是 context.User.Identity.Name。
+
+``` csharp
+string userName = context.GetUserName();
+```
+
+### 11.4 IsAuthenticated
+判断当前请求是否已通过认证。
+
+``` csharp
+bool isAuthenticated = context.IsAuthenticated();
+```
+
+### 11.5 GetClaimValue
+按 Claim 类型读取指定 Claim 值，适合读取角色、租户、邮箱、手机号等自定义身份信息。
+
+``` csharp
+string role = context.GetClaimValue(ClaimTypes.Role);
+string email = context.GetClaimValue(ClaimTypes.Email);
+string tenantId = context.GetClaimValue("tenant_id");
+```
+
+### 11.6 GetRequestUrl
+获取当前请求的完整地址，包含协议、域名、路径和查询字符串。
+
+``` csharp
+string url = context.GetRequestUrl();
+// 示例: https://api.example.com/order/list?page=1&pageSize=20
+```
+
+### 11.7 GetUserAgent
+获取当前请求头中的 User-Agent。
+
+``` csharp
+string userAgent = context.GetUserAgent();
+```
+
+典型用途：
+
+- 接口访问日志记录
+- 用户操作审计
+- 终端来源识别
+- 风控与设备识别
+
+# 12. EnumExtensions 枚举扩展
+``` csharp
+using System.ComponentModel;
+
+public enum OrderStatus
+{
+    [Description("待支付")]
+    Pending = 1,
+
+    [Description("已支付")]
+    Paid = 2,
+
+    Canceled = 3
+}
+
+var status1 = OrderStatus.Pending;
+var status2 = OrderStatus.Canceled;
+
+// 获取 Description 特性描述；若没有 Description，则返回枚举名称
+string text1 = status1.GetDescription(); // "待支付"
+string text2 = status2.GetDescription(); // "Canceled"
 ```
 
 

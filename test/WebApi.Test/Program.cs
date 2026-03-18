@@ -38,6 +38,7 @@ builder.Services.AddSwaggerGen(s =>
 //Serilog
 //builder.Host.AddSerilogHost(configuration);
 //builder.Host.AddSerilogHostJson(configuration);
+SerilogHostSetup.AddDefaultIgnoredSources("");
 builder.Host.AddSerilogHost(SerilogHostSetup.GetHomeLoggerProjectNamePath(), Serilog.Events.LogEventLevel.Debug);
 
 //NLong
@@ -242,7 +243,7 @@ app.MapScalarApiReference("/scalar", options =>
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-app.UseMiddleware<LogMiddleware>();//添加日志中间件
+app.UseMiddleware<ReqResLogMiddleware>();//添加日志中间件
 //app.UseMiddleware<ExceptionMiddleware>();//添加异常处理中间件
 //app.UseMiddleware<CurrentLimitingMiddleware>(1, 1);//添加限流中间件 1个线程 1个并发
 //app.UseMiddleware<IdempotenceMiddleware>();//添加幂等性中间件

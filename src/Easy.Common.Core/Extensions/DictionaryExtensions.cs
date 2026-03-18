@@ -50,4 +50,20 @@ public static class DictionaryExtensions
         }
         return obj;
     }
+
+    /// <summary>
+    /// 将字典集合转换为实体集合
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="dictList"></param>
+    /// <returns></returns>
+    public static List<T> DicToEntityList<T>(this IEnumerable<IDictionary<string, object>> dictList) where T : new()
+    {
+        List<T> list = new List<T>();
+        foreach (var dict in dictList)
+        {
+            list.Add(DicToEntity<T>(dict));
+        }
+        return list;
+    }
 }

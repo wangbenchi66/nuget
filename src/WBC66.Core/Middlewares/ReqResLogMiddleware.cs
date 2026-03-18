@@ -6,30 +6,30 @@ using System.Text.RegularExpressions;
 
 namespace WBC66.Core
 {
-    /// <summary>
-    /// 日志中间件
-    /// </summary>
-    public class LogMiddleware
+    public class ReqResLogMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<LogMiddleware> _logger;
+        private readonly ILogger<ReqResLogMiddleware> _logger;
 
-        public LogMiddleware(RequestDelegate next, ILogger<LogMiddleware> logger)
+        public ReqResLogMiddleware(RequestDelegate next, ILogger<ReqResLogMiddleware> logger)
         {
             _next = next;
             _logger = logger;
         }
 
         private static string[] skipPaths =
-        {
-            "/swagger", "/health", "scalar",".html", ".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".ico"
-        };
+    {
+        "/swagger", "/health", "scalar",".html", ".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".ico"
+    };
 
         public async Task InvokeAsync(HttpContext context)
         {
+            //判断如果是异常请求直接跳出
+            if (context.Response.StatusCode != 200)
+                return;
             var path = context.Request.Path.Value;
 
-            if (skipPaths.Any(s => path.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0))
+            if (path == "/" || skipPaths.Any(s => path.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 await _next(context);
                 return;
@@ -59,11 +59,13 @@ namespace WBC66.Core
                 {
                     _logger.LogInformation(
                         "========== 请求日志==========" +
-                        "【请求路径】{Path}" +
-                        "【请求内容】{ReqData}" +
+                        "【IP地址】 {IP}\n" +
+                        "【请求方式】 {Method}\n" +
+                        "【请求路径】{Path}\n" +
+                        "【请求内容】{ReqData}\n" +
                         "【耗时】 {Elapsed} ms\n" +
                         "【响应类型】 文件({ContentType})，已跳过内容记录",
-                        path, reqLog, elapsed, contentType);
+                        context.Connection.RemoteIpAddress?.ToString(), context.Request.Method, path, reqLog, elapsed, contentType);
                 }
                 else
                 {
@@ -72,8 +74,10 @@ namespace WBC66.Core
                     // 日志模板统一
                     string logTemplate =
                         "========== 请求响应日志==========" +
-                        "【请求路径】 {Path}" +
-                        "【请求内容】{ReqData}" +
+                        "【IP地址】 {IP}\n" +
+                        "【请求方式】 {Method}\n" +
+                        "【请求路径】 {Path}\n" +
+                        "【请求内容】{ReqData}\n" +
                         "【耗时】 {Elapsed} ms\n" +
                         "【响应内容】{ResData}\n";
                     // 判断耗时级别
@@ -88,6 +92,8 @@ namespace WBC66.Core
                                logTemplate,
                                new object?[]
                                {
+                                context.Connection.RemoteIpAddress?.ToString(),
+                               context.Request.Method,
                                path,
                                reqLog,
                                elapsed,
@@ -97,9 +103,10 @@ namespace WBC66.Core
                 ms.Position = 0;
                 await ms.CopyToAsync(originalBody);
             }
-            catch (Exception ex)
+            catch
             {
-                _logger.LogError(ex, "请求日志中间件异常");
+                //_logger.LogError(ex, "请求日志中间件异常");
+                throw;
             }
             finally
             {
@@ -136,13 +143,17 @@ namespace WBC66.Core
             if (resText.Contains("\\u"))
                 resText = Regex.Unescape(resText);
 
+            //如果是xml就不要过滤，是html就过滤
+            if (resText.StartsWith("<xml") && resText.EndsWith("xml>"))
+                return resText;
+
             // 检测是否是 HTML
-            if (Regex.IsMatch(resText, "<[^>]+>"))
+            if (Regex.IsMatch(resText, @"<\s*[^>]+>"))
                 resText = "HTML 内容已省略";
 
-            //超过5k则省略
-            if (resText.Length > 1 * 1024)
-                resText = resText.Substring(0, 1 * 1024) + "...【内容过长已省略】";
+            //或者长度太长
+            if (resText.Length > 3000)
+                resText = resText[..3000] + "...(内容过长已省略)";
 
             return resText;
         }
@@ -154,7 +165,7 @@ namespace WBC66.Core
         {
             var binaryTypes = new[]
             {
-           // 常见的二进制流类型
+            // 常见的二进制流类型
         "application/octet-stream", // 二进制流
         "application/pdf",          // PDF 文件
         "application/zip",          // Zip 压缩文件
