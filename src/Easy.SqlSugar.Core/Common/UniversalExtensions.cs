@@ -28,7 +28,7 @@ public static class UniversalExtensions
         StringBuilder stringBuilder = new StringBuilder();
         try
         {
-            stackTraceList = stackTraceList.FindAll(x => x.Line > 0);
+            stackTraceList = stackTraceList.FindAll(x => x.Line > 0 && x.MethodName != "MoveNext");
             if (stackTraceList == null || stackTraceList.Count == 0)
                 return string.Empty;
             foreach (var item in stackTraceList)

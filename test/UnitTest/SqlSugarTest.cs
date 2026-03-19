@@ -1,7 +1,6 @@
 ﻿using Easy.SqlSugar.Core;
 using Microsoft.Extensions.DependencyInjection;
 using SqlSugar;
-using UnitTest.Repository;
 using WBC66.Autofac.Core;
 
 namespace UnitTest
@@ -74,13 +73,6 @@ namespace UnitTest
         }
 
         /// <summary>
-        /// 用户仓储
-        /// </summary>
-        public class UserRepository : BaseSqlSugarIocRepository<User>, IUserRepository
-        {
-        }
-
-        /// <summary>
         /// 用户仓储接口层
         /// </summary>
         public interface IUserRepository : IBaseSqlSugarRepository<User>, ISingleton
@@ -88,10 +80,6 @@ namespace UnitTest
         }
 
         #region 打卡模块
-
-        public class CategoryRepository : BaseSqlSugarIocRepository<Category>, ICategoryRepository
-        {
-        }
 
         public interface ICategoryRepository : IBaseSqlSugarRepository<Category>, ISingleton
         {
