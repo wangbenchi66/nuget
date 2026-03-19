@@ -2,7 +2,7 @@
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="Easy.SqlSugar.Core" Version="2026.02.12.1" />
+<PackageReference Include="Easy.SqlSugar.Core" Version="2026.03.19.1" />
 ```
 ### 3.1.1 SqlSugar配置文件
 ``` json
@@ -149,7 +149,7 @@ DataBaseTypeExtensions.GetDatabaseType("sql连接字符串")
 ```
 
 ### 3.2 SqlSugar配置
-#### 3.2.1 使用Ioc模式的配置
+#### 3.2.1 使用Ioc模式的配置(2026.03.19.1版本开始以删除ioc模式,sqlsugar.ioc包直接移除)
 ``` csharp
 //使用SqlSugar
 //参数含义
