@@ -150,6 +150,9 @@ namespace WBC66.Serilog.Core
         /// <param name="sources"></param>
         public static void AddDefaultIgnoredSources(params string[] sources)
         {
+            sources = sources.Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+            if (sources.Length == 0)
+                return;
             DefaultIgnoredSources = DefaultIgnoredSources.Concat(sources).ToArray();
         }
 
