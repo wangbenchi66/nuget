@@ -187,8 +187,6 @@ public static class StringExtensions
         //return IsNumber(str, precision, scale);
     }
 
-    /**/
-
     /// <summary>
     /// 判断字符串是否为合法数字（指定整数位数和小数位数）
     /// </summary>
@@ -209,44 +207,6 @@ public static class StringExtensions
         }
         pattern += "$)";
         return Regex.IsMatch(str, pattern);
-    }
-
-    /// <summary>
-    /// 判断对象是否为空或空字符串
-    /// </summary>
-    /// <param name="str">对象</param>
-    /// <returns>是否为空或空字符串</returns>
-    public static bool IsNull(this object str)
-    {
-        if (str == null)
-            return true;
-        return str.ToString() == "";
-    }
-
-    /// <summary>
-    /// 判断泛型集合是否为null或空
-    /// </summary>
-    /// <typeparam name="T">集合元素类型</typeparam>
-    /// <param name="source">泛型集合</param>
-    /// <returns>是否为null或空</returns>
-    public static bool IsNull<T>(this IEnumerable<T> source)
-    {
-        if (source == null)
-            return true;
-        using (var enumerator = source.GetEnumerator())
-            return !enumerator.MoveNext();
-    }
-
-    /// <summary>
-    /// 判断集合是否为null或空
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="list"></param>
-    /// <returns></returns>
-    public static bool IsNull<T>(this List<T> list)
-    {
-        if (list == null || list.Count == 0) return true;
-        return false;
     }
 
     /// <summary>
