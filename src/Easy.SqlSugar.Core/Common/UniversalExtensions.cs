@@ -25,26 +25,27 @@ public static class UniversalExtensions
     /// <returns></returns>
     public static string GetSqlFileInfo(this List<StackTraceInfoItem> stackTraceList)
     {
-        StringBuilder stringBuilder = new StringBuilder();
-        try
-        {
-            stackTraceList = stackTraceList.FindAll(x => x.Line > 0 && x.MethodName != "MoveNext");
-            if (stackTraceList == null || stackTraceList.Count == 0)
-                return string.Empty;
-            foreach (var item in stackTraceList)
-            {
-                var fileNameParts = item.FileName.Split('\\');
-                var fileName = fileNameParts.Length >= 3
-                    ? fileNameParts[^3..].Aggregate((x, y) => x + "\\" + y)
-                    : item.FileName;
-                stringBuilder.Append($"{Environment.NewLine}位置:{fileName},行号:{item.Line}");
-            }
-        }
-        catch
-        {
+        if (stackTraceList == null || stackTraceList.Count == 0)
             return string.Empty;
+
+        var sb = new StringBuilder();
+
+        foreach (var item in stackTraceList)
+        {
+            if (item.Line <= 0 || string.IsNullOrWhiteSpace(item.FileName) || item.FileName.Contains("/_"))
+                continue;
+
+            var parts = item.FileName.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var fileName = parts.Length >= 3 ? string.Join("/", parts[^3..]) : item.FileName;
+
+            sb.Append(Environment.NewLine)
+              .Append("位置:")
+              .Append(fileName)
+              .Append(",行号:")
+              .Append(item.Line);
         }
-        return stringBuilder.ToString();
+
+        return sb.Length == 0 ? string.Empty : sb.ToString();
     }
 
     /// <summary>

@@ -2,7 +2,7 @@
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="Easy.SqlSugar.Core" Version="2026.03.19.1" />
+<PackageReference Include="Easy.SqlSugar.Core" Version="2026.03.20.1" />
 ```
 ### 3.1.1 SqlSugar配置文件
 ``` json

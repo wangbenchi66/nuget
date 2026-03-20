@@ -5,13 +5,13 @@
 	  <ImplicitUsings>enable</ImplicitUsings>
 	  <Nullable>enable</Nullable>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	  <Title>WBC66.SqlSugar.Core</Title>
+	  <Title>Easy.SqlSugar.Core</Title>
 	  <Authors>wangbenchi66</Authors>
 	  <Description>基于SqlSugar进行封装使用</Description>
 	  <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
 	  <PackageReleaseNotes>基于SqlSugar进行封装使用</PackageReleaseNotes>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Version>2026.03.19.1</Version>
+	  <Version>2026.03.20.1</Version>
 	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
 	  <PackageId>$(AssemblyName)</PackageId>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
