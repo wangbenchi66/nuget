@@ -40,7 +40,7 @@ namespace Easy.Common.Core
         /// <summary>
         /// 失败
         /// </summary>
-        public static ApiResult Fail(string message, object? data = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        public static ApiResult Fail(string message, object? data = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             return new ApiResult
             {
@@ -121,7 +121,7 @@ namespace Easy.Common.Core
         /// <summary>
         /// 失败返回（泛型）
         /// </summary>
-        public static ApiResult<T> Fail(string message, T? data = default, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        public static ApiResult<T> Fail(string message, T? data = default, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             return new ApiResult<T>
             {
