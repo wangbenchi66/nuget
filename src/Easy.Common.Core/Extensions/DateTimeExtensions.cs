@@ -280,4 +280,15 @@ public static class DateTimeExtensions
 
     #endregion 获取现在是星期几
 
+    /// <summary>
+    /// 获取两个时间间隔秒数
+    /// </summary>
+    /// <param name="startTime">开始时间</param>
+    /// <param name="endTime">结束时间</param>
+    /// <returns>时间间隔的总秒数</returns>
+    public static double GetSeconds(DateTime startTime, DateTime endTime)
+    {
+        TimeSpan timeSpan = endTime - startTime;
+        return timeSpan.TotalSeconds;
+    }
 }

@@ -15,6 +15,7 @@ namespace Easy.Common.Core
         /// 将对象转换为整数类型（默认返回0）
         /// </summary>
         /// <param name="thisValue">要转换的对象</param>
+        /// <param name="defaultValue">默认值，当转换失败时返回</param>
         /// <returns>转换后的整数值</returns>
         public static int ToInt(this object thisValue, int defaultValue = 0)
         {
@@ -22,7 +23,10 @@ namespace Easy.Common.Core
                 return defaultValue;
             if (thisValue is Enum)
                 return Convert.ToInt32(thisValue);
-
+            //支持double类型转换为int，避免有小数时直接返回默认值
+            if (thisValue is double d) return (int)d;
+            if (thisValue is float f) return (int)f;
+            if (thisValue is decimal m) return (int)m;
             return int.TryParse(thisValue.ToString(), out var result) ? result : defaultValue;
         }
 
@@ -30,6 +34,7 @@ namespace Easy.Common.Core
         /// 将对象转换为长整型（默认返回0）
         /// </summary>
         /// <param name="thisValue">要转换的对象</param>
+        /// <param name="defaultValue">默认值，当转换失败时返回</param>
         /// <returns>转换后的长整型值</returns>
         public static long ToLong(this object thisValue, long defaultValue = 0)
         {
@@ -37,7 +42,9 @@ namespace Easy.Common.Core
                 return defaultValue;
             if (thisValue is Enum)
                 return Convert.ToInt64(thisValue);
-
+            if (thisValue is double d) return (long)d;
+            if (thisValue is float f) return (long)f;
+            if (thisValue is decimal m) return (long)m;
             return long.TryParse(thisValue.ToString(), out var result) ? result : defaultValue;
         }
 
@@ -45,11 +52,14 @@ namespace Easy.Common.Core
         /// 将对象转换为浮动类型（默认返回0.0）
         /// </summary>
         /// <param name="thisValue">要转换的对象</param>
+        /// <param name="defaultValue">默认值，当转换失败时返回</param>
         /// <returns>转换后的浮动类型值</returns>
         public static double ToDouble(this object thisValue, double defaultValue = 0.0)
         {
             if (thisValue == null || thisValue == DBNull.Value)
                 return defaultValue;
+            if (thisValue is float f) return (double)f;
+            if (thisValue is decimal m) return (double)m;
 
             return double.TryParse(thisValue.ToString(), out var result) ? result : defaultValue;
         }
@@ -58,6 +68,7 @@ namespace Easy.Common.Core
         /// 将对象转换为字符串类型（默认返回空字符串）
         /// </summary>
         /// <param name="thisValue">要转换的对象</param>
+        /// <param name="defaultValue">默认值，当转换失败时返回</param>
         /// <returns>转换后的字符串</returns>
         public static string ToStringValue(this object thisValue, string defaultValue = "")
         {
@@ -68,12 +79,14 @@ namespace Easy.Common.Core
         /// 将对象转换为Decimal类型（默认返回0）
         /// </summary>
         /// <param name="thisValue">要转换的对象</param>
+        /// <param name="defaultValue">默认值，当转换失败时返回</param>
         /// <returns>转换后的Decimal值</returns>
         public static decimal ToDecimal(this object thisValue, decimal defaultValue = 0)
         {
             if (thisValue == null || thisValue == DBNull.Value)
                 return defaultValue;
-
+            if (thisValue is float f) return (decimal)f;
+            if (thisValue is double d) return (decimal)d;
             return decimal.TryParse(thisValue.ToString(), out var result) ? result : defaultValue;
         }
 
@@ -81,12 +94,14 @@ namespace Easy.Common.Core
         /// 将对象转换为日期类型（默认返回DateTime.MinValue）
         /// </summary>
         /// <param name="thisValue">要转换的对象</param>
+        /// <param name="defaultValue">默认值，当转换失败时返回</param>
         /// <returns>转换后的日期值</returns>
         public static DateTime ToDate(this object thisValue, DateTime defaultValue = default)
         {
             if (thisValue == null || thisValue == DBNull.Value)
                 return defaultValue;
-
+            if (thisValue is DateTime dt) return dt;
+            if (thisValue is DateTimeOffset dto) return dto.DateTime;
             return DateTime.TryParse(thisValue.ToString(), out var result) ? result : defaultValue;
         }
 
@@ -94,12 +109,13 @@ namespace Easy.Common.Core
         /// 将对象转换为布尔类型（默认返回false）
         /// </summary>
         /// <param name="thisValue">要转换的对象</param>
+        /// <param name="defaultValue">默认值，当转换失败时返回</param>
         /// <returns>转换后的布尔值</returns>
         public static bool ToBool(this object thisValue, bool defaultValue = false)
         {
             if (thisValue == null || thisValue == DBNull.Value)
                 return defaultValue;
-
+            if (thisValue is bool b) return b;
             return bool.TryParse(thisValue.ToString(), out var result) ? result : defaultValue;
         }
 

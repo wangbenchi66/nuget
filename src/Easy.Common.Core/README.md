@@ -188,9 +188,11 @@ DateTimeExtensions.GetBackTime(DateTime.Now.AddHours(1), out day, out hours, out
 string timeAgo = DateTimeExtensions.TimeAgo(DateTime.Now.AddHours(-2)); // 返回类似 "2小时前"
 // 获取当前是星期几
 string currentWeek = DateTimeExtensions.GetWeek(); // 返回 "周一", "周二", "周三" 等
+//获取两个时间间隔秒数(double,类型 如果需要int类型可以(int)seconds)
+double seconds = DateTimeExtensions.GetSeconds(DateTime.Now, DateTime.Now.AddMinutes(5)); // 返回 300
 ```
 # 4. 字典工具类
-``` csharp
+```csharp
 // 创建一个对象用于测试
 var obj = new { Name = "Alice", Age = 28, Occupation = "Engineer" };
 
