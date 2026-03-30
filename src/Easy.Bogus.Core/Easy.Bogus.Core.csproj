@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <Title>Easy.Bogus.Core</Title>
+	  <Authors>wangbenchi66</Authors>
+	  <Description>基于 Bogus 封装的中文语境虚拟数据生成器</Description>
+	  <RepositoryUrl>https://gitee.com/wangbenchi66/nuget</RepositoryUrl>
+	  <PackageReleaseNotes>基于 Bogus 封装的中文语境虚拟数据生成器</PackageReleaseNotes>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	  <Version>2026.3.27</Version>
+	  <PackageProjectUrl>https://gitee.com/wangbenchi66/nuget</PackageProjectUrl>
+	  <PackageId>$(AssemblyName)</PackageId>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
+	  <PackageOutputPath>../../$(OutputPath)</PackageOutputPath>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Bogus" Version="35.6.1" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+  </ItemGroup>
+</Project>
