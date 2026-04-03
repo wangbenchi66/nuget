@@ -48,7 +48,7 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
         };
     }
 });
-builder.Services.AddSqlSugarSetup(sqlSugarScope);
+builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);
 
 //已经内置了很多调用方法，详情使用见下边3.4的使用示例
 //在仓储使用，ISingleton需要自己注入(内部已经封装了自动注入，如果不生效就自己注入)
@@ -68,13 +68,13 @@ public SqlSugarTestApis(BaseSqlSugarRepository<User> userRepository)
 //或者可以不注入，直接使用静态的db(框架内置已经封装好了可以直接用)
 //获取db对应的ISqlSugarClient
 var db=SugarDbManger.Db;
-var db = SugarDbManger.GetConfigDb("journal");//根据ConfigId获取对应的DbContext
-var db2 = SugarDbManger.GetTenantDb<User>();//根据实体类获取对应的DbContext(需要实体类有Tenant特性标识)
+var configDb = SugarDbManger.GetConfigDb("journal");//根据ConfigId获取对应的DbContext
+var tenantDb = SugarDbManger.GetTenantDb<User>();//根据实体类获取对应的DbContext(需要实体类有Tenant特性标识)
 //获取对应仓储
-var userRepository = SugarDbManger.GetConfigDbRepository<UserPg>("Pg");//根据ConfigId获取对应的仓储
-var userRepository = SugarDbManger.GetTenantDbRepository<User>();//根据实体类获取对应的仓储(需要实体类有Tenant特性标识)
+var configUserRepository = SugarDbManger.GetConfigDbRepository<UserPg>("Pg");//根据ConfigId获取对应的仓储
+var tenantUserRepository = SugarDbManger.GetTenantDbRepository<User>();//根据实体类获取对应的仓储(需要实体类有Tenant特性标识)
 //获取一个新的DbContext
-var db = SugarDbManger.GetNewDb();
+var newDb = SugarDbManger.GetNewDb();
 ```
 ### 雪花id配置
 ``` csharp
@@ -111,58 +111,46 @@ DataBaseTypeExtensions.GetDatabaseType("sql连接字符串")
 ``` csharp
     public static class SqlSugarSetup
     {
-      //Ioc需要转换为List<IocConfig>,普通模式需要转换为List<ConnectionConfig>
+      //普通模式需要转换为List<ConnectionConfig>
         public static void AddSqlSugarSetup(this IServiceCollection services, IConfiguration configuration)
         {
-            var dblist = new List<IocConfig>();
+            var dblist = new List<ConnectionConfig>();
             var conn = configuration.GetConnectionString("连接字符串");
             if (string.IsNullOrWhiteSpace(conn))
             {
-                continue;
+                return;
             }
-            dblist.Add(new IocConfig()
+            dblist.Add(new ConnectionConfig()
             {
                 ConfigId = "TestConfig",
                 ConnectionString = conn,
                 DbType = DataBaseTypeExtensions.GetDatabaseType(conn),
                 IsAutoCloseConnection = true
             });
-            bool aopLogging = false;
-            Action<SqlSugarClient> aopConfigAction = null;
-            //开发环境打印实际sql语句
-#if DEBUG
-            aopLogging = true;
-            aopConfigAction = sqlSugarClient =>
+            var sqlSugarScope = new SqlSugarScope(dblist, sqlSugarClient =>
             {
+#if DEBUG
                 foreach (var config in dblist)
                 {
                     sqlSugarClient.GetConnection(config.ConfigId).Aop.OnLogExecuting = (Action<string, SugarParameter[]>)((sql, p) =>
        {
-           Console.WriteLine($"----------------{Environment.NewLine}{DateTime.Now},ConfigId:{config.ConfigId},Sql:{Environment.NewLine}{UtilMethods.GetSqlString((SqlSugar.DbType)config.DbType, sql, p)}{Environment.NewLine}----------------");
+           Console.WriteLine($"----------------{Environment.NewLine}{DateTime.Now},ConfigId:{config.ConfigId},Sql:{Environment.NewLine}{UtilMethods.GetSqlString(config.DbType, sql, p)}{Environment.NewLine}----------------");
        });
                 }
-            };
 #endif
-            services.AddSqlSugarIocSetup(dblist, aopLogging, aopConfigAction);
+            });
+            services.AddSqlSugarScopedSetup(sqlSugarScope);
         }
     }
 ```
 
 ### 3.2 SqlSugar配置
-#### 3.2.1 使用Ioc模式的配置(2026.03.19.1版本开始以删除ioc模式,sqlsugar.ioc包直接移除)
+#### 3.2.1 使用Ioc模式的配置(2026.03.19.1版本开始已删除ioc模式,sqlsugar.ioc包直接移除)
 ``` csharp
-//使用SqlSugar
-//参数含义
-//1.配置文件
-//2.是否启用AOP日志
-//3.ConfigurationSugar自定义配置
-builder.Services.AddSqlSugarIocSetup(configuration.GetSection("DBS").Get<List<IocConfig>>(), true, config =>
-{
-    config.Aop.OnLogExecuting = (sql, pars) =>
-    {
-        Console.WriteLine("这是自定义事件{0}", sql);
-    };
-});
+//Ioc模式已移除，请改用普通模式：
+var configs = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
+var sqlSugarScope = new SqlSugarScope(configs);
+builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);
 ```
 #### 3.2.2 使用普通模式的配置
 ``` csharp
@@ -175,14 +163,10 @@ var configs = configuration.GetSection("DBS").Get<List<ConnectionConfig>>();
                 string sqlFileInfo = db.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();//获取文件执行信息
                 db.Aop.OnLogExecuting = (sql, p) => Console.WriteLine(UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo));//打印sql执行语句
                 db.Aop.OnError = (exp) => Console.WriteLine(UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo));//打印sql执行异常
-}
-#endif
+});
 //这里有两个,一个是单例一个是作用域 推荐作用域
 //作用域
 builder.Services.AddSqlSugarScopedSetup(sqlSugarScope);
-
-//单例
-builder.Services.AddSqlSugarSingletonSetup(sqlSugarScope);
 
 //注入3.2.1.1中的仓储(如果使用其他方式注入，可以忽略这里)
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
@@ -347,7 +331,7 @@ var isUpdate = _userRepository.Update(obj);
 //修改指定列
 var isUpdate7 = _userRepository.Update(obj, x => new { x.Name });
 //修改指定条件数据
-var isUpdate2 = _userRepository.Update(p => new User() { Name = "2" }, p => new { p.Id });
+var isUpdate2 = _userRepository.Update(p => new { Name = "2" }, p => new { p.Id });
 //根据条件更新 (实体,要修改的列,条件)
 var isUpdate3 = _userRepository.Update(obj, x => new { x.Name }, x => new { x.Id });
 //批量修改
@@ -365,7 +349,7 @@ var isUpdate6 = _userRepository.Update(user, x => new { x.Name }, x => new { x.I
 
 //添加或更新 单条或list集合
 //根据主键添加或更新
-var inserOrUpdate = _userRepository.InsertOrUpdate(new User() { Id = 1, Name ="admin" });
+var inserOrUpdate = _userRepository.InsertOrUpdate(new User() { Id = 1, Name ="admin" }, x => new { x.Id });
 //根据条件添加或更新
 var inserOrUpdate2 = _userRepository.InsertOrUpdate(new User() { Id = 1, Name= "admin" }, x => new { x.Id, x.Name });
 
@@ -375,7 +359,7 @@ var isDelete = _userRepository.Delete(obj);
 //批量删除  有问题
 var isDelete2 = _userRepository.Delete(new List<User>() { new User() { Id = 1 }, new User() { Id = 2 } });
 //根据主键删除
-var isDelete3 = _userRepository.DeleteByIds([1, 2]);
+var isDelete3 = _userRepository.DeleteByIds(new object[] { 1, 2 });
 
 //执行自定义sql
 //查询
@@ -406,9 +390,9 @@ var list = _userRepository.GetList(p => p.Id > 0);
 int pgae = 1;
 int pageSize = 10;
 int totalCount = 0;
-var page = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderBy(o => o.d).ToPageList(pgae, pageSize, ref totalCount);
+var page = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderBy(o => o.Id).ToPageList(pgae, pageSize, ref totalCount);
 //分页查询 (条件,排序,排序方式,页码,每页条数)
-var page2 = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderBy(o => o.d, SqlSugar.OrderByType.Desc).ToPageList(pgae, pageSize, ref totalCount);
+var page2 = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderBy(o => o.Id, SqlSugar.OrderByType.Desc).ToPageList(pgae, pageSize, ref totalCount);
 //分页排序
 // 设置排序参数
 List<OrderByModel> orderByModels = new List<OrderByModel>
@@ -416,7 +400,7 @@ List<OrderByModel> orderByModels = new List<OrderByModel>
     new OrderByModel() { FieldName = "CreateTime", OrderByType = OrderByType.Desc }, // 按 CreateTime 降序排序
     new OrderByModel() { FieldName = "Name", OrderByType = OrderByType.Asc } // 按 Name 升序排序
 };
-var page3 = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderByorderByModels).ToPageList(pgae, pageSize, ref totalCount);
+var page3 = _userRepository.AsQueryable().Where(p => p.Id > 0).OrderBy(orderByModels).ToPageList(pgae, pageSize, ref totalCount);
 //判断数据是否存在
 var isAny = _userRepository.AsQueryable().Any(p => p.Id == 1);
 //获取数据总数
@@ -425,30 +409,30 @@ var count = _userRepository.AsQueryable().Count(p => p.Id > 0);
 var user = new User() { Id = 1 };
 var userId = _userRepository.InsertReturnIdentity(user);
 //添加指定列
-var userId2 = _userRepository.AsInsertable(user).InsertColumns(p => new { p.d }).ExecuteReturnIdentity();
+var userId2 = _userRepository.AsInsertable(user).InsertColumns(p => new { p.Id }).ExecuteReturnIdentity();
 //批量添加
-_userRepository.AsInsertable(new List<User>() { new() { Id = 1 }, new() { Id =  } });
+_userRepository.AsInsertable(new List<User>() { new() { Id = 1 }, new() { Id = 2 } }).ExecuteCommand();
 //修改
 var isUpdate = _userRepository.Update(user);
 //修改指定列
-var isUpdate2 = _userRepository.AsUpdateable(user).UpdateColumns(p => new User) { Name = "2" }).Where(p => p.Name == "test").ExecuteCommand();
+var isUpdate2 = _userRepository.AsUpdateable(user).UpdateColumns(p => new { p.Name }).Where(p => p.Name == "test").ExecuteCommand();
 //根据条件更新 (实体,要修改的列,条件)
-var isUpdate3 = _userRepository.AsUpdateable(user).UpdateColumns(p => new User) { Name = "2" }).Where(p => p.Id == 1).ExecuteCommand();
+var isUpdate3 = _userRepository.AsUpdateable(user).UpdateColumns(p => new { p.Name }).Where(p => p.Id == 1).ExecuteCommand();
 //批量修改
-_userRepository.AsUpdateable(new List<User>() { new() { Id = 1 }, new() { Id =  } });
+_userRepository.AsUpdateable(new List<User>() { new() { Id = 1 }, new() { Id = 2 } }).ExecuteCommand();
 //删除
 var isDelete = _userRepository.Delete(user);
 //批量删除
-_userRepository.Delete(new List<User>() { new() { Id = 1 }, new() { Id =  } });
+_userRepository.Delete(new List<User>() { new() { Id = 1 }, new() { Id = 2 } });
 //根据主键删除
 _userRepository.DeleteByIds(new dynamic[] { 1, 2 });
 //执行自定义sql
 //查询
-var list2 = _userRepository.SqlSugarDbContext.SqlQueryable<User>("select * rom test_user");
+var list2 = _userRepository.SqlSugarDbContext.SqlQueryable<User>("select * from test_user");
 //查询到指定实体
-var list3 = _userRepository.SqlSugarDbContext.SqlQueryable<User>("select * rom test_user").ToList();
+var list3 = _userRepository.SqlSugarDbContext.SqlQueryable<User>("select * from test_user").ToList();
 //执行增删改
-var count2 = _userRepository.SqlSugarDbContextAdo.ExecuteCommand("update est_user set name='a' where id=1");
+var count2 = _userRepository.SqlSugarDbContextAdo.ExecuteCommand("update test_user set name='a' where id=1");
 //事务
 var tran = _userRepository.SqlSugarDbContext.AsTenant();
 tran.BeginTran();
@@ -529,6 +513,81 @@ base.Change<OrderItem>()//只支持自带方法和单库
 ```
 
 #### 4.扩展方法
+
+##### 4.0 Common扩展类方法总览
+
+###### 4.0.1 DataBaseTypeExtensions
+- `GetDatabaseType(string connectionString)`：根据连接串自动识别数据库类型（MySql/SqlServer/PostgreSQL 等）。
+- `CheckTrustServerCertificate(this string connectionString)`：仅 SqlServer 生效，缺少 `TrustServerCertificate` 时自动补齐。
+- `CheckEncrypt(this string connectionString)`：仅 SqlServer 生效，缺少 `Encrypt` 时自动补齐。
+
+``` csharp
+// 1) 自动识别数据库类型
+var dbType = DataBaseTypeExtensions.GetDatabaseType(conn);
+
+// 2) 自动补齐 SqlServer 连接参数（如果原本没有该参数）
+conn = conn.CheckTrustServerCertificate();
+conn = conn.CheckEncrypt();
+```
+
+###### 4.0.2 UniversalExtensions
+- `GetSqlFileInfo(...)`：提取 SQL 堆栈中的文件与行号信息，用于日志定位。
+- `GetSqlInfoString(...)`：格式化 SQL 执行日志字符串（含参数替换后 SQL）。
+- `GetSqlErrorString(...)`：格式化 SQL 异常日志字符串。
+- `GetRandomWorkId()`：基于机器信息生成 0-31 工作机器码（雪花 ID）。
+- `ParseSugarSnowflakeId(long id)`：解析 SqlSugar 雪花 ID。
+- `ParseYitSnowflakeId(long id)`：解析 Yitter 雪花 ID。
+- `AddCreateTimeField(...)`：追加“创建时间字段名”识别列表。
+- `AddUpdateTimeField(...)`：追加“更新时间字段名”识别列表。
+- `HandleTimeField(...)`：在 AOP 数据事件中自动给时间字段赋值。
+- `InitSqlFuncExternals()`：注册 `IsNull/IsNotNull` 等扩展 SQL 函数。
+- `GetWholeSql(...)`：用于调试，将参数替换回 SQL 文本。
+- `InitConfigureExternalServices()`：把 DataAnnotations 映射为 SqlSugar 配置入口。
+- `InitEntityService(...)`：初始化实体服务，将官方特性转换为sqlsugar特性，支持KeyAttribute、NotMappedAttribute、DatabaseGeneratedAttribute、MaxLengthAttribute、RequiredAttribute等常用特性
+- `InitEntityNameService(...)`：初始化实体名称服务，将官方特性转换为sqlsugar特性，支持TableAttribute特性设置表名
+
+``` csharp
+// 1) SQL 日志增强：输出执行文件位置 + 完整SQL日志
+var sqlFileInfo = db.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
+var info = UniversalExtensions.GetSqlInfoString(configId, sql, p, dbType, sqlFileInfo);
+var err = UniversalExtensions.GetSqlErrorString(configId, exp, sqlFileInfo);
+
+// 2) 自动时间字段赋值：可补充自定义字段名
+UniversalExtensions.AddCreateTimeField("create_time", "created_at");
+UniversalExtensions.AddUpdateTimeField("update_time", "updated_at");
+
+db.Aop.DataExecuting = (oldValue, entityInfo) => UniversalExtensions.HandleTimeField(oldValue, entityInfo);
+
+// 3) 实体特性映射入口：在 ConnectionConfig 中挂载(下边两个包含在内置的 InitConfigureExternalServices 方法里，通常不需要重复设置，除非你有特殊需求)
+var cfg = UniversalExtensions.InitConfigureExternalServices();
+
+//初始化实体服务，将官方特性转换为sqlsugar特性，支持KeyAttribute、NotMappedAttribute、DatabaseGeneratedAttribute、MaxLengthAttribute、RequiredAttribute等常用特性
+EntityService = (property, column) => UniversalExtensions.InitEntityService(property, column);
+//初始化实体名称服务，将官方特性转换为sqlsugar特性，支持TableAttribute特性设置表名
+EntityNameService = (type, table) => UniversalExtensions.InitEntityNameService(type, table);
+```
+
+###### 4.0.3 SugarEntityExtensions (仓储中已内置使用)
+- `ToSqlSugarDictionary<T>(T obj)`：把实体对象转为 SQL 参数字典（过滤导航属性与忽略字段）。
+- `ToSqlSugarDictionary<T>(T obj, string sql)`：按 SQL 中实际参数名提取实体字段，避免多余参数。
+- `ToSugarParameters<T>(this T obj)`：实体转 `SugarParameter[]`。
+- `CheckSql(string sql)`：执行 SQL 文本检查（内部会处理 IN 参数格式）。
+- `InSqlReplace(string sql)`：将 `IN @ids` 自动修正为 `IN (@ids)`。
+
+``` csharp
+// 1) 实体转参数字典
+var dict = SugarEntityExtensions.ToSqlSugarDictionary(user);
+
+// 2) 根据 SQL 参数名裁剪参数（只保留 @Name / @Id）
+var dictBySql = SugarEntityExtensions.ToSqlSugarDictionary(user, "update J_User set Name=@Name where Id=@Id");
+
+// 3) 转 SugarParameter[]
+var pars = user.ToSugarParameters();
+
+// 4) 检查并修正 SQL（尤其是 IN 参数写法）
+var safeSql = SugarEntityExtensions.CheckSql("select * from J_User where Id in @ids");
+```
+
 ``` csharp
 //获取数据库类型
 var dbType= DataBaseTypeExtensions.GetDatabaseType(conn);
@@ -536,7 +595,7 @@ var dbType= DataBaseTypeExtensions.GetDatabaseType(conn);
 
 //将微软官方特性转换为sqlsugar特性 转换Key、Table、DatabaseGenerated、MaxLength、 Required特性为sqlsugar特性
 //用的时候在数据库初始化中直接设置
-ConfigureExternalServices = UniversalExtensions.GetInitConfigureExternalServices()
+ConfigureExternalServices = UniversalExtensions.InitConfigureExternalServices();
 //例如：
 var db = new ConnectionConfig()
 {
@@ -549,14 +608,14 @@ var db = new ConnectionConfig()
         IsAutoRemoveDataCache = true,
         IsWithNoLockQuery = true,
     },
-    ConfigureExternalServices = UniversalExtensions.GetInitConfigureExternalServices(),// 初始化时转换table和key的特性为sqlsugar 不需要可以注释
+    ConfigureExternalServices = UniversalExtensions.InitConfigureExternalServices(),// 初始化时转换table和key的特性为sqlsugar 不需要可以注释
 };
 
 
 //检测TrustServerCertificate,没有则添加TrustServerCertificate=true
-conn=conn.CheckTrustServerCertificate(dbType);
+conn=conn.CheckTrustServerCertificate();
 //检测Encrypt,没有则添加Encrypt=true
-conn=conn.CheckEncrypt(dbType);
+conn=conn.CheckEncrypt();
 
 //获取sql执行文件信息(会过滤行号为0的记录，如果文件层级大于3,则只显示最后3级目录)
 // 返回的文件信息格式为：
@@ -579,8 +638,8 @@ foreach (var item in list)
 //添加时间\修改时间 系统自动赋值(系统默认识别了一些字段，可以使用UniversalExtensions.CreateTimeFieldNames、UniversalExtensions.UpdateTimeFieldNames查看默认识别的字段名,避免冗余代码)
 
 //添加方法内部已经做了处理 不区分大小写 以及一些名称限制，只支持 字母\数字\下划线
-UniversalExtensions.AddCreateTimeField("Createtime", "", "");//多个依次往后加
-UniversalExtensions.AddUpdateTimeField("updatetime", "", "");//多个依次往后加
+UniversalExtensions.AddCreateTimeField("Createtime", "create_time", "created_at");//多个依次往后加
+UniversalExtensions.AddUpdateTimeField("updatetime", "update_time", "updated_at");//多个依次往后加
 
 
 var sqlsugarSope = new SqlSugarScope(list, db =>
