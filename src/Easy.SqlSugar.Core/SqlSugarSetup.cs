@@ -115,8 +115,8 @@ namespace Easy.SqlSugar.Core
         {
             foreach (var item in configs)
             {
-                item.ConfigureExternalServices ??= new ConfigureExternalServices();
-                item.ConfigureExternalServices.SqlFuncServices ??= UniversalExtensions.GetSqlFuncExternals();
+                item.ConfigureExternalServices ??= UniversalExtensions.InitConfigureExternalServices();
+                item.ConfigureExternalServices.SqlFuncServices ??= UniversalExtensions.InitSqlFuncExternals();
             }
         }
 
@@ -131,7 +131,7 @@ namespace Easy.SqlSugar.Core
         private static void AddService(IServiceCollection services, int lifecycleType = 1)
         {
             //services.AddHttpContextAccessor();
-            AppService.Services = services;
+            SqlSugarAppService.Services = services;
             var bseSqlSugarRepositorytypes = GetAssemblyList();
             if (lifecycleType == 1)
             {

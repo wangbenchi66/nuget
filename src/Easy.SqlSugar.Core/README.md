@@ -19,10 +19,10 @@
     */
   "DBS": [
     {
-      "ConfigId": "journal",
+      "ConfigId": "test",
       "DBType": 0,
       "IsAutoCloseConnection": true,
-      "ConnectionString": "server=localhost;Database=journal;Uid=root;Pwd=123456;allowPublicKeyRetrieval=true;"
+      "ConnectionString": "server=localhost;Database=test;Uid=root;Pwd=123456;allowPublicKeyRetrieval=true;"
     }
   ]
 ```

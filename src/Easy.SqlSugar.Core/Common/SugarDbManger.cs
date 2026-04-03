@@ -16,7 +16,7 @@ public class SugarDbManger
     {
         get
         {
-            var db = AppService.Services.BuildServiceProvider().GetRequiredService<ISqlSugarClient>();
+            var db = SqlSugarAppService.Services.BuildServiceProvider().GetRequiredService<ISqlSugarClient>();
             if (db == null)
             {
                 throw new Exception("SqlSugar未注册");

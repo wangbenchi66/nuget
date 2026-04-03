@@ -2,7 +2,7 @@
 
 namespace Easy.SqlSugar.Core;
 
-internal class AppService
+internal class SqlSugarAppService
 {
     public static IServiceCollection Services { get; set; }
 }

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using Easy.Common.Core;
 using SqlSugar;
@@ -74,63 +75,8 @@ public static class UniversalExtensions
         return $"{new string('-', 30)}错误{Environment.NewLine}{DateTime.Now},ConfigId:{configId},{sqlFileInfo},Sql:{Environment.NewLine}{exp.Sql}{Environment.NewLine}Error:{exp.Message}{Environment.NewLine}{new string('-', 30)}";
     }
 
-    /// <summary>
-    /// 将官方特性转换为sqlsugar特性
-    /// </summary>
-    /// <returns></returns>
-    public static ConfigureExternalServices GetInitConfigureExternalServices()
-    {
-        return new ConfigureExternalServices()
-        {
-            EntityService = (property, column) =>
-            {
-                var attributes = property.GetCustomAttributes(true);
-                if (attributes == null || attributes.Length == 0)
-                    return;
-                //主键
-                if (attributes.Any(it => it is KeyAttribute))
-                {
-                    column.IsPrimarykey = true;
-                }
-                //忽略
-                if (attributes.Any(it => it is NotMappedAttribute))
-                {
-                    column.IsIgnore = true;
-                }
-                //自增
-                if (attributes.Any(it => it is DatabaseGeneratedAttribute))
-                {
-                    var attr = (DatabaseGeneratedAttribute)attributes.First(it => it is DatabaseGeneratedAttribute);
-                    if (attr.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
-                    {
-                        column.IsIdentity = true;
-                    }
-                }
-                // 长度限制
-                if (attributes.Any(it => it is MaxLengthAttribute))
-                {
-                    var attr = (MaxLengthAttribute)attributes.First(it => it is MaxLengthAttribute);
-                    column.Length = attr.Length;
-                }
-                // 非空约束
-                if (attributes.Any(it => it is RequiredAttribute))
-                {
-                    column.IsNullable = false;
-                }
-            },
-            EntityNameService = (type, entity) =>
-            {
-                var attributes = type.GetCustomAttributes(true);
-                if (attributes == null || attributes.Length == 0)
-                    return;
-                if (attributes.Any(it => it is TableAttribute))
-                {
-                    var attr = (attributes.First(it => it is TableAttribute) as TableAttribute);
-                    entity.DbTableName = attr.Name;
-                }
-            }
-        };
-    }
+
+    #region 雪花id相关
 
     /// <summary>
     /// 随机获取雪花id的工作单元(根据localIP+mac地址+机器名生成0-31的workId)
@@ -189,6 +135,7 @@ public static class UniversalExtensions
         return res;
     }
 
+    #endregion 雪花id相关
 
 
     #region aop数据据库操作事件处理
@@ -280,7 +227,7 @@ public static class UniversalExtensions
     /// sqlsugar扩展函数配置，添加自定义的sql函数，IsNull和IsNotNull
     /// </summary>
     /// <returns></returns>
-    public static List<SqlFuncExternal> GetSqlFuncExternals()
+    public static List<SqlFuncExternal> InitSqlFuncExternals()
     {
         return new List<SqlFuncExternal>()
         {
@@ -323,4 +270,79 @@ public static class UniversalExtensions
         return sql;
     }
     #endregion sql参数解析
+
+
+    #region 实体扩展
+
+    /// <summary>
+    /// 将官方特性转换为sqlsugar特性
+    /// </summary>
+    /// <returns></returns>
+    public static ConfigureExternalServices InitConfigureExternalServices()
+    {
+        return new ConfigureExternalServices()
+        {
+            EntityService = InitEntityService,
+            EntityNameService = InitEntityNameService
+        };
+    }
+    /// <summary>
+    /// 初始化实体服务，将官方特性转换为sqlsugar特性，支持KeyAttribute、NotMappedAttribute、DatabaseGeneratedAttribute、MaxLengthAttribute、RequiredAttribute等常用特性
+    /// </summary>
+    /// <param name="property"></param>
+    /// <param name="column"></param>
+    public static void InitEntityService(PropertyInfo property, EntityColumnInfo column)
+    {
+        var attributes = property.GetCustomAttributes(true);
+        if (attributes == null || attributes.Length == 0)
+            return;
+        //主键
+        if (attributes.Any(it => it is KeyAttribute))
+        {
+            column.IsPrimarykey = true;
+        }
+        //忽略
+        if (attributes.Any(it => it is NotMappedAttribute))
+        {
+            column.IsIgnore = true;
+        }
+        //自增
+        if (attributes.Any(it => it is DatabaseGeneratedAttribute))
+        {
+            var attr = (DatabaseGeneratedAttribute)attributes.First(it => it is DatabaseGeneratedAttribute);
+            if (attr.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
+            {
+                column.IsIdentity = true;
+            }
+        }
+        // 长度限制
+        if (attributes.Any(it => it is MaxLengthAttribute))
+        {
+            var attr = (MaxLengthAttribute)attributes.First(it => it is MaxLengthAttribute);
+            column.Length = attr.Length;
+        }
+        // 非空约束
+        if (attributes.Any(it => it is RequiredAttribute))
+        {
+            column.IsNullable = false;
+        }
+    }
+    /// <summary>
+    /// 初始化实体名称服务，将官方特性转换为sqlsugar特性，支持TableAttribute特性设置表名
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="entity"></param>
+    public static void InitEntityNameService(Type type, EntityInfo entity)
+    {
+        var attributes = type.GetCustomAttributes(true);
+        if (attributes == null || attributes.Length == 0)
+            return;
+        if (attributes.Any(it => it is TableAttribute))
+        {
+            var attr = (attributes.First(it => it is TableAttribute) as TableAttribute);
+            entity.DbTableName = attr.Name;
+        }
+    }
+
+    #endregion 实体扩展
 }
