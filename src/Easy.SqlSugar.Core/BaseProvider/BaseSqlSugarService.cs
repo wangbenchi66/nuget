@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using Easy.SqlSugar.Core.BiewModels;
 using SqlSugar;
 
 namespace Easy.SqlSugar.Core

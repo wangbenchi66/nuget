@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using SqlSugar;
-using Easy.SqlSugar.Core.BiewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Easy.SqlSugar.Core.Common;
 

@@ -1,4 +1,4 @@
-﻿namespace Easy.SqlSugar.Core.BiewModels
+﻿/*namespace Easy.SqlSugar.Core.BiewModels
 {
     /// <summary>
     /// 分页组件实体类
@@ -97,4 +97,4 @@
         /// </summary>
         public bool HasNextPage => PageIndex + 1 < TotalPages;
     }
-}
+}*/

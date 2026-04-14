@@ -1,4 +1,4 @@
-﻿namespace Easy.SqlSugar.Core.BiewModels
+﻿/*namespace Easy.SqlSugar.Core.BiewModels
 {
     /// <summary>
     /// 定义分页列表接口，继承自 <see cref="IList{T}"/>。
@@ -36,4 +36,4 @@
         /// </summary>
         bool HasNextPage { get; }
     }
-}
+}*/
