@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Easy.Common.Core
 {
+
     /// <summary>
     /// api返回帮助类
     /// </summary>
     public class ApiResult : ApiResult<object>
     {
-
         /// <summary>
         /// 成功（有数据）
         /// </summary>
-        public static ApiResult Ok(object? data = null, string? message = null)
+        public new static ApiResult Ok(object? data = null, string? message = null)
         {
             return new ApiResult
             {
@@ -23,24 +23,10 @@ namespace Easy.Common.Core
             };
         }
 
-        /* /// <summary>
-         /// 失败（只返回错误信息）
-         /// </summary>
-         public static ApiResult Fail(string message, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
-         {
-             return new ApiResult
-             {
-                 StateCode = statusCode,
-                 Success = false,
-                 Msg = message ?? "操作失败",
-                 Data = null
-             };
-         }*/
-
         /// <summary>
         /// 失败
         /// </summary>
-        public static ApiResult Fail(string message, object? data = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        public new static ApiResult Fail(string message, object? data = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             return new ApiResult
             {
@@ -119,6 +105,25 @@ namespace Easy.Common.Core
         }
 
         /// <summary>
+        /// 成功返回（泛型）
+        /// </summary>
+        public static ApiResult<T> Ok<T>(T? data, string? message = "操作成功")
+        {
+            return new ApiResult<T>
+            {
+                StateCode = HttpStatusCode.OK,
+                Success = true,
+                Msg = message ?? "操作成功",
+                Data = data
+            };
+        }
+
+        /// <summary>
+        /// 隐式将业务数据转换为成功的 ApiResult[T]
+        /// </summary>
+        public static implicit operator ApiResult<T>(T value) => Ok(value);
+
+        /// <summary>
         /// 失败返回（泛型）
         /// </summary>
         public static ApiResult<T> Fail(string message, T? data = default, HttpStatusCode statusCode = HttpStatusCode.OK)
@@ -131,6 +136,27 @@ namespace Easy.Common.Core
                 Data = data
             };
         }
+
+        /// <summary>
+        /// 失败返回（泛型）
+        /// </summary>
+        public static ApiResult<T> Fail<T>(string message, T? data = default, HttpStatusCode statusCode = HttpStatusCode.OK)
+        {
+            return new ApiResult<T>
+            {
+                StateCode = statusCode,
+                Success = false,
+                Msg = message ?? "操作失败",
+                Data = data
+            };
+        }
+
+        /// <summary>
+        /// 将错误信息隐式转换为失败的 ApiResult[T]
+        /// </summary>
+        /// <param name="errorMessage"></param>
+        /// <typeparam name="T"></typeparam>
+        public static implicit operator ApiResult<T>(string errorMessage) => Fail(errorMessage);
     }
 
     /// <summary>

@@ -106,28 +106,6 @@ public readonly struct ApiResultPlus<TSuccess, TError>
 /// </summary>
 public static class ApiResultPlusExtensions
 {
-    /// <summary>
-    /// 将 ApiResultPlus 匹配结果并转换为 ApiResult
-    /// </summary>
-    /// <typeparam name="TSuccess">成功结果类型</typeparam>
-    /// <typeparam name="TError">错误结果类型</typeparam>
-    /// <param name="result">ApiResultPlus 实例</param>
-    /// <returns>转换后的 ApiResult</returns>
-    //public static ApiResult ToApiResult<TSuccess, TError>(this ApiResultPlus<TSuccess, TError> result)
-    //    where TError : ErrorInfo
-    //{
-    //    return result.Match(
-    //        success =>
-    //        {
-    //            if (success is ApiResult apiResult)
-    //            {
-    //                return apiResult;
-    //            }
-    //            return ApiResult.Ok(success);
-    //        },
-    //        error => ApiResult.Fail(error.Msg, error.Data)
-    //    );
-    //}
     public static ApiResult ToApiResult<TSuccess, TError>(this ApiResultPlus<TSuccess, TError> result)
     {
         return result.Match(
