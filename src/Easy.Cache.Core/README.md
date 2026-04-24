@@ -1,8 +1,7 @@
 ## 6. 通过Aop使用内存缓存对接口、方法进行缓存
 ### 1. nuget包引入
-必须引入两个包 至少在2024.11.7以上
 ``` xml
-<PackageReference Include="Easy.Cache.Core" Version="2026.3.11" />
+<PackageReference Include="Easy.Cache.Core" Version="2026.4.24" />
 ```
 ### 2. 配置
 ``` json
@@ -11,7 +10,7 @@
     "DefaultRedis": "TestCache",//默认缓存客户端,不填则随便取一个当默认库
     "RedisClients": {
       "TestCache": {//单机模式配置(与集群模式配置是一样的)
-        "ConnectionString": "localhost:6379,abortConnect=false,ssl=false,password=123456"
+        "ConnectionString": "localhost:6379,abortConnect=false,ssl=false,password=123456,defaultDatabase=0"
       },
       "SentinelCache": {//哨兵模式配置
         "ConnectionString": "mymaster,abortConnect=false,ssl=false,password=123456",
@@ -31,7 +30,7 @@
 ### 使用缓存
 ``` csharp
 //开启内存缓存，如果有redis会使用redis，如果没有则会使用内存缓存
-builder.Services.AddEasyCache(configuration,"RedisConfigurations");//默认不传就是RedisConfigurations,如果是其他名称需要在这里修改，
+builder.Services.AddEasyCacheServiceSetup(configuration,"RedisConfigurations");//默认不传就是RedisConfigurations,如果是其他名称需要在这里修改，
 ```
 ### 2. 使用缓存\缓存切换
 ``` csharp
@@ -100,4 +99,66 @@ public object Get()
     _cacheResultService.GetStudentAsync("这是参数");
     return "ok";
 }
+```
+
+
+### EasyCacheService中方法使用示例
+``` csharp
+// 从 DI 获取缓存服务（已在 AddEasyCacheServiceSetup 中注册）
+var cache = serviceProvider.GetRequiredService<IEasyCacheService>();
+
+// 基本写入与读取
+cache.Add("student:1", new Student { Name = "张三" }, 60); // 60 秒后过期
+var s1 = cache.Get<Student>("student:1");
+await cache.AddAsync("student:2", new Student { Name = "李四" }, 30);
+var s2 = await cache.GetAsync<Student>("student:2");
+
+// GetOrAdd：未命中时回源并写入
+var stu = cache.GetOrAdd("student:3", () => new Student { Name = "王五" }, 120);
+var stuAsync = await cache.GetOrAddAsync("student:4", async () =>
+{
+    await Task.Delay(10);
+    return new Student { Name = "赵六" };
+}, 120);
+
+// Hash 操作（在内存实现中以 ConcurrentDictionary 模拟；在 Redis 中为真实 Hash）
+cache.HSet("user:100:props", "age", 30, 3600);
+var age = cache.HGet<int>("user:100:props", "age");
+var hasAge = cache.HExists("user:100:props", "age");
+
+// 批量写入（推荐在 Redis 下使用以获得更好性能）
+cache.Batch(new Dictionary<string, object>
+{
+    ["k1"] = "v1",
+    ["k2"] = 123
+}, 60);
+
+// 删除与判断
+cache.Remove("k1");
+var exists = cache.Exists("k2");
+
+// 递增与分布式锁（仅 Redis 实现支持；内存实现会抛出 NotSupportedException）
+try
+{
+    var newVal = cache.Increment("counter:pageviews", 1);
+}
+catch (NotSupportedException)
+{
+    // 内存缓存不支持递增，请使用 Redis 客户端或切换到 Redis
+}
+
+// 分布式锁（仅 Redis 实现可跨实例安全）
+using (var locker = cache.Lock("job:lock", 30))
+{
+    // 在锁内执行需要互斥的逻辑
+}
+
+// 发布/订阅（仅 Redis 实现支持跨实例）
+cache.Publish("notifications", "hello world");
+cache.Subscribe("notifications", msg => Console.WriteLine($"收到消息: {msg}"));
+
+// 如果需要显式切换到某个 Redis 客户端
+var factory = serviceProvider.GetRequiredService<IEasyCacheServiceFactory>();
+var redisClient = factory.Create("TestCache");
+// 接下来使用 redisClient 与上面相同的方法签名进行调用
 ```

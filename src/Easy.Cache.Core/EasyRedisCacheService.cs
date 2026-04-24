@@ -193,6 +193,28 @@ public class EasyRedisCacheService : IEasyCacheService
     }
 
     /// <summary>
+    /// 删除hash中的某一个field
+    /// </summary>
+    /// <param name="key">Hash 键。</param>
+    /// <param name="field">Hash 字段名。</param>
+    /// <returns>是否删除成功。</returns>
+    public bool HSetRemove(string key, string field)
+    {
+        return _redis.HDel(key, field) > 0;
+    }
+
+    /// <summary>
+    /// 异步删除hash中的某一个field
+    /// </summary>
+    /// <param name="key">Hash 键。</param>
+    /// <param name="field">Hash 字段名。</param>
+    /// <returns>是否删除成功。</returns>
+    public async Task<bool> HSetRemoveAsync(string key, string field)
+    {
+        return await _redis.HDelAsync(key, field) > 0;
+    }
+
+    /// <summary>
     /// 对指定键进行整型递增。
     /// </summary>
     /// <param name="key">缓存键。</param>
@@ -234,7 +256,7 @@ public class EasyRedisCacheService : IEasyCacheService
     /// <param name="func">回源委托。</param>
     /// <param name="expiration">过期时间（秒），小于 0 表示不过期。</param>
     /// <returns>缓存或回源结果。</returns>
-    public async Task<T> GetAsync<T>(string key, Func<Task<T>> func, int expiration = -1)
+    public async Task<T> GetOrAddAsync<T>(string key, Func<Task<T>> func, int expiration = -1)
     {
         var resule = await _redis.GetAsync<T>(key);
         if (resule != null)
@@ -253,7 +275,7 @@ public class EasyRedisCacheService : IEasyCacheService
     /// <param name="func">回源委托。</param>
     /// <param name="expiration">过期时间（秒），小于 0 表示不过期。</param>
     /// <returns>缓存或回源结果。</returns>
-    public T Get<T>(string key, Func<T> func, int expiration = -1)
+    public T GetOrAdd<T>(string key, Func<T> func, int expiration = -1)
     {
         var resule = _redis.Get<T>(key);
         if (resule != null)
@@ -263,6 +285,7 @@ public class EasyRedisCacheService : IEasyCacheService
         }
         return resule;
     }
+
     /// <summary>
     /// 判断指定键是否存在。
     /// </summary>

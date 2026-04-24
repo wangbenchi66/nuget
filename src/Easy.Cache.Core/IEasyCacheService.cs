@@ -70,7 +70,7 @@ namespace Easy.Cache.Core
         /// <param name="func"></param>
         /// <param name="expiration"></param>
         /// <returns></returns>
-        Task<T> GetAsync<T>(string key, Func<Task<T>> func, int expiration = -1);
+        Task<T> GetOrAddAsync<T>(string key, Func<Task<T>> func, int expiration = -1);
 
         /// <summary>
         /// 获取(委托)
@@ -80,7 +80,7 @@ namespace Easy.Cache.Core
         /// <param name="func"></param>
         /// <param name="expiration"></param>
         /// <returns></returns>
-        T Get<T>(string key, Func<T> func, int expiration = -1);
+        T GetOrAdd<T>(string key, Func<T> func, int expiration = -1);
 
         /// <summary>
         /// 获取
