@@ -16,7 +16,7 @@ namespace Easy.SqlSugar.Core
             //var db = new SqlSugarScope(Config.SqlSugarConfigs);
             //var client = db.GetConnectionScopeWithAttr<T>();
             //ISqlSugarClient sqlSugarDb = null;
-            ISqlSugarClient sqlSugarDb = SqlSugarAppService.Services.BuildServiceProvider().GetRequiredService<ISqlSugarClient>();
+            ISqlSugarClient sqlSugarDb = SqlSugarAppService.ServicesProvider.GetRequiredService<ISqlSugarClient>();
             //using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
             //{
             //    sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();

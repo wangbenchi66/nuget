@@ -142,6 +142,8 @@ namespace Easy.SqlSugar.Core
         {
             //services.AddHttpContextAccessor();
             SqlSugarAppService.Services = services;
+            SqlSugarAppService.ServicesProvider = services.BuildServiceProvider();
+            StartSelfCheck();
             var bseSqlSugarRepositorytypes = GetAssemblyList();
             if (lifecycleType == 1)
             {
@@ -174,6 +176,29 @@ namespace Easy.SqlSugar.Core
         {
             var assembly = Assembly.GetEntryAssembly();
             return assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == name);
+        }
+
+        /// <summary>
+        /// 启动自检 检查数据库状态是否有异常
+        /// </summary>
+        private static void StartSelfCheck()
+        {
+            //遍历所有数据库是否正常
+            var connectionConfigs = SugarDbManger.GetConnectionConfigs();
+            foreach (var db in connectionConfigs)
+            {
+                try
+                {
+                    var dbClient = SugarDbManger.GetConfigDb(db.ConfigId.ToString());
+                    dbClient.Ado.Connection.Open();
+                    dbClient.Ado.Connection.Close();
+                    //System.Console.WriteLine($"数据库连接正常，ConfigId：{db.ConfigId}");
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine($"数据库连接异常，ConfigId：{db.ConfigId}，异常信息：{ex.Message + ex.InnerException}");
+                }
+            }
         }
     }
 }
