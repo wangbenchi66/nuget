@@ -1,12 +1,12 @@
-﻿using Easy.DynamicApi;
+﻿using Core.Infrastructure;
+using Core.Infrastructure.Setups;
+using Easy.Cache.Core;
+using Easy.DynamicApi;
 using Easy.EF.Core;
 using Easy.SqlSugar.Core;
 using Easy.SqlSugar.Core.Common;
-using IGeekFan.AspNetCore.Knife4jUI;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Caching.Memory;
-using Scalar.AspNetCore;
 using Serilog;
 using SqlSugar;
 using WBC66.Autofac.Core;
@@ -19,27 +19,31 @@ using Yitter.IdGenerator;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
-builder.Services.AddSwaggerGen(s =>
-{
-    var xmlsFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml");
-    foreach (var xmlFile in xmlsFiles)
-    {
-        s.IncludeXmlComments(xmlFile);
-    }
-    //设置swagger文档信息，如果没有注释则显示默认信息
-    s.CustomOperationIds(apiDesc =>
-    {
-        var controllerAction = apiDesc.ActionDescriptor as ControllerActionDescriptor;
-        if (controllerAction == null)
-            return apiDesc.RelativePath;
-        return controllerAction.ControllerName + "-" + (controllerAction.ActionName.IsNull() ? controllerAction.MethodInfo.Name : controllerAction.ActionName);
-    });
-});
+AppService.Init(configuration);
+//builder.Services.AddSwaggerGen(s =>
+//{
+//    var xmlsFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml");
+//    foreach (var xmlFile in xmlsFiles)
+//    {
+//        s.IncludeXmlComments(xmlFile);
+//    }
+//    //设置swagger文档信息，如果没有注释则显示默认信息
+//    s.CustomOperationIds(apiDesc =>
+//    {
+//        var controllerAction = apiDesc.ActionDescriptor as ControllerActionDescriptor;
+//        if (controllerAction == null)
+//            return apiDesc.RelativePath;
+//        return controllerAction.ControllerName + "-" + (controllerAction.ActionName.IsNull() ? controllerAction.MethodInfo.Name : controllerAction.ActionName);
+//    });
+//});
+
+builder.Services.AddSwaggerSetup("nuget测试");
+
 //Serilog
 //builder.Host.AddSerilogHost(configuration);
 //builder.Host.AddSerilogHostJson(configuration);
 SerilogHostSetup.AddDefaultIgnoredSources("");
-builder.Host.AddSerilogHost(SerilogHostSetup.GetHomeLoggerProjectNamePath(), Serilog.Events.LogEventLevel.Debug);
+builder.Host.AddSerilogHost(SerilogHostSetup.GetHomeLoggerProjectNamePath(), Serilog.Events.LogEventLevel.Information);
 
 //NLong
 //builder.AddNLogSteup(configuration);
@@ -55,6 +59,10 @@ builder.Host.AddSerilogHost(SerilogHostSetup.GetHomeLoggerProjectNamePath(), Ser
 
 //开启内存缓存
 //builder.Services.AddMemoryCacheSetup();
+
+//开启easy缓存
+builder.Services.AddEasyCacheServiceSetup(configuration, "RedisConfigurations");//默认不传就是RedisConfigurations,如果是其他名称需要在这里修改，
+
 
 //使用autofac(内部会自动批量注入Service、Repository、Dao结尾的类  所有继承ITransient、ISingleton、IScoped接口的类注入到容器中)
 builder.Host.AddAutofacHostSetup(builder.Services, options =>
@@ -211,35 +219,40 @@ builder.Services.AddDynamicApi();
 });*/
 builder.Services.AddHealthChecks();
 var app = builder.Build();
+AppService.Init(app.Services);
+//SqlSugarAppService.ServicesProvider = app.Services;
 
 
 // Configure the HTTP request pipeline.
 //app.UseAuthorization();
-app.UseSwagger(c =>
-{
-    c.RouteTemplate = "api/swagger/{documentName}/swagger.json";
-});
-app.UseKnife4UI(c =>
-{
-    c.SwaggerEndpoint("../api/swagger/v1/swagger.json", "api");
-    c.RoutePrefix = "k4j";
-});
-//app.MapScalarApiReference(options =>
+//app.UseSwagger(c =>
 //{
-//    //options.WithOpenApiRoutePattern("/swagger/{documentName}.json");
-//    // orAddOpenApi
-//    options.OpenApiRoutePattern = "api/swagger/{documentName}/swagger.json";
+//    c.RouteTemplate = "api/swagger/{documentName}/swagger.json";
 //});
-var documents = new[]
-{
-    new ScalarDocument("v1", "nuget包", "api/swagger/v1/swagger.json"),
-    //new ScalarDocument("v2", "API", "http://k8s.api.com/api/swagger/v1/swagger.json"),
-};
-app.MapScalarApiReference("/scalar", options =>
-{
-    options.AddDocuments(documents);
-    options.DefaultHttpClient = new(ScalarTarget.Node, ScalarClient.Axios);
-});
+//app.UseKnife4UI(c =>
+//{
+//    c.SwaggerEndpoint("../api/swagger/v1/swagger.json", "api");
+//    c.RoutePrefix = "k4j";
+//});
+////app.MapScalarApiReference(options =>
+////{
+////    //options.WithOpenApiRoutePattern("/swagger/{documentName}.json");
+////    // orAddOpenApi
+////    options.OpenApiRoutePattern = "api/swagger/{documentName}/swagger.json";
+////});
+//var documents = new[]
+//{
+//    new ScalarDocument("v1", "nuget包", "api/swagger/v1/swagger.json"),
+//    //new ScalarDocument("v2", "API", "http://k8s.api.com/api/swagger/v1/swagger.json"),
+//};
+//app.MapScalarApiReference("/scalar", options =>
+//{
+//    options.AddDocuments(documents);
+//    options.DefaultHttpClient = new(ScalarTarget.Node, ScalarClient.Axios);
+//});
+
+app.UseSwaggerSetup("nuget");
+
 app.MapControllers();
 app.MapHealthChecks("/health");
 

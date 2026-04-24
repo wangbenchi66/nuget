@@ -10,16 +10,17 @@ namespace WebApi.Test.Controllers
     public class SqlSugarController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        private readonly ILogger<SqlSugarController> _logger;
-        private readonly ICategoryRepository _categoryRepository;
-        private readonly IUserService _userService;
 
-        public SqlSugarController(IUserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository, IUserService userService)
+        private readonly ILogger<SqlSugarController> _logger;
+
+        private readonly ICategoryRepository _categoryRepository;
+
+
+        public SqlSugarController(IUserRepository userRepository, ILogger<SqlSugarController> logger, ICategoryRepository categoryRepository)
         {
             _userRepository = userRepository;
             _logger = logger;
             _categoryRepository = categoryRepository;
-            _userService = userService;
         }
 
 
@@ -28,7 +29,7 @@ namespace WebApi.Test.Controllers
         {
             //所有操作都有异步方法，增加Async即可
             //查询单个
-            var obj = _userService.GetSingle(p => p.Id == 1);
+            var obj = _userRepository.GetSingle(p => p.Id == 1);
             _logger.LogInformation("查询单个结果：{@obj}", obj);
             //var e = await _userService.ExistsAsync(x => x.Id == 1);
 
@@ -363,6 +364,7 @@ namespace WebApi.Test.Controllers
             var isUpdate = await _userRepository.ExecuteSqlAsync("update j_user set name=@Name where id=@Id", parms) > 0;
             return isUpdate;
         }
+
         /// <summary>
         /// 参数化in查询
         /// </summary>
@@ -386,6 +388,7 @@ namespace WebApi.Test.Controllers
             var snowId = await db.Insertable(aopTest).ExecuteReturnSnowflakeIdAsync();
             return snowId;
         }
+
         [HttpGet("EditAopTest")]
         public async Task<object> EditAopTest(long id)
         {
@@ -408,6 +411,23 @@ namespace WebApi.Test.Controllers
             //var res = await db.Insertable(user).ExecuteReturnEntityAsync();//只支持单个实体返回主键到实体,多个会只返回第一个的实体
             var res = db.Insertable(list).ExecuteReturnPkList<int>();
             return user;
+        }
+
+        /// <summary>
+        /// 批量插入 Fastest BulkCopy
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("BulkCopy")]
+        public async Task<object> BulkCopy()
+        {
+            var db = SugarDbManger.GetConfigDb("journal");
+            var list = new List<User>();
+            for (int i = 0; i < 1; i++)
+            {
+                list.Add(new User() { Name = $"test{i}", CreateTime = DateTime.Now });
+            }
+            var res = await db.Fastest<User>().BulkCopyAsync(list);
+            return res;
         }
     }
 }

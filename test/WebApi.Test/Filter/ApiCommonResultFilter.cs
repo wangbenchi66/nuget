@@ -54,6 +54,13 @@ namespace WebApi.Test.Filter
                 return;
             }
 
+            //如果是ApiResult<T>直接返回
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ApiResult<>))
+            {
+                await next();
+                return;
+            }
+
             //普通对象 → 包装为 ApiResult
             int status = context.HttpContext.Response.StatusCode;
             ApiResult wrapped = status == StatusCodes.Status200OK ? ApiResult.Ok(value) : ApiResult.Fail(value.ToString(), (HttpStatusCode)status);

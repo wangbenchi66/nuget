@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using Easy.SqlSugar.Core;
 using SqlSugar;
 
@@ -7,13 +7,13 @@ namespace WebApi.Test
     /// <summary>
     /// 用户表
     ///</summary>
-    [SugarTable("j_user")] //表别名
+    [Table("j_user")] //表别名
     public class User
     {
         /// <summary>
         ///用户id
         ///</summary>
-        [SugarColumn(ColumnName = "ID", IsPrimaryKey = true,IsIdentity =true)]
+        [SugarColumn(ColumnName = "ID", IsPrimaryKey = true, IsIdentity = true)]
         public int Id { get; set; }
 
         public string Name { get; set; }
@@ -53,16 +53,6 @@ namespace WebApi.Test
     public interface IUserRepository : IBaseSqlSugarRepository<User>
     {
         //Task<bool> UpdateAsync(User updateObj);
-    }
-
-    public class UserService : BaseSqlSugarService<User>, IUserService
-    {
-
-    }
-
-    public interface IUserService : IBaseSqlSugarService<User>
-    {
-
     }
 
     public class UserDto
