@@ -9,6 +9,7 @@ using Easy.Common.Core;
 using SqlSugar;
 
 namespace Easy.SqlSugar.Core;
+
 /// <summary>
 /// sqlsugar通用扩展方法
 /// </summary>
@@ -94,6 +95,7 @@ public static class UniversalExtensions
         int workId = Math.Abs(machineTag.GetHashCode()) % 32;
         return workId;
     }
+
     /// <summary>
     /// 获取Yitter.IdGenerator雪花id配置
     /// </summary>
@@ -110,10 +112,12 @@ public static class UniversalExtensions
         };
         return options;
     }
+
     /// <summary>
     /// 存储生成的Yitter.IdGenerator雪花id配置 一旦生成不能修改
     /// </summary>
     public static readonly Yitter.IdGenerator.IdGeneratorOptions YitSnowflakeOptions = GetYitSnowflakeOptions();
+
     /// <summary>
     /// 解析sugar雪花id
     /// </summary>
@@ -123,6 +127,7 @@ public static class UniversalExtensions
     {
         return SnowflakeIdParser.ParseSqlSugarSnowflakeId(id);
     }
+
     /// <summary>
     /// 解析Yitter.IdGenerator雪花id
     /// </summary>
@@ -139,13 +144,16 @@ public static class UniversalExtensions
 
 
     #region aop数据据库操作事件处理
+
     private static readonly HashSet<string> _createTimeFieldNames = new(StringComparer.OrdinalIgnoreCase) { "createtime", "createdtime", "addtime", "create_time", "created_at" };
+
     private static readonly HashSet<string> _updateTimeFieldNames = new(StringComparer.OrdinalIgnoreCase) { "updatetime", "updatedtime", "lasttime", "modifydate", "update_time", "updated_at" };
 
     /// <summary>
     /// 只读集合，外部只能通过AddCreateTimeField和AddUpdateTimeField方法添加字段名，确保字段名的有效性和唯一性
     /// </summary>
     public static IReadOnlyCollection<string> CreateTimeFieldNames => _createTimeFieldNames;
+
     /// <summary>
     /// 只读集合，外部只能通过AddCreateTimeField和AddUpdateTimeField方法添加字段名，确保字段名的有效性和唯一性
     /// </summary>
@@ -223,6 +231,7 @@ public static class UniversalExtensions
     #endregion aop数据据库操作事件处理
 
     #region sqlsugar扩展函数
+
     /// <summary>
     /// sqlsugar扩展函数配置，添加自定义的sql函数，IsNull和IsNotNull
     /// </summary>
@@ -249,6 +258,7 @@ public static class UniversalExtensions
             }
         };
     }
+
     #endregion sqlsugar扩展函数
 
 
@@ -269,6 +279,7 @@ public static class UniversalExtensions
         }
         return sql;
     }
+
     #endregion sql参数解析
 
 
@@ -286,6 +297,7 @@ public static class UniversalExtensions
             EntityNameService = InitEntityNameService
         };
     }
+
     /// <summary>
     /// 初始化实体服务，将官方特性转换为sqlsugar特性，支持KeyAttribute、NotMappedAttribute、DatabaseGeneratedAttribute、MaxLengthAttribute、RequiredAttribute等常用特性
     /// </summary>
@@ -293,40 +305,61 @@ public static class UniversalExtensions
     /// <param name="column"></param>
     public static void InitEntityService(PropertyInfo property, EntityColumnInfo column)
     {
-        var attributes = property.GetCustomAttributes(true);
-        if (attributes == null || attributes.Length == 0)
-            return;
-        //主键
-        if (attributes.Any(it => it is KeyAttribute))
-        {
-            column.IsPrimarykey = true;
-        }
-        //忽略
-        if (attributes.Any(it => it is NotMappedAttribute))
+        var keyAttr = property.GetCustomAttribute<KeyAttribute>(true);
+        var notMappedAttr = property.GetCustomAttribute<NotMappedAttribute>(true);
+        var dbGeneratedAttr = property.GetCustomAttribute<DatabaseGeneratedAttribute>(true);
+        var maxLengthAttr = property.GetCustomAttribute<MaxLengthAttribute>(true);
+        var requiredAttr = property.GetCustomAttribute<RequiredAttribute>(true);
+        var sugarAttr = property.GetCustomAttribute<SugarColumn>(true);
+
+        // 忽略映射
+        if (notMappedAttr != null)
         {
             column.IsIgnore = true;
+            return;
         }
-        //自增
-        if (attributes.Any(it => it is DatabaseGeneratedAttribute))
+
+        // 主键
+        if (keyAttr != null)
         {
-            var attr = (DatabaseGeneratedAttribute)attributes.First(it => it is DatabaseGeneratedAttribute);
-            if (attr.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
-            {
-                column.IsIdentity = true;
-            }
+            column.IsPrimarykey = true;
+
+            // 智能推断默认是否自增
+            column.IsIdentity = IsDefaultIdentityType(property.PropertyType);
         }
-        // 长度限制
-        if (attributes.Any(it => it is MaxLengthAttribute))
+
+        // 显式配置覆盖智能规则
+        if (dbGeneratedAttr != null)
         {
-            var attr = (MaxLengthAttribute)attributes.First(it => it is MaxLengthAttribute);
-            column.Length = attr.Length;
+            column.IsIdentity = dbGeneratedAttr.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity;
         }
-        // 非空约束
-        if (attributes.Any(it => it is RequiredAttribute))
+
+        // 长度
+        if (maxLengthAttr != null)
+        {
+            column.Length = maxLengthAttr.Length;
+        }
+
+        // 非空
+        if (requiredAttr != null)
         {
             column.IsNullable = false;
         }
     }
+
+    /// <summary>
+    /// 判断类型默认是否应视为自增主键
+    /// </summary>
+    private static bool IsDefaultIdentityType(Type type)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+
+        return type == typeof(byte)
+            || type == typeof(short)
+            || type == typeof(int)
+            || type == typeof(long);
+    }
+
     /// <summary>
     /// 初始化实体名称服务，将官方特性转换为sqlsugar特性，支持TableAttribute特性设置表名
     /// </summary>
@@ -334,14 +367,19 @@ public static class UniversalExtensions
     /// <param name="entity"></param>
     public static void InitEntityNameService(Type type, EntityInfo entity)
     {
-        var attributes = type.GetCustomAttributes(true);
-        if (attributes == null || attributes.Length == 0)
-            return;
-        if (attributes.Any(it => it is TableAttribute))
+        var tableAttr = type.GetCustomAttribute<TableAttribute>(inherit: true);
+        if (!string.IsNullOrWhiteSpace(tableAttr?.Name))
         {
-            var attr = (attributes.First(it => it is TableAttribute) as TableAttribute);
-            entity.DbTableName = attr.Name;
+            entity.DbTableName = tableAttr.Name;
+            return;
         }
+        var name = type.Name;
+
+        if (name.EndsWith("Entity", StringComparison.Ordinal))
+            name = name[..^"Entity".Length];
+        else if (name.EndsWith("Model", StringComparison.Ordinal))
+            name = name[..^"Model".Length];
+        entity.DbTableName = name;
     }
 
     #endregion 实体扩展

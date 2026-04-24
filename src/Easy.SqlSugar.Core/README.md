@@ -2,7 +2,7 @@
 ## 3. SqlSugar配置
 线上nuget引入 版本号随时更新
 ``` xml
-<PackageReference Include="Easy.SqlSugar.Core" Version="2026.03.20.1" />
+<PackageReference Include="Easy.SqlSugar.Core" Version="2026.04.24.1" />
 ```
 ### 3.1.1 SqlSugar配置文件
 ``` json
@@ -20,7 +20,7 @@
   "DBS": [
     {
       "ConfigId": "test",
-      "DBType": 0,
+      "DBType": 0,//如果开启了自动推断数据库类型这里可以不要
       "IsAutoCloseConnection": true,
       "ConnectionString": "server=localhost;Database=test;Uid=root;Pwd=123456;allowPublicKeyRetrieval=true;"
     }
@@ -34,7 +34,7 @@ var sqlSugarScope = new SqlSugarScope(list, db =>
     foreach (var item in list)
     {
         var configId = item.ConfigId;
-        var dbType = item.DbType;
+        var dbType = DataBaseTypeExtensions.GetDatabaseType(item.ConnectionString);//自动推断数据库类型
         var conn = db.GetConnection(configId);
         var sqlFileInfo = conn.Ado.SqlStackTrace.MyStackTraceList.GetSqlFileInfo();
         var aop = conn.Aop;
@@ -284,6 +284,22 @@ foreach (var item in list)
         return user;
     }
 ```
+#### BaseSugarModel默认基类
+``` csharp
+/// <summary>
+/// sugar实体基类
+/// </summary>
+/// <typeparam name="TKey"></typeparam>
+public class BaseSugarModel<TKey> : BaseSugarModel
+{
+    /// <summary>
+    /// 实体主键 自动推断自增 需要初始化时默认设置ConfigureExternalServices.EntityService = UniversalExtensions.InitEntityService; 或者保持EntityService为空 会自动使用UniversalExtensions.InitEntityService
+    /// </summary>
+    [Key]
+    public virtual TKey Id { get; set; }
+}
+```
+
 ### 3.4 使用示例
 ``` csharp
 //所有操作都有异步方法，增加Async即可
@@ -543,7 +559,7 @@ conn = conn.CheckEncrypt();
 - `InitSqlFuncExternals()`：注册 `IsNull/IsNotNull` 等扩展 SQL 函数。
 - `GetWholeSql(...)`：用于调试，将参数替换回 SQL 文本。
 - `InitConfigureExternalServices()`：把 DataAnnotations 映射为 SqlSugar 配置入口。
-- `InitEntityService(...)`：初始化实体服务，将官方特性转换为sqlsugar特性，支持KeyAttribute、NotMappedAttribute、DatabaseGeneratedAttribute、MaxLengthAttribute、RequiredAttribute等常用特性
+- `InitEntityService(...)`：初始化实体服务，将官方特性转换为sqlsugar特性，支持KeyAttribute、NotMappedAttribute、DatabaseGeneratedAttribute、MaxLengthAttribute、RequiredAttribute等常用特性，还可以自动推断主键和自增列，避免冗余代码
 - `InitEntityNameService(...)`：初始化实体名称服务，将官方特性转换为sqlsugar特性，支持TableAttribute特性设置表名
 
 ``` csharp

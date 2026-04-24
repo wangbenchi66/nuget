@@ -98,6 +98,7 @@ namespace Easy.SqlSugar.Core
             ConfigProcessing(_configs);
             return configs;
         }
+
         private static SqlSugarClient ConfigProcessing(SqlSugarClient configs)
         {
             //用反射获取_configs，单个的获取补到多库
@@ -115,8 +116,17 @@ namespace Easy.SqlSugar.Core
         {
             foreach (var item in configs)
             {
-                item.ConfigureExternalServices ??= UniversalExtensions.InitConfigureExternalServices();
-                item.ConfigureExternalServices.SqlFuncServices ??= UniversalExtensions.InitSqlFuncExternals();
+                //item.ConfigureExternalServices ??= UniversalExtensions.InitConfigureExternalServices();
+                item.ConfigureExternalServices ??= new ConfigureExternalServices();
+                //如果外部服务没有配置，则使用默认的表达式树解析服务和实体服务
+                if (item.ConfigureExternalServices.EntityService == null)
+                    item.ConfigureExternalServices.EntityService = UniversalExtensions.InitEntityService;
+                if (item.ConfigureExternalServices.EntityNameService == null)
+                    item.ConfigureExternalServices.EntityNameService = UniversalExtensions.InitEntityNameService;
+
+                //初始化扩展方法
+                item.ConfigureExternalServices.SqlFuncServices ??= new List<SqlFuncExternal>();
+                item.ConfigureExternalServices.SqlFuncServices.AddRange(UniversalExtensions.InitSqlFuncExternals());
             }
         }
 
