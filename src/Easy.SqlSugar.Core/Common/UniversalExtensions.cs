@@ -305,12 +305,17 @@ public static class UniversalExtensions
     /// <param name="column"></param>
     public static void InitEntityService(PropertyInfo property, EntityColumnInfo column)
     {
+        var sugarAttr = property.GetCustomAttribute<SugarColumn>(true);
+        //如果有sugar特性直接结束 不需要往下执行
+        if (sugarAttr != null)
+        {
+            return;
+        }
         var keyAttr = property.GetCustomAttribute<KeyAttribute>(true);
         var notMappedAttr = property.GetCustomAttribute<NotMappedAttribute>(true);
         var dbGeneratedAttr = property.GetCustomAttribute<DatabaseGeneratedAttribute>(true);
         var maxLengthAttr = property.GetCustomAttribute<MaxLengthAttribute>(true);
         var requiredAttr = property.GetCustomAttribute<RequiredAttribute>(true);
-        var sugarAttr = property.GetCustomAttribute<SugarColumn>(true);
 
         // 忽略映射
         if (notMappedAttr != null)
@@ -367,6 +372,11 @@ public static class UniversalExtensions
     /// <param name="entity"></param>
     public static void InitEntityNameService(Type type, EntityInfo entity)
     {
+        var sugarAttr = type.GetCustomAttribute<SugarTable>(true);
+        if (sugarAttr != null)
+        {
+            return;
+        }
         var tableAttr = type.GetCustomAttribute<TableAttribute>(inherit: true);
         if (!string.IsNullOrWhiteSpace(tableAttr?.Name))
         {
