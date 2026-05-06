@@ -101,59 +101,88 @@ public class SugarDbManger
     public static SqlSugarClient GetNewDb() => new SqlSugarClient(GetConnectionConfigs(), GetSqlSugarClientAction());
 
     /// <summary>
-    /// 获取所有连接配置
+    /// 获取所有连接配置（通过反射获取私有字段）
     /// </summary>
+    /// <remarks>
+    /// 注意：此方法依赖反射访问SqlSugarScope/SqlSugarClient的私有字段，
+    /// 如果SqlSugar版本更新导致字段名变更，需要同步更新此处的字段名。
+    /// 当前适配版本：SqlSugar 5.x
+    /// </remarks>
     /// <returns></returns>
     public static List<ConnectionConfig> GetConnectionConfigs()
     {
         var client = Db;
-        if (client is SqlSugarScope scope)
+        try
         {
-            var field = typeof(SqlSugarScope).GetField("_configs", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field != null)
+            if (client is SqlSugarScope scope)
             {
-                var list = field.GetValue(scope) as List<ConnectionConfig>;
-                if (list != null)
-                    return list;
+                var field = typeof(SqlSugarScope).GetField("_configs", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (field != null)
+                {
+                    var list = field.GetValue(scope) as List<ConnectionConfig>;
+                    if (list != null)
+                        return list;
+                }
+                // 字段名可能已变更，输出警告
+                System.Diagnostics.Debug.WriteLine("[SugarDbManger] 警告：未能通过反射获取SqlSugarScope._configs，请检查SqlSugar版本兼容性");
+            }
+            else if (client is SqlSugarClient singleClient)
+            {
+                var field = typeof(SqlSugarClient).GetField("_AllClients", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (field != null)
+                {
+                    var list = field.GetValue(singleClient) as List<SugarTenant>;
+                    if (list != null)
+                    {
+                        return list.Select(s => s.ConnectionConfig).ToList();
+                    }
+                }
+                System.Diagnostics.Debug.WriteLine("[SugarDbManger] 警告：未能通过反射获取SqlSugarClient._AllClients，请检查SqlSugar版本兼容性");
             }
         }
-        else if (client is SqlSugarClient singleClient)
+        catch (Exception ex)
         {
-            var field = typeof(SqlSugarClient).GetField("_AllClients", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field != null)
-            {
-                var list = field.GetValue(singleClient) as List<SugarTenant>;
-                if (list != null)
-                {
-                    return list.Select(s => s.ConnectionConfig).ToList();
-                }
-            }
+            System.Diagnostics.Debug.WriteLine($"[SugarDbManger] 反射获取连接配置失败：{ex.Message}");
         }
         return null;
     }
 
     /// <summary>
-    /// 获取所有连接配置的Action
+    /// 获取所有连接配置的Action（通过反射获取私有字段）
     /// </summary>
+    /// <remarks>
+    /// 注意：此方法依赖反射访问SqlSugarScope/SqlSugarClient的私有字段，
+    /// 如果SqlSugar版本更新导致字段名变更，需要同步更新此处的字段名。
+    /// 当前适配版本：SqlSugar 5.x
+    /// </remarks>
     /// <returns></returns>
     public static Action<SqlSugarClient> GetSqlSugarClientAction()
     {
         var client = Db;
-        if (client is SqlSugarScope scope)
+        try
         {
-            var field = typeof(SqlSugarScope).GetField("_configAction", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field != null)
+            if (client is SqlSugarScope scope)
             {
-                return field.GetValue(scope) as Action<SqlSugarClient>;
+                var field = typeof(SqlSugarScope).GetField("_configAction", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (field != null)
+                {
+                    return field.GetValue(scope) as Action<SqlSugarClient>;
+                }
+                System.Diagnostics.Debug.WriteLine("[SugarDbManger] 警告：未能通过反射获取SqlSugarScope._configAction，请检查SqlSugar版本兼容性");
+            }
+            else if (client is SqlSugarClient singleClient)
+            {
+                var field = typeof(SqlSugarClient).GetField("_configAction", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (field != null)
+                {
+                    return field.GetValue(singleClient) as Action<SqlSugarClient>;
+                }
+                System.Diagnostics.Debug.WriteLine("[SugarDbManger] 警告：未能通过反射获取SqlSugarClient._configAction，请检查SqlSugar版本兼容性");
             }
         }
-        else if (client is SqlSugarClient singleClient)
+        catch (Exception ex)
         {
-            var field = typeof(SqlSugarClient).GetField("_configAction", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field != null)
-            {
-                return field.GetValue(singleClient) as Action<SqlSugarClient>;
-            }
+            System.Diagnostics.Debug.WriteLine($"[SugarDbManger] 反射获取配置Action失败：{ex.Message}");
         }
         return null;
     }
@@ -166,7 +195,7 @@ public class SugarDbManger
     public static bool HasConfigId(string configId)
     {
         if (string.IsNullOrEmpty(configId))
-            new Exception("configId不能为空");
+            throw new ArgumentException("configId不能为空", nameof(configId));
         var configs = GetConnectionConfigs();
         if (configs != null)
             return configs.Any(c => c.ConfigId.ToString() == configId);

@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using SqlSugar;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Easy.SqlSugar.Core.Common;
 
@@ -11,28 +12,55 @@ namespace Easy.SqlSugar.Core
     /// <typeparam name="T"></typeparam>
     public class BaseSqlSugarRepository<T> : SimpleClient<T>, IBaseSqlSugarRepository<T> where T : class, new()
     {
+        // 缓存：每个 T 类型只检查一次 TenantAttribute
+        private static readonly bool _hasTenantAttr = typeof(T).GetCustomAttributes(typeof(TenantAttribute), true).Length > 0;
+
+        // 构造函数注入的客户端（第一优先级）
+        private readonly ISqlSugarClient _injectedClient;
+
+        // 可安全缓存的数据库实例（构造注入 或 静态兜底 路径使用）
+        private ISqlSugarClient _cachedDb;
+
+        /// <summary>
+        /// 构造函数：db 有值时优先使用，否则降级到 IHttpContextAccessor → 静态 IServiceProvider
+        /// </summary>
+        public BaseSqlSugarRepository(ISqlSugarClient sqlSugarClient = null)
+        {
+            _injectedClient = sqlSugarClient;
+        }
+
+        /// <summary>
+        /// 将原始客户端解析为对应租户/默认连接作用域
+        /// </summary>
+        private static ISqlSugarClient ResolveConnection(ISqlSugarClient client)
+        {
+            if (_hasTenantAttr)
+                return client.AsTenant().GetConnectionScopeWithAttr<T>();
+            return client.AsTenant().GetConnectionScope(client.CurrentConnectionConfig.ConfigId);
+        }
+
+        /// <summary>
+        /// 三级优先级解析数据库客户端：
+        /// 1. 构造函数注入（显式依赖，可缓存）
+        /// 2. IHttpContextAccessor.RequestServices（请求作用域，不缓存）
+        ///    — 需在 app.Build() 后调用 app.Services.UseSqlSugarSetup() 才生效
+        /// 3. 静态 IServiceProvider 兜底（后台任务等非 HTTP 场景，可缓存）
+        /// </summary>
         private ISqlSugarClient GetSqlSugarClient()
         {
-            //var db = new SqlSugarScope(Config.SqlSugarConfigs);
-            //var client = db.GetConnectionScopeWithAttr<T>();
-            //ISqlSugarClient sqlSugarDb = null;
-            ISqlSugarClient sqlSugarDb = SqlSugarAppService.ServicesProvider.GetRequiredService<ISqlSugarClient>();
-            //using (var scope = AppService.Services.BuildServiceProvider().CreateScope())
-            //{
-            //    sqlSugarDb = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
-            //}
-            //如果T上没有Tenant特性标记则使用默认的ConfigId
-            SqlSugarScopeProvider db = null;
-            if (typeof(T).GetCustomAttributes(typeof(TenantAttribute), true).Length == 0)
-            {
-                db = sqlSugarDb.AsTenant().GetConnectionScope(sqlSugarDb.CurrentConnectionConfig.ConfigId);
-            }
-            else
-            {
-                db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
-            }
-            //db = sqlSugarDb.AsTenant().GetConnectionScopeWithAttr<T>();
-            return db;
+            // 第一级：构造函数注入，整个实例生命周期内不变，安全缓存
+            if (_injectedClient != null)
+                return _cachedDb ??= ResolveConnection(_injectedClient);
+
+            // 第二级：从当前 HTTP 请求的 RequestServices 获取（Scoped 生命周期正确）
+            var httpContext = SqlSugarAppService.ServicesProvider
+                .GetService<IHttpContextAccessor>()?.HttpContext;
+            if (httpContext != null)
+                return ResolveConnection(httpContext.RequestServices.GetRequiredService<ISqlSugarClient>());
+
+            // 第三级：静态 IServiceProvider 兜底，适用于后台任务、定时服务等无 HTTP 上下文场景
+            return _cachedDb ??= ResolveConnection(
+                SqlSugarAppService.ServicesProvider.GetRequiredService<ISqlSugarClient>());
         }
 
         /// <summary>
@@ -532,6 +560,76 @@ namespace Easy.SqlSugar.Core
         #endregion 添加或更新
 
         #region 删除数据
+
+        /// <summary>
+        /// 删除数据
+        /// </summary>
+        /// <param name="entity">实体类</param>
+        /// <returns></returns>
+        public virtual bool Delete(T entity)
+        {
+            return SqlSugarDbContext.Deleteable(entity).ExecuteCommand() > 0;
+        }
+
+        /// <summary>
+        /// 删除数据
+        /// </summary>
+        /// <param name="entity">实体类</param>
+        /// <returns></returns>
+        public virtual async Task<bool> DeleteAsync(T entity)
+        {
+            return await SqlSugarDbContext.Deleteable(entity).ExecuteCommandAsync() > 0;
+        }
+
+        /// <summary>
+        /// 删除数据(批量)
+        /// </summary>
+        /// <param name="entities">实体集合</param>
+        /// <returns></returns>
+        public virtual bool Delete(List<T> entities)
+        {
+            return SqlSugarDbContext.Deleteable(entities).ExecuteCommand() > 0;
+        }
+
+        /// <summary>
+        /// 删除数据(批量)
+        /// </summary>
+        /// <param name="entities">实体集合</param>
+        /// <returns></returns>
+        public virtual async Task<bool> DeleteAsync(List<T> entities)
+        {
+            return await SqlSugarDbContext.Deleteable(entities).ExecuteCommandAsync() > 0;
+        }
+
+        /// <summary>
+        /// 根据条件删除
+        /// </summary>
+        /// <param name="where">删除条件</param>
+        /// <returns></returns>
+        public virtual async Task<bool> DeleteAsync(Expression<Func<T, bool>> where)
+        {
+            return await SqlSugarDbContext.Deleteable<T>().Where(where).ExecuteCommandAsync() > 0;
+        }
+
+        /// <summary>
+        /// 根据主键标识批量删除
+        /// </summary>
+        /// <param name="ids">主键集合</param>
+        /// <returns></returns>
+        public virtual bool DeleteByIds(object[] ids)
+        {
+            return SqlSugarDbContext.Deleteable<T>().In(ids).ExecuteCommand() > 0;
+        }
+
+        /// <summary>
+        /// 根据主键标识批量删除
+        /// </summary>
+        /// <param name="ids">主键集合</param>
+        /// <returns></returns>
+        public virtual async Task<bool> DeleteByIdsAsync(object[] ids)
+        {
+            return await SqlSugarDbContext.Deleteable<T>().In(ids).ExecuteCommandAsync() > 0;
+        }
 
         #endregion 删除数据
 

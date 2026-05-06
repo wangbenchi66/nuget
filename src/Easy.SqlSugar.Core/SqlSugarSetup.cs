@@ -140,9 +140,8 @@ namespace Easy.SqlSugar.Core
         /// <returns></returns>
         private static void AddService(IServiceCollection services, int lifecycleType = 1)
         {
-            //services.AddHttpContextAccessor();
+            services.AddHttpContextAccessor();
             SqlSugarAppService.Services = services;
-            SqlSugarAppService.ServicesProvider = services.BuildServiceProvider();
             StartSelfCheck();
             var bseSqlSugarRepositorytypes = GetAssemblyList();
             if (lifecycleType == 1)
@@ -176,6 +175,23 @@ namespace Easy.SqlSugar.Core
         {
             var assembly = Assembly.GetEntryAssembly();
             return assembly.GetTypes().Where(t => t.BaseType != null && t.BaseType.Name == name);
+        }
+
+        /// <summary>
+        /// 在 app.Build() 之后调用，将 ASP.NET Core 真实的 IServiceProvider 注入，
+        /// 确保 IHttpContextAccessor 能正确感知当前 HTTP 请求上下文。
+        /// <para>
+        /// 未调用此方法时，IHttpContextAccessor 级别不生效，自动降级为静态 IServiceProvider 兜底。
+        /// </para>
+        /// <example>
+        /// var app = builder.Build();
+        /// app.Services.UseSqlSugarSetup();
+        /// </example>
+        /// </summary>
+        public static IServiceProvider UseSqlSugarSetup(this IServiceProvider serviceProvider)
+        {
+            SqlSugarAppService.ServicesProvider = serviceProvider;
+            return serviceProvider;
         }
 
         /// <summary>

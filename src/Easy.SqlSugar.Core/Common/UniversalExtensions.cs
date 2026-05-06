@@ -194,7 +194,7 @@ public static class UniversalExtensions
     {
         //TODO:要不要加限制后边看实际使用情况  限定添加的字段名称或数量，例如限制只能添加以time结尾的字段名，或限制总字段名数量不超过20个等，以避免无效字段名导致的性能问题
         if (newFieldNames.IsNull()) return;
-        foreach (var fieldName in newFieldNames.Where(name => !string.IsNullOrWhiteSpace(name) && !System.Text.RegularExpressions.Regex.IsMatch(name.Trim(), @"^[A-Za-z0-9_]+$")).Select(name => name.Trim().ToLower()).ToArray())
+        foreach (var fieldName in newFieldNames.Where(name => !string.IsNullOrWhiteSpace(name) && System.Text.RegularExpressions.Regex.IsMatch(name.Trim(), @"^[A-Za-z0-9_]+$")).Select(name => name.Trim().ToLower()).ToArray())
             fieldNames.Add(fieldName.Trim());
     }
 
