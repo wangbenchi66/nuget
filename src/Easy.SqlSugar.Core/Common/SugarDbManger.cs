@@ -7,7 +7,7 @@ namespace Easy.SqlSugar.Core;
 /// <summary>
 /// SqlSugar数据库管理类
 /// </summary>
-public class SugarDbManger
+public static class SugarDbManger
 {
     /// <summary>
     /// 获取实例（从注入中获取）
@@ -16,7 +16,7 @@ public class SugarDbManger
     {
         get
         {
-            var db = SqlSugarAppService.Services.BuildServiceProvider().GetRequiredService<ISqlSugarClient>();
+            var db = SqlSugarAppService.ServicesProvider.GetRequiredService<ISqlSugarClient>();
             if (db == null)
             {
                 throw new Exception("SqlSugar未注册");
@@ -58,6 +58,7 @@ public class SugarDbManger
         }
         throw new Exception("SqlSugar未注册或配置错误");
     }
+
     /// <summary>
     /// 根据指定ConfigId获取对应的数据库实例的仓储类
     /// </summary>
@@ -200,5 +201,60 @@ public class SugarDbManger
         if (configs != null)
             return configs.Any(c => c.ConfigId.ToString() == configId);
         return false;
+    }
+
+
+    /// <summary>
+    /// 切换数据库
+    /// </summary>
+    /// <param name="sqlSugarClient"></param>
+    /// <param name="configId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public static ISqlSugarClient GetConfigDb(this ISqlSugarClient sqlSugarClient, string configId)
+    {
+        if (sqlSugarClient is SqlSugarScope scope)
+        {
+            return scope.GetConnectionScope(configId);
+        }
+        else if (sqlSugarClient is SqlSugarClient singleClient)
+        {
+            return singleClient.GetConnectionScope(configId);
+        }
+        throw new Exception("SqlSugar未注册或配置错误");
+    }
+
+    /// <summary>
+    /// 根据实体上的TenantId特性切换数据库
+    /// </summary>
+    /// <param name="sqlSugarClient"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static ISqlSugarClient GetTenantDb<T>(this ISqlSugarClient sqlSugarClient)
+    {
+        return sqlSugarClient.AsTenant().GetConnectionScopeWithAttr<T>();
+    }
+
+    /// <summary>
+    /// 根据实体上的TenantId特性切换数据库并获取对应的仓储类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="sqlSugarClient"></param>
+    /// <returns></returns>
+    public static SimpleClient<T> GetTenantDbRepository<T>(this ISqlSugarClient sqlSugarClient) where T : class, new()
+    {
+        var db = sqlSugarClient.GetTenantDb<T>();
+        return new SimpleClient<T>(db);
+    }
+    /// <summary>
+    /// 根据实体上的TenantId特性切换数据库并获取对应的BaseSqlSugarRepository仓储类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="sqlSugarClient"></param>
+    /// <returns></returns>
+    public static BaseSqlSugarRepository<T> GetBaseRepository<T>(this ISqlSugarClient sqlSugarClient) where T : class, new()
+    {
+        var db = sqlSugarClient.GetTenantDb<T>();
+        return new BaseSqlSugarRepository<T>(db);
     }
 }
