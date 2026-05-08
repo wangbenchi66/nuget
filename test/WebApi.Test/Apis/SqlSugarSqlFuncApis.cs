@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Easy.SqlSugar.Core;
 using SqlSugar;
 
@@ -13,6 +9,7 @@ namespace WebApi.Test.Apis
     public class SqlSugarSqlFuncApis : BaseApi
     {
         private readonly BaseSqlSugarRepository<User> _repository;
+
         public SqlSugarSqlFuncApis(BaseSqlSugarRepository<User> repository)
         {
             _repository = repository;
@@ -22,7 +19,7 @@ namespace WebApi.Test.Apis
         public async Task<object> GetIsNotNull()
         {
             var users = await _repository.AsQueryable()
-                .Where(u => u.Name.IsNotNull())
+                .Where(u => SqlFunc.HasValue(u.Name))
                 .ToListAsync();
             return users;
         }

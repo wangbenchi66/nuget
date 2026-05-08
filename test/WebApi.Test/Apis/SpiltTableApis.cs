@@ -1,5 +1,4 @@
-﻿using Easy.Common.Core.Extensions;
-using Easy.SqlSugar.Core;
+﻿using Easy.SqlSugar.Core;
 using SqlSugar;
 using WBC66.Autofac.Core;
 
@@ -23,7 +22,7 @@ namespace WebApi.Test.Apis
         public object CreteData()
         {
             var entity = new SpiltTable() { Name = "test", CreateTime = "2023-02-1".ToDate() };
-            _spiltTableRepository.SqlSugarDbContext.Insertable(entity).SplitTable().ExecuteReturnSnowflakeId();
+            _spiltTableRepository.AsInsertable(entity).SplitTable().ExecuteReturnSnowflakeId();
             return "ok";
         }
 
@@ -34,7 +33,7 @@ namespace WebApi.Test.Apis
         /// <returns></returns>
         public object GetData()
         {
-            return _spiltTableRepository.SqlSugarDbContext.Queryable<SpiltTable>()
+            return _spiltTableRepository.AsQueryable()
                 .SplitTable(tabs => tabs.Take(3))//近3张，也可以表达式选择
                 .ToList();
         }
@@ -49,8 +48,12 @@ namespace WebApi.Test.Apis
     [Tenant("journal")]
     public class SpiltTable
     {
-        [SugarColumn(IsPrimaryKey = true)] public long Id { get; set; }
+        [SugarColumn(IsPrimaryKey = true)]
+        public long Id { get; set; }
+
         public string Name { get; set; }
-        [SplitField] public DateTime CreateTime { get; set; }
+
+        [SplitField]
+        public DateTime CreateTime { get; set; }
     }
 }

@@ -253,6 +253,20 @@ public static class UniversalExtensions
                 UniqueMethodName = "IsNull",
                 MethodValue = (expInfo, dbType, expContext) =>
                 {
+                    // 兼容 ?? 运算符：SqlSugar 内部将 ?? 翻译为 IsNull(column, defaultValue)，需要两个参数
+                    if (expInfo.Args.Count >= 2)
+                    {
+                        var column = expInfo.Args[0].MemberName;
+                        var defaultValue = expInfo.Args[1].MemberName;
+                        return dbType switch
+                        {
+                            DbType.MySql or DbType.MySqlConnector => $"IFNULL({column},{defaultValue})",
+                            DbType.SqlServer => $"ISNULL({column},{defaultValue})",
+                            DbType.Oracle => $"NVL({column},{defaultValue})",
+                            _ => $"COALESCE({column},{defaultValue})"
+                        };
+                    }
+                    // 单参数：自定义扩展方法 .IsNull() 调用，判断字段是否为 NULL
                     return string.Format("({0} IS NULL)", expInfo.Args[0].MemberName);
                 }
             }

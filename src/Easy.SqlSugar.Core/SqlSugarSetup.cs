@@ -125,8 +125,8 @@ namespace Easy.SqlSugar.Core
                     item.ConfigureExternalServices.EntityNameService = UniversalExtensions.InitEntityNameService;
 
                 //初始化扩展方法
-                item.ConfigureExternalServices.SqlFuncServices ??= new List<SqlFuncExternal>();
-                item.ConfigureExternalServices.SqlFuncServices.AddRange(UniversalExtensions.InitSqlFuncExternals());
+                //item.ConfigureExternalServices.SqlFuncServices ??= new List<SqlFuncExternal>();
+                //item.ConfigureExternalServices.SqlFuncServices.AddRange(UniversalExtensions.InitSqlFuncExternals());
             }
         }
 
